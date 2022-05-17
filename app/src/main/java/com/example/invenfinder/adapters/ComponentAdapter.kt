@@ -1,31 +1,58 @@
 package com.example.invenfinder.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.R
 import com.example.invenfinder.data.Component
 
 
-class ComponentAdapter(
-	private val _context: Context,
-	private val _layout: Int,
-	private val _components: Array<Component>
-) :
-	ArrayAdapter<Component>(_context, _layout, _components) {
+class ComponentAdapter(private val components: ArrayList<Component>) :
+	RecyclerView.Adapter<ComponentAdapter.ViewHolder>() {
 
-	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		return if (convertView != null) {
-			convertView
-		} else {
-			val layout = LayoutInflater.from(_context).inflate(_layout, parent, false);
-			layout.findViewById<TextView>(R.id.component_name).text = _components[position].name
-			layout.findViewById<TextView>(R.id.component_description).text =
-				_components[position].description
-			layout
+	private val filtered = ArrayList(components)
+
+
+	class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+		val name: TextView = view.findViewById(R.id.component_name);
+		val description: TextView = view.findViewById(R.id.component_description);
+	}
+
+
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+		val view = LayoutInflater
+			.from(parent.context)
+			.inflate(R.layout.component, parent, false)
+
+		return ViewHolder(view)
+	}
+
+
+	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+		holder.name.text = filtered[position].name
+		holder.description.text = filtered[position].description
+	}
+
+
+	override fun getItemCount() = filtered.size
+
+
+	fun filter(query: String) {
+		filtered.clear()
+
+		if (query.isEmpty()) {
+			filtered.addAll(components)
+			return
 		}
+
+		for (c in components) {
+			if (c.name.lowercase().contains(query) || c.description!!.lowercase().contains(query)) {
+				filtered.add(c);
+			}
+		}
+
+		notifyDataSetChanged()
 	}
 }

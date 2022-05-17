@@ -2,10 +2,10 @@ package com.example.invenfinder
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.ListView
+import android.widget.EditText
+import androidx.core.widget.doOnTextChanged
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.adapters.ComponentAdapter
 import com.example.invenfinder.data.Component
 import java.sql.DriverManager
@@ -16,8 +16,9 @@ class MainActivity : Activity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main);
 
-		val searchField = findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
-		val componentList = findViewById<ListView>(R.id.component_list)
+		val componentList = findViewById<RecyclerView>(R.id.component_list)
+		val searchField = findViewById<EditText>(R.id.search_field)
+
 
 		Thread {
 			val conn =
@@ -30,25 +31,30 @@ class MainActivity : Activity() {
 			val res = st.executeQuery("select * from components")
 
 			res.last()
-			val components = Array(res.row) { Component("", "", 0, 0, 0) }
+			val components = ArrayList<Component>()
 			res.beforeFirst()
 
 			while (res.next()) {
-				val idx = res.row - 1
-				components[idx].name = res.getString("name");
-				components[idx].description = res.getString("description")
-				components[idx].drawer = res.getInt("drawer")
-				components[idx].col = res.getInt("col")
-				components[idx].row = res.getInt("row")
+				components.add(
+					Component(
+						res.getString("name"),
+						res.getString("description"),
+						res.getInt("drawer"),
+						res.getInt("col"),
+						res.getInt("row")
+					)
+				)
 			}
 			st.close()
 			conn.close()
 
 			runOnUiThread {
-				val componentAdapter = ComponentAdapter(this, R.layout.component, components)
+				val componentAdapter = ComponentAdapter(components)
 
-				searchField.setAdapter(componentAdapter)
-				componentList.setAdapter(componentAdapter)
+				searchField.doOnTextChanged { text, _, _, _ -> componentAdapter.filter(text.toString()) }
+
+				componentList.layoutManager = LinearLayoutManager(this)
+				componentList.adapter = componentAdapter
 			}
 		}.start()
 	}
