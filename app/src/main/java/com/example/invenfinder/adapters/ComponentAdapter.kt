@@ -1,21 +1,31 @@
 package com.example.invenfinder.adapters
 
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.R
+import com.example.invenfinder.activities.ComponentActivity
 import com.example.invenfinder.data.Component
 
 
-class ComponentAdapter(private val components: ArrayList<Component>) :
+class ComponentAdapter(
+	private val activity: Activity,
+	private val components: ArrayList<Component>
+) :
 	RecyclerView.Adapter<ComponentAdapter.ViewHolder>() {
 
 	private val filtered = ArrayList(components)
 
 
 	class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+		val layout: ConstraintLayout = view.findViewById(R.id.component_layout)
+
 		val name: TextView = view.findViewById(R.id.component_name);
 		val description: TextView = view.findViewById(R.id.component_description);
 	}
@@ -31,6 +41,14 @@ class ComponentAdapter(private val components: ArrayList<Component>) :
 
 
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+		holder.layout.setOnClickListener {
+			val intent = Intent(activity, ComponentActivity::class.java)
+			intent.putExtra("name", filtered[position].name)
+			// TODO: use Parcelable
+
+			activity.startActivity(intent)
+		}
+
 		holder.name.text = filtered[position].name
 		holder.description.text = filtered[position].description
 	}
@@ -39,6 +57,7 @@ class ComponentAdapter(private val components: ArrayList<Component>) :
 	override fun getItemCount() = filtered.size
 
 
+	// TODO: optimize
 	fun filter(query: String) {
 		filtered.clear()
 

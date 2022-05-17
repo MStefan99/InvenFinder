@@ -6,5 +6,6 @@ data class Component(
 	var description: String?,
 	var drawer: Int,
 	var col: Int,
-	var row: Int
+	var row: Int,
+	var amount: Int
 )
