@@ -2,7 +2,6 @@ package com.example.invenfinder.adapters
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +13,7 @@ import com.example.invenfinder.activities.ComponentActivity
 import com.example.invenfinder.data.Component
 
 
-class ComponentAdapter(
-	private val activity: Activity,
-) :
+class ComponentAdapter(private val activity: Activity) :
 	RecyclerView.Adapter<ComponentAdapter.ViewHolder>() {
 
 	private var components = ArrayList<Component>()
@@ -24,11 +21,11 @@ class ComponentAdapter(
 
 
 	class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-		val layout: ConstraintLayout = view.findViewById(R.id.component_layout)
+		val vLayout: ConstraintLayout = view.findViewById(R.id.component_layout)
 
-		val name: TextView = view.findViewById(R.id.component_name)
-		val description: TextView = view.findViewById(R.id.component_description)
-		val amount: TextView = view.findViewById(R.id.component_amount)
+		val vName: TextView = view.findViewById(R.id.component_name)
+		val vDescription: TextView = view.findViewById(R.id.component_description)
+		val vAmount: TextView = view.findViewById(R.id.component_amount)
 	}
 
 
@@ -42,16 +39,16 @@ class ComponentAdapter(
 
 
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		holder.layout.setOnClickListener {
+		holder.vLayout.setOnClickListener {
 			val intent = Intent(activity, ComponentActivity::class.java)
 			intent.putExtra("component", filtered[position])
 
 			activity.startActivity(intent)
 		}
 
-		holder.name.text = filtered[position].name
-		holder.description.text = filtered[position].description
-		holder.amount.text = filtered[position].amount.toString()
+		holder.vName.text = filtered[position].name
+		holder.vDescription.text = filtered[position].description
+		holder.vAmount.text = filtered[position].amount.toString()
 	}
 
 
@@ -65,8 +62,10 @@ class ComponentAdapter(
 		if (query == null || query.isEmpty()) {
 			filtered.addAll(components)
 		} else {
+			val q = query.trim()
+
 			for (c in components) {
-				if (c.name.lowercase().contains(query) || c.description!!.lowercase().contains(query)) {
+				if (c.name.lowercase().contains(q) || c.description!!.lowercase().contains(q)) {
 					filtered.add(c);
 				}
 			}
