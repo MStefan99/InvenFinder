@@ -16,10 +16,10 @@ import com.example.invenfinder.data.Component
 
 class ComponentAdapter(
 	private val activity: Activity,
-	private val components: ArrayList<Component>
 ) :
 	RecyclerView.Adapter<ComponentAdapter.ViewHolder>() {
 
+	private var components = ArrayList<Component>()
 	private val filtered = ArrayList(components)
 
 
@@ -58,20 +58,25 @@ class ComponentAdapter(
 
 
 	// TODO: optimize
-	fun filter(query: String) {
+	fun filter(query: String?) {
 		filtered.clear()
 
-		if (query.isEmpty()) {
+		if (query == null || query.isEmpty()) {
 			filtered.addAll(components)
-			return
-		}
-
-		for (c in components) {
-			if (c.name.lowercase().contains(query) || c.description!!.lowercase().contains(query)) {
-				filtered.add(c);
+		} else {
+			for (c in components) {
+				if (c.name.lowercase().contains(query) || c.description!!.lowercase().contains(query)) {
+					filtered.add(c);
+				}
 			}
 		}
 
 		notifyDataSetChanged()
+	}
+
+
+	fun setComponents(c: ArrayList<Component>) {
+		components = c
+		filter(null)
 	}
 }
