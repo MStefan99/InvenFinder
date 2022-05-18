@@ -43,8 +43,7 @@ class ComponentAdapter(
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 		holder.layout.setOnClickListener {
 			val intent = Intent(activity, ComponentActivity::class.java)
-			intent.putExtra("name", filtered[position].name)
-			// TODO: use Parcelable
+			intent.putExtra("component", filtered[position])
 
 			activity.startActivity(intent)
 		}
