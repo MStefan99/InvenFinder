@@ -12,6 +12,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.invenfinder.R
 import com.example.invenfinder.adapters.ComponentAdapter
 import com.example.invenfinder.data.Component
+import com.example.invenfinder.data.Location
 import java.sql.DriverManager
 
 
@@ -68,11 +69,14 @@ class MainActivity : Activity() {
 			while (res.next()) {
 				components.add(
 					Component(
+						res.getInt("id"),
 						res.getString("name"),
 						res.getString("description"),
-						res.getInt("drawer"),
-						res.getInt("col"),
-						res.getInt("row"),
+						Location(
+							res.getInt("drawer"),
+							res.getInt("col"),
+							res.getInt("row")
+						),
 						res.getInt("amount")
 					)
 				)
@@ -83,6 +87,7 @@ class MainActivity : Activity() {
 			runOnUiThread {
 				refreshLayout.isRefreshing = false
 				componentAdapter.setComponents(components)
+				componentAdapter.filter(searchField.text.toString())
 			}
 		}.start()
 	}

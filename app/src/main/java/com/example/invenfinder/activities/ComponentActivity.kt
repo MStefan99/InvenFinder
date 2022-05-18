@@ -12,12 +12,16 @@ class ComponentActivity : Activity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_component)
 
-		val component = intent.getParcelableExtra<Component>("component");
+		val component = intent.getParcelableExtra<Component>("component")
 
 		val name = findViewById<TextView>(R.id.component_name)
 		val description = findViewById<TextView>(R.id.component_description)
+		val location = findViewById<TextView>(R.id.component_location)
 
-		name.text = component?.name
-		description.text = component?.description
+		if (component != null) {
+			name.text = component.name
+			description.text = component.description
+			location.text = component.location.toString()
+		}
 	}
 }

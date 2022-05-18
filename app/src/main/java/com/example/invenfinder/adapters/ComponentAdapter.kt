@@ -76,6 +76,5 @@ class ComponentAdapter(
 
 	fun setComponents(c: ArrayList<Component>) {
 		components = c
-		filter(null)
 	}
 }
