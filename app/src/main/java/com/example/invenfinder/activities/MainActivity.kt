@@ -26,7 +26,7 @@ class MainActivity : Activity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main)
 
 		componentList = findViewById(R.id.component_list)
 		searchField = findViewById(R.id.search_field)
