@@ -42,15 +42,16 @@
 		android:textColor="?attr/colorOnSecondary"
 		android:textSize="24sp"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/component_location" />
+		app:layout_constraintTop_toBottomOf="@+id/amount_label" />
 
 	<TextView
+		android:id="@+id/textView3"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginEnd="16dp"
-		android:layout_marginBottom="16dp"
+		android:layout_marginBottom="24dp"
 		android:fontFamily="sans-serif-light"
-		android:text="Location"
+		android:text="Location:"
 		android:textColor="?attr/colorOnSecondary"
 		android:textSize="20sp"
 		app:layout_constraintBottom_toBottomOf="@+id/component_location"
@@ -66,4 +67,29 @@
 		android:textColor="?attr/colorOnSecondary"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/component_name" />
+
+	<TextView
+		android:id="@+id/amount_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:fontFamily="sans-serif-light"
+		android:text="Amount:"
+		android:textColor="?attr/colorOnSecondary"
+		android:textSize="20sp"
+		app:layout_constraintEnd_toEndOf="@+id/textView3"
+		app:layout_constraintTop_toBottomOf="@+id/component_location" />
+
+	<TextView
+		android:id="@+id/component_amount"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:fontFamily="sans-serif-medium"
+		android:text="0"
+		android:textColor="?attr/colorOnSecondary"
+		android:textSize="20sp"
+		app:layout_constraintBottom_toBottomOf="@+id/amount_label"
+		app:layout_constraintStart_toEndOf="@+id/amount_label"
+		app:layout_constraintTop_toTopOf="@+id/amount_label" />
 </androidx.constraintlayout.widget.ConstraintLayout>

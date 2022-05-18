@@ -26,8 +26,9 @@ class ComponentAdapter(
 	class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 		val layout: ConstraintLayout = view.findViewById(R.id.component_layout)
 
-		val name: TextView = view.findViewById(R.id.component_name);
-		val description: TextView = view.findViewById(R.id.component_description);
+		val name: TextView = view.findViewById(R.id.component_name)
+		val description: TextView = view.findViewById(R.id.component_description)
+		val amount: TextView = view.findViewById(R.id.component_amount)
 	}
 
 
@@ -50,6 +51,7 @@ class ComponentAdapter(
 
 		holder.name.text = filtered[position].name
 		holder.description.text = filtered[position].description
+		holder.amount.text = filtered[position].amount.toString()
 	}
 
 

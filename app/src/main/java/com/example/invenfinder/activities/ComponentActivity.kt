@@ -17,11 +17,13 @@ class ComponentActivity : Activity() {
 		val name = findViewById<TextView>(R.id.component_name)
 		val description = findViewById<TextView>(R.id.component_description)
 		val location = findViewById<TextView>(R.id.component_location)
+		val amount = findViewById<TextView>(R.id.component_amount)
 
 		if (component != null) {
 			name.text = component.name
 			description.text = component.description
 			location.text = component.location.toString()
+			amount.text = component.amount.toString()
 		}
 	}
 }
