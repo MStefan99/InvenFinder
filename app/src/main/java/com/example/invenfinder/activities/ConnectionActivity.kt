@@ -3,6 +3,7 @@ package com.example.invenfinder.activities
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -27,7 +28,7 @@ class ConnectionActivity : Activity() {
 		vUsername = findViewById(R.id.username_input)
 		vPassword = findViewById(R.id.password_input)
 		vTestButton = findViewById(R.id.test_button)
-		vConnectButton = findViewById(R.id.connect_button)
+		vConnectButton = findViewById(R.id.save_button)
 		vTestResult = findViewById(R.id.test_result)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
@@ -36,8 +37,8 @@ class ConnectionActivity : Activity() {
 		vPassword.setText(prefs.getString("password", null))
 
 		vTestButton.setOnClickListener {
-			vTestResult.setTextColor(Color.parseColor("#666666"))
-			vTestResult.text = "Testing..."
+			vTestResult.setTextColor(getColorFromAttr(R.attr.colorMuted))
+			vTestResult.setText(R.string.testing_e)
 
 			ConnectionManager.testConnection(
 				ConnectionManager.Options(
@@ -47,19 +48,19 @@ class ConnectionActivity : Activity() {
 				), this
 			) {
 				if (it) {
-					vTestResult.setTextColor(Color.parseColor("#0AA300"))
-					vTestResult.text = "Connection succeeded"
+					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+					vTestResult.setText(R.string.connection_successful)
 				} else {
-					vTestResult.setTextColor(Color.parseColor("#FF4866"))
-					vTestResult.text = "Connection failed"
+					vTestResult.setTextColor(getColorFromAttr(R.attr.colorError))
+					vTestResult.setText(R.string.connection_failed)
 				}
 			}
 		}
 
 
 		vConnectButton.setOnClickListener {
-			vTestResult.setTextColor(Color.parseColor("#666666"))
-			vTestResult.text = "Testing..."
+			vTestResult.setTextColor(getColorFromAttr(R.attr.colorMuted))
+			vTestResult.setText(R.string.testing_e)
 
 			ConnectionManager.testConnection(
 				ConnectionManager.Options(
@@ -69,23 +70,31 @@ class ConnectionActivity : Activity() {
 				), this
 			) {
 				if (it) {
-					val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 					val editor = prefs.edit()
 
 					editor.putString("url", vURL.text.toString())
 					editor.putString("username", vUsername.text.toString())
 					editor.putString("password", vPassword.text.toString())
 					editor.apply()
-					finish()
 
+					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+					vTestResult.setText(R.string.saved)
 				} else {
-					vTestResult.setTextColor(Color.parseColor("#FF4866"))
-					vTestResult.text = "Connection failed"
+					vTestResult.setTextColor(getColorFromAttr(R.attr.colorError))
+					vTestResult.setText(R.string.connection_failed)
 				}
 			}
 		}
 	}
 
 
+	fun getColorFromAttr(
+		attrColor: Int,
+		typedValue: TypedValue = TypedValue(),
+		resolveRefs: Boolean = true
+	): Int {
+		theme.resolveAttribute(attrColor, typedValue, resolveRefs)
+		return typedValue.data
+	}
 }
 

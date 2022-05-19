@@ -1,6 +1,32 @@
 <resources>
 	<string name="app_name">InvenFinder</string>
-	<string name="action_settings">Settings</string>
 
-	<string name="arg">Hello second fragment. Arg: %1$s</string>
+	<string name="all_components">All components</string>
+	<string name="component_details">Component details</string>
+	<string name="settings">Settings</string>
+	<string name="search">Search</string>
+	<string name="location">Location</string>
+	<string name="amount">Amount</string>
+	<string name="name">Name</string>
+	<string name="description">Description</string>
+	<string name="connection_settings">Connection settings</string>
+	<string name="url">URL</string>
+	<string name="username">Username</string>
+	<string name="password">Password</string>
+	<string name="url_hint">database.example.com</string>
+	<string name="user_hint">user</string>
+	<string name="password_hint">password</string>
+	<string name="test">Test</string>
+	<string name="connect">Connect</string>
+	<string name="save">Save</string>
+	<string name="database">Database</string>
+	<string name="database_connection">Database connection</string>
+	<string name="sample_location">1-A1</string>
+	<string name="sample_amount">0</string>
+	<string name="testing_e">Testing…</string>
+	<string name="connection_successful">Connection successful</string>
+	<string name="connection_failed">Connection failed</string>
+	<string name="saved">Saved</string>
+
+<!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
 </resources>

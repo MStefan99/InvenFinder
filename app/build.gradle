@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -35,8 +36,6 @@ android {
 }
 
 dependencies {
-    apply plugin: 'org.jetbrains.kotlin.android.extensions'
-
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
 
     implementation 'androidx.core:core-ktx:1.7.0'

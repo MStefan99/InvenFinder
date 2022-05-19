@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:backgroundTint="?attr/colorPrimary">
@@ -12,23 +11,11 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/colorAccent"
 		android:minHeight="?attr/actionBarSize"
-		android:title="Database connection"
+		android:title="@string/connection_settings"
 		android:titleTextColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
-
-	<TextView
-		android:id="@+id/textView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="16dp"
-		android:layout_marginTop="32dp"
-		android:text="Connect to a database"
-		android:textColor="?attr/colorForeground"
-		android:textSize="20sp"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/constraintLayout3"
@@ -46,7 +33,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="0dp"
 			android:gravity="center_vertical"
-			android:text="URL"
+			android:text="@string/url"
 			android:textColor="?attr/colorForeground"
 			app:layout_constraintBottom_toTopOf="@+id/textView13"
 			app:layout_constraintEnd_toEndOf="parent"
@@ -58,7 +45,7 @@
 			android:layout_height="0dp"
 			android:layout_marginTop="16dp"
 			android:gravity="center_vertical"
-			android:text="Username"
+			android:text="@string/username"
 			android:textColor="?attr/colorForeground"
 			app:layout_constraintBottom_toTopOf="@+id/textView14"
 			app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +57,7 @@
 			android:layout_height="0dp"
 			android:layout_marginTop="16dp"
 			android:gravity="center_vertical"
-			android:text="Password"
+			android:text="@string/password"
 			android:textColor="?attr/colorForeground"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
@@ -88,14 +75,15 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toEndOf="@+id/constraintLayout3"
-		app:layout_constraintTop_toBottomOf="@+id/textView">
+		app:layout_constraintTop_toBottomOf="@+id/toolbar2">
 
 		<EditText
 			android:id="@+id/url_input"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
+			android:autofillHints="url"
 			android:ems="10"
-			android:hint="database.example.com"
+			android:hint="@string/url_hint"
 			android:inputType="textUri"
 			android:minHeight="48dp"
 			android:textColor="?attr/colorForeground"
@@ -108,8 +96,9 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
+			android:autofillHints="username"
 			android:ems="10"
-			android:hint="user"
+			android:hint="@string/user_hint"
 			android:inputType="text"
 			android:minHeight="48dp"
 			android:textColor="?attr/colorForeground"
@@ -122,8 +111,9 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
+			android:autofillHints="password"
 			android:ems="10"
-			android:hint="password"
+			android:hint="@string/password_hint"
 			android:inputType="textPassword"
 			android:minHeight="48dp"
 			android:textColor="?attr/colorForeground"
@@ -150,19 +140,19 @@
 		android:layout_marginTop="32dp"
 		android:layout_marginEnd="16dp"
 		android:backgroundTint="?attr/colorAccent"
-		android:text="Test"
+		android:text="@string/test"
 		android:textColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
 
 	<Button
-		android:id="@+id/connect_button"
+		android:id="@+id/save_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="32dp"
 		android:layout_marginEnd="16dp"
 		android:backgroundTint="?attr/colorAccent"
-		android:text="Connect"
+		android:text="@string/save"
 		android:textColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/test_button" />

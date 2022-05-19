@@ -7,7 +7,7 @@
 		<item name="colorError">@color/error</item>
 
 		<item name="colorBackground">@color/white</item>
-		<item name="colorMuted">@color/mutedLight</item>
+		<item name="colorMuted">@color/muted_light</item>
 		<item name="colorForeground">@color/black</item>
 		<item name="colorOnAccent">@color/white</item>
 

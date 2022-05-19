@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -10,7 +9,7 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:background="?attr/colorAccent"
-		android:title="Settings"
+		android:title="@string/settings"
 		android:titleTextColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
@@ -21,7 +20,7 @@
 		android:layout_width="0dp"
 		android:layout_height="0dp"
 		android:layout_marginTop="16dp"
-		android:contentDescription="Preferences"
+		android:contentDescription="@string/settings"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +28,7 @@
 
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="wrap_content">
 
 			<TextView
 				android:id="@+id/textView4"
@@ -38,7 +37,7 @@
 				android:layout_marginStart="16dp"
 				android:layout_marginTop="16dp"
 				android:fontFamily="sans-serif-light"
-				android:text="Database"
+				android:text="@string/database"
 				android:textColor="?attr/colorForeground"
 				android:textSize="20sp"
 				app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +62,7 @@
 					android:layout_marginStart="16dp"
 					android:layout_marginTop="16dp"
 					android:fontFamily="sans-serif-medium"
-					android:text="Database connection"
+					android:text="@string/database_connection"
 					android:textColor="?attr/colorForeground" />
 			</FrameLayout>
 

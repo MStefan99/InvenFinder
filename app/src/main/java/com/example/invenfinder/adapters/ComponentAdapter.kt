@@ -72,7 +72,7 @@ class ComponentAdapter(private val activity: Activity) :
 				if (c.name.lowercase().contains(q)
 					|| c.description!!.lowercase().contains(q)
 					|| c.location == l) {
-					filtered.add(c);
+					filtered.add(c)
 				}
 			}
 		}
