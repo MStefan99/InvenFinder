@@ -65,8 +65,8 @@ class ComponentAdapter(private val activity: Activity) :
 		if (query == null || query.isEmpty()) {
 			filtered.addAll(components)
 		} else {
-			val l = Location.parseLocation(query.uppercase())
-			val q = query.trim()
+			val q = query.trim().lowercase()
+			val l = Location.parseLocation(query.trim().uppercase())
 
 			for (c in components) {
 				if (c.name.lowercase().contains(q)
