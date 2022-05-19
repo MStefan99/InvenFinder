@@ -35,7 +35,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 	<ImageView
-		android:id="@+id/imageView"
+		android:id="@+id/settings_button"
 		android:layout_width="wrap_content"
 		android:layout_height="0dp"
 		android:layout_marginTop="16dp"

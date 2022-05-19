@@ -2,10 +2,12 @@ package com.example.invenfinder.activities
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -26,6 +28,7 @@ class MainActivity : Activity() {
 	private lateinit var vComponentList: RecyclerView
 	private lateinit var vSearchField: EditText
 	private lateinit var vRefreshLayout: SwipeRefreshLayout
+	private lateinit var vSettings: ImageView
 
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +38,11 @@ class MainActivity : Activity() {
 		vComponentList = findViewById(R.id.component_list)
 		vSearchField = findViewById(R.id.search_field)
 		vRefreshLayout = findViewById(R.id.refresh_layout)
+		vSettings = findViewById(R.id.settings_button)
+
+		vSettings.setOnClickListener {
+			startActivity(Intent(this, SettingsActivity::class.java))
+		}
 
 		vSearchField.doOnTextChanged { text, _, _, _ -> componentAdapter.filter(text.toString()) }
 
@@ -67,7 +75,10 @@ class MainActivity : Activity() {
 		val password = prefs.getString("password", null)
 
 		if (url == null || username == null || password == null) {
-			startActivity(Intent(this, ConnectionActivity::class.java))
+			Toast.makeText(
+				this, "No database saved, please add new connection in settings",
+				Toast.LENGTH_LONG
+			).show()
 			return
 		}
 
