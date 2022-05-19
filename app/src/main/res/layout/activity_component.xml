@@ -10,10 +10,10 @@
 		android:id="@+id/toolbar"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:background="?attr/colorPrimary"
+		android:background="?attr/colorAccent"
 		android:minHeight="?attr/actionBarSize"
-		android:theme="?attr/actionBarTheme"
 		android:title="Component details"
+		android:titleTextColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
@@ -38,8 +38,8 @@
 		android:layout_marginEnd="16dp"
 		android:layout_marginBottom="24dp"
 		android:fontFamily="sans-serif-light"
-		android:text="Location:"
-		android:textColor="?attr/colorOnSecondary"
+		android:text="Location"
+		android:textColor="?attr/colorMuted"
 		android:textSize="20sp"
 		app:layout_constraintBottom_toBottomOf="@+id/component_location"
 		app:layout_constraintEnd_toStartOf="@+id/component_location" />
@@ -54,7 +54,7 @@
 		android:gravity="bottom"
 		android:includeFontPadding="false"
 		android:text="1-A2"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorForeground"
 		android:textSize="108sp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/toolbar" />
@@ -65,8 +65,8 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="16dp"
 		android:fontFamily="sans-serif-light"
-		android:text="Amount:"
-		android:textColor="?attr/colorOnSecondary"
+		android:text="Amount"
+		android:textColor="?attr/colorMuted"
 		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/label_location"
 		app:layout_constraintTop_toBottomOf="@+id/component_location" />
@@ -78,7 +78,7 @@
 		android:layout_marginStart="16dp"
 		android:fontFamily="sans-serif-medium"
 		android:text="0"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorForeground"
 		android:textSize="20sp"
 		app:layout_constraintBottom_toBottomOf="@+id/label_amount"
 		app:layout_constraintStart_toEndOf="@+id/label_amount"
@@ -91,7 +91,7 @@
 		android:layout_marginStart="16dp"
 		android:layout_marginTop="32dp"
 		android:text="Name"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorForeground"
 		android:textSize="24sp"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/label_amount" />
@@ -103,7 +103,7 @@
 		android:layout_marginStart="16dp"
 		android:layout_marginTop="16dp"
 		android:text="Description"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorForeground"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/component_name" />
 

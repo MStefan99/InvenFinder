@@ -6,7 +6,6 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:paddingBottom="8dp"
-	android:theme='@style/Theme.InvenFinder'
 	android:focusable="true"
 	android:clickable="true"
 	android:foreground="?android:attr/selectableItemBackground">
@@ -19,7 +18,7 @@
 		android:layout_marginTop="16dp"
 		android:fontFamily="sans-serif-light"
 		android:text="Name"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorForeground"
 		android:textSize="24sp"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +31,7 @@
 		android:layout_marginTop="16dp"
 		android:fontFamily="sans-serif-medium"
 		android:text="Description"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorMuted"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/component_name" />
 
@@ -43,7 +42,7 @@
 		android:layout_marginEnd="16dp"
 		android:fontFamily="sans-serif-medium"
 		android:text="0-A0"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorForeground"
 		app:layout_constraintBottom_toBottomOf="@+id/component_name"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/component_name" />
@@ -55,7 +54,7 @@
 		android:layout_marginEnd="16dp"
 		android:fontFamily="sans-serif-medium"
 		android:text="0"
-		android:textColor="?attr/colorOnSecondary"
+		android:textColor="?attr/colorMuted"
 		app:layout_constraintBottom_toBottomOf="@+id/component_description"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/component_description" />
