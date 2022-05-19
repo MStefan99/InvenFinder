@@ -27,14 +27,14 @@ data class Location(
 
 
 	companion object {
-		fun parseLocation(string: String): Location {
+		fun parseLocation(string: String): Location? {
 			val drawer = Regex("^\\d+").find(string)?.value
 			val letterCol = Regex("[A-Z]+").find(string)?.value
 			val row = Regex("\\d+$").find(string)?.value
 			var numberCol = ""
 
 			if (drawer == null || letterCol == null || row == null) {
-				return Location(0, 0, 0)
+				return null
 			}
 
 			for (c in letterCol) {

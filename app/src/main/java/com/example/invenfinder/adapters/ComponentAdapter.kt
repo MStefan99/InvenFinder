@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.R
 import com.example.invenfinder.activities.ComponentActivity
 import com.example.invenfinder.data.Component
+import com.example.invenfinder.data.Location
 
 
 class ComponentAdapter(private val activity: Activity) :
@@ -64,10 +65,13 @@ class ComponentAdapter(private val activity: Activity) :
 		if (query == null || query.isEmpty()) {
 			filtered.addAll(components)
 		} else {
+			val l = Location.parseLocation(query.uppercase())
 			val q = query.trim()
 
 			for (c in components) {
-				if (c.name.lowercase().contains(q) || c.description!!.lowercase().contains(q)) {
+				if (c.name.lowercase().contains(q)
+					|| c.description!!.lowercase().contains(q)
+					|| c.location == l) {
 					filtered.add(c);
 				}
 			}
