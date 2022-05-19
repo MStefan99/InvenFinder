@@ -6,7 +6,10 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:paddingBottom="8dp"
-	android:theme='@style/Theme.InvenFinder'>
+	android:theme='@style/Theme.InvenFinder'
+	android:focusable="true"
+	android:clickable="true"
+	android:foreground="?android:attr/selectableItemBackground">
 
 	<TextView
 		android:id="@+id/component_name"
@@ -41,5 +44,16 @@
 		app:layout_constraintBottom_toBottomOf="@+id/component_description"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/component_description" />
+
+	<TextView
+		android:id="@+id/component_location"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:fontFamily="sans-serif-medium"
+		android:text="0-A0"
+		android:textColor="?attr/colorOnSecondary"
+		app:layout_constraintBottom_toBottomOf="@+id/component_name"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/component_name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

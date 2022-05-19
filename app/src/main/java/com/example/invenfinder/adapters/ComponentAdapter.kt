@@ -26,6 +26,7 @@ class ComponentAdapter(private val activity: Activity) :
 		val vName: TextView = view.findViewById(R.id.component_name)
 		val vDescription: TextView = view.findViewById(R.id.component_description)
 		val vAmount: TextView = view.findViewById(R.id.component_amount)
+		val vLocation: TextView = view.findViewById(R.id.component_location)
 	}
 
 
@@ -49,6 +50,7 @@ class ComponentAdapter(private val activity: Activity) :
 		holder.vName.text = filtered[position].name
 		holder.vDescription.text = filtered[position].description
 		holder.vAmount.text = filtered[position].amount.toString()
+		holder.vLocation.text = filtered[position].location.toString()
 	}
 
 
