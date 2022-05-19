@@ -1,7 +1,10 @@
 package com.example.invenfinder.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
@@ -33,8 +36,6 @@ class MainActivity : Activity() {
 		vSearchField = findViewById(R.id.search_field)
 		vRefreshLayout = findViewById(R.id.refresh_layout)
 
-		loadData()
-
 		vSearchField.doOnTextChanged { text, _, _, _ -> componentAdapter.filter(text.toString()) }
 
 		vRefreshLayout.setOnRefreshListener {
@@ -52,16 +53,33 @@ class MainActivity : Activity() {
 	}
 
 
-	private fun loadData() {
-		Thread {
-			vRefreshLayout.isRefreshing = true
+	override fun onResume() {
+		super.onResume()
 
+		loadData()
+	}
+
+
+	private fun loadData() {
+		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
+		val url = prefs.getString("url", null)
+		val username = prefs.getString("username", null)
+		val password = prefs.getString("password", null)
+
+		if (url == null || username == null || password == null) {
+			startActivity(Intent(this, ConnectionActivity::class.java))
+			return
+		}
+
+		vRefreshLayout.isRefreshing = true
+
+		Thread {
 			try {
 				val conn =
 					DriverManager.getConnection(
-						"jdbc:mariadb://192.168.1.11:3306/invenfinder",
-						"root",
-						"test"
+						"jdbc:mariadb://${url}:3306/invenfinder",
+						username,
+						password
 					)
 				val st = conn.createStatement();
 				val res = st.executeQuery("select * from components")
@@ -94,9 +112,9 @@ class MainActivity : Activity() {
 			} catch (e: SQLException) {
 				runOnUiThread {
 					Toast.makeText(
-						this, "Unable to connect to database, " +
-								"please check the connection and refresh",
-						Toast.LENGTH_SHORT
+						this, "Unable to connect, " +
+								"please check your connection and credentials",
+						Toast.LENGTH_LONG
 					).show()
 
 					vRefreshLayout.isRefreshing = false
