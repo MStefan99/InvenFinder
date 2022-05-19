@@ -18,6 +18,32 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
+	<ImageView
+		android:id="@+id/edit_icon"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="16dp"
+		android:adjustViewBounds="true"
+		android:src="@drawable/pencil"
+		app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/toolbar" />
+
+	<TextView
+		android:id="@+id/label_location"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="24dp"
+		android:fontFamily="sans-serif-light"
+		android:text="Location:"
+		android:textColor="?attr/colorOnSecondary"
+		android:textSize="20sp"
+		app:layout_constraintBottom_toBottomOf="@+id/component_location"
+		app:layout_constraintEnd_toStartOf="@+id/component_location" />
+
 	<TextView
 		android:id="@+id/component_location"
 		android:layout_width="wrap_content"
@@ -34,43 +60,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 	<TextView
-		android:id="@+id/component_name"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="16dp"
-		android:layout_marginTop="32dp"
-		android:text="Name"
-		android:textColor="?attr/colorOnSecondary"
-		android:textSize="24sp"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/amount_label" />
-
-	<TextView
-		android:id="@+id/textView3"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginEnd="16dp"
-		android:layout_marginBottom="24dp"
-		android:fontFamily="sans-serif-light"
-		android:text="Location:"
-		android:textColor="?attr/colorOnSecondary"
-		android:textSize="20sp"
-		app:layout_constraintBottom_toBottomOf="@+id/component_location"
-		app:layout_constraintEnd_toStartOf="@+id/component_location" />
-
-	<TextView
-		android:id="@+id/component_description"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="16dp"
-		android:layout_marginTop="16dp"
-		android:text="Description"
-		android:textColor="?attr/colorOnSecondary"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/component_name" />
-
-	<TextView
-		android:id="@+id/amount_label"
+		android:id="@+id/label_amount"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="16dp"
@@ -78,7 +68,7 @@
 		android:text="Amount:"
 		android:textColor="?attr/colorOnSecondary"
 		android:textSize="20sp"
-		app:layout_constraintEnd_toEndOf="@+id/textView3"
+		app:layout_constraintEnd_toEndOf="@+id/label_location"
 		app:layout_constraintTop_toBottomOf="@+id/component_location" />
 
 	<TextView
@@ -90,21 +80,31 @@
 		android:text="0"
 		android:textColor="?attr/colorOnSecondary"
 		android:textSize="20sp"
-		app:layout_constraintBottom_toBottomOf="@+id/amount_label"
-		app:layout_constraintStart_toEndOf="@+id/amount_label"
-		app:layout_constraintTop_toTopOf="@+id/amount_label" />
+		app:layout_constraintBottom_toBottomOf="@+id/label_amount"
+		app:layout_constraintStart_toEndOf="@+id/label_amount"
+		app:layout_constraintTop_toTopOf="@+id/label_amount" />
 
-	<ImageView
-		android:id="@+id/edit_icon"
+	<TextView
+		android:id="@+id/component_name"
 		android:layout_width="wrap_content"
-		android:layout_height="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="32dp"
+		android:text="Name"
+		android:textColor="?attr/colorOnSecondary"
+		android:textSize="24sp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/label_amount" />
+
+	<TextView
+		android:id="@+id/component_description"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
 		android:layout_marginTop="16dp"
-		android:layout_marginEnd="16dp"
-		android:layout_marginBottom="16dp"
-		android:adjustViewBounds="true"
-		android:src="@drawable/pencil"
-		app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/toolbar" />
+		android:text="Description"
+		android:textColor="?attr/colorOnSecondary"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/component_name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

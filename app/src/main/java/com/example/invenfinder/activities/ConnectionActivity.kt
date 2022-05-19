@@ -30,6 +30,11 @@ class ConnectionActivity : Activity() {
 		vConnectButton = findViewById(R.id.connect_button)
 		vTestResult = findViewById(R.id.test_result)
 
+		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
+		vURL.setText(prefs.getString("url", null))
+		vUsername.setText(prefs.getString("username", null))
+		vPassword.setText(prefs.getString("password", null))
+
 		vTestButton.setOnClickListener {
 			vTestResult.setTextColor(Color.parseColor("#666666"))
 			vTestResult.text = "Testing..."

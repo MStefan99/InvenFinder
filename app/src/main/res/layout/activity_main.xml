@@ -18,6 +18,20 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:titleTextColor="@color/white" />
 
+	<ImageView
+		android:id="@+id/settings_button"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="16dp"
+		android:adjustViewBounds="true"
+		android:src="@drawable/settings"
+		app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+		app:layout_constraintEnd_toEndOf="@+id/toolbar"
+		app:layout_constraintTop_toTopOf="@+id/toolbar"
+		app:layout_constraintVertical_bias="0.0" />
+
 	<EditText
 		android:id="@+id/search_field"
 		android:layout_width="0dp"
@@ -33,20 +47,6 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-	<ImageView
-		android:id="@+id/settings_button"
-		android:layout_width="wrap_content"
-		android:layout_height="0dp"
-		android:layout_marginTop="16dp"
-		android:layout_marginEnd="16dp"
-		android:layout_marginBottom="16dp"
-		android:adjustViewBounds="true"
-		app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-		app:layout_constraintEnd_toEndOf="@+id/toolbar"
-		app:layout_constraintTop_toTopOf="@+id/toolbar"
-		app:layout_constraintVertical_bias="0.0"
-		android:src="@drawable/settings" />
 
 	<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 		android:id="@+id/refresh_layout"
