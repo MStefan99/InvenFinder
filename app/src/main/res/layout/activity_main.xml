@@ -38,14 +38,16 @@
 		android:layout_marginStart="16dp"
 		android:layout_marginTop="16dp"
 		android:layout_marginEnd="16dp"
-		android:hint="@android:string/search_go"
+		android:autofillHints="name,description,location"
+		android:backgroundTint="?attr/colorAccent"
+		android:hint="@string/search"
 		android:inputType="text"
 		android:minHeight="48dp"
 		android:textColor="?attr/colorForeground"
+		android:textColorHint="?attr/colorMuted"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/toolbar"
-		android:autofillHints="name,description,location" />
+		app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 	<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 		android:id="@+id/refresh_layout"

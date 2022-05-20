@@ -4,9 +4,11 @@
 	<string name="all_components">All components</string>
 	<string name="component_details">Component details</string>
 	<string name="settings">Settings</string>
+	<string name="cancel">Cancel</string>
 	<string name="search">Search</string>
 	<string name="location">Location</string>
 	<string name="amount">Amount</string>
+	<string name="available">Available</string>
 	<string name="name">Name</string>
 	<string name="description">Description</string>
 	<string name="connection_settings">Connection settings</string>
@@ -27,6 +29,9 @@
 	<string name="connection_successful">Connection successful</string>
 	<string name="connection_failed">Connection failed</string>
 	<string name="saved">Saved</string>
+	<string name="take_from_storage">Take from storage</string>
+	<string name="put_in_storage">Put in storage</string>
+	<string name="choose_amount">Choose amount</string>
 
 <!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
 </resources>

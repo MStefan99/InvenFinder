@@ -58,8 +58,4 @@ data class Component(
 	var description: String?,
 	var location: Location,
 	var amount: Int
-) : Parcelable {
-	fun isLocatedAt(l: Location?): Boolean {
-		return location == l
-	}
-}
+) : Parcelable
