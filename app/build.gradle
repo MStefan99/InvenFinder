@@ -35,8 +35,12 @@ android {
     }
 }
 
+
 dependencies {
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'com.google.android.material:material:1.6.0'

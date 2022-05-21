@@ -31,7 +31,6 @@ class ComponentActivity : Activity() {
 			vDescription.text = component.description
 			vLocation.text = component.location.toString()
 			vAmount.text = component.amount.toString()
-			vToolbar.title = "Details: ${component.name}"
 
 			vTakeStock.setOnClickListener {
 				val layout = layoutInflater.inflate(R.layout.stock_dialog, null)

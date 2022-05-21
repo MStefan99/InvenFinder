@@ -1,14 +1,18 @@
 package com.example.invenfinder.activities
 
 import android.app.Activity
-import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import com.example.invenfinder.R
-import com.example.invenfinder.utils.ConnectionManager
+import com.example.invenfinder.utils.ComponentManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class ConnectionActivity : Activity() {
@@ -40,14 +44,16 @@ class ConnectionActivity : Activity() {
 			vTestResult.setTextColor(getColorFromAttr(R.attr.colorMuted))
 			vTestResult.setText(R.string.testing_e)
 
-			ConnectionManager.testConnection(
-				ConnectionManager.Options(
-					vURL.text.toString(),
-					vUsername.text.toString(),
-					vPassword.text.toString()
-				), this
-			) {
-				if (it) {
+			MainScope().launch {
+				val reachable = ComponentManager.testConnectionAsync(
+					ComponentManager.ConnectionOptions(
+						vURL.text.toString(),
+						vUsername.text.toString(),
+						vPassword.text.toString()
+					)
+				)
+
+				if (reachable.await()) {
 					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
 					vTestResult.setText(R.string.connection_successful)
 				} else {
@@ -62,23 +68,24 @@ class ConnectionActivity : Activity() {
 			vTestResult.setTextColor(getColorFromAttr(R.attr.colorMuted))
 			vTestResult.setText(R.string.testing_e)
 
-			ConnectionManager.testConnection(
-				ConnectionManager.Options(
-					vURL.text.toString(),
-					vUsername.text.toString(),
-					vPassword.text.toString()
-				), this
-			) {
-				if (it) {
-					val editor = prefs.edit()
+			MainScope().launch {
+				val reachable = ComponentManager.testConnectionAsync(
+					ComponentManager.ConnectionOptions(
+						vURL.text.toString(),
+						vUsername.text.toString(),
+						vPassword.text.toString()
+					)
+				)
 
+				if (reachable.await()) {
+					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+					vTestResult.setText(R.string.saved)
+
+					val editor = prefs.edit()
 					editor.putString("url", vURL.text.toString())
 					editor.putString("username", vUsername.text.toString())
 					editor.putString("password", vPassword.text.toString())
 					editor.apply()
-
-					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestResult.setText(R.string.saved)
 				} else {
 					vTestResult.setTextColor(getColorFromAttr(R.attr.colorError))
 					vTestResult.setText(R.string.connection_failed)
@@ -88,13 +95,12 @@ class ConnectionActivity : Activity() {
 	}
 
 
-	fun getColorFromAttr(
+	private fun getColorFromAttr(
 		attrColor: Int,
-		typedValue: TypedValue = TypedValue(),
-		resolveRefs: Boolean = true
+		resolveRefs: Boolean = true,
+		typedValue: TypedValue = TypedValue()
 	): Int {
 		theme.resolveAttribute(attrColor, typedValue, resolveRefs)
 		return typedValue.data
 	}
 }
-
