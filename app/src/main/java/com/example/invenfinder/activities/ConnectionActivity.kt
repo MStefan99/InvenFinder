@@ -2,17 +2,14 @@ package com.example.invenfinder.activities
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import com.example.invenfinder.R
-import com.example.invenfinder.utils.ComponentManager
-import kotlinx.coroutines.Dispatchers
+import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 
 class ConnectionActivity : Activity() {
@@ -45,8 +42,8 @@ class ConnectionActivity : Activity() {
 			vTestResult.setText(R.string.testing_e)
 
 			MainScope().launch {
-				val reachable = ComponentManager.testConnectionAsync(
-					ComponentManager.ConnectionOptions(
+				val reachable = ItemManager.testConnectionAsync(
+					ItemManager.ConnectionOptions(
 						vURL.text.toString(),
 						vUsername.text.toString(),
 						vPassword.text.toString()
@@ -69,8 +66,8 @@ class ConnectionActivity : Activity() {
 			vTestResult.setText(R.string.testing_e)
 
 			MainScope().launch {
-				val reachable = ComponentManager.testConnectionAsync(
-					ComponentManager.ConnectionOptions(
+				val reachable = ItemManager.testConnectionAsync(
+					ItemManager.ConnectionOptions(
 						vURL.text.toString(),
 						vUsername.text.toString(),
 						vPassword.text.toString()

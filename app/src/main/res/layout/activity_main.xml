@@ -10,7 +10,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/colorAccent"
 		android:minHeight="?attr/actionBarSize"
-		android:title="@string/all_components"
+		android:title="@string/all_items"
 		android:titleTextColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

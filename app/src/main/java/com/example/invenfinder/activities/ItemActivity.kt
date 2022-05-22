@@ -9,12 +9,15 @@ import android.widget.TextView
 import android.widget.Toolbar
 import com.example.invenfinder.R
 import com.example.invenfinder.data.Component
+import com.example.invenfinder.utils.ItemManager
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
-class ComponentActivity : Activity() {
+class ItemActivity : Activity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_component)
+		setContentView(R.layout.activity_item)
 
 		val component = intent.getParcelableExtra<Component>("component")
 
@@ -33,7 +36,7 @@ class ComponentActivity : Activity() {
 			vAmount.text = component.amount.toString()
 
 			vTakeStock.setOnClickListener {
-				val layout = layoutInflater.inflate(R.layout.stock_dialog, null)
+				val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
 				val vPicker: NumberPicker = layout.findViewById(R.id.picker)
 
 				vPicker.minValue = 1
@@ -46,7 +49,10 @@ class ComponentActivity : Activity() {
 						component.amount -= vPicker.value
 						vAmount.text = component.amount.toString()
 
-						// TODO: remove from database
+						MainScope().launch {
+							ItemManager.updateAmountAsync(component)
+						}
+
 						if (component.amount <= 0) {
 							finish()
 						}
@@ -56,7 +62,7 @@ class ComponentActivity : Activity() {
 			}
 
 			vPutStock.setOnClickListener {
-				val layout = layoutInflater.inflate(R.layout.stock_dialog, null)
+				val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
 				val vPicker: NumberPicker = layout.findViewById(R.id.picker)
 
 				vPicker.minValue = 1
@@ -68,7 +74,10 @@ class ComponentActivity : Activity() {
 					.setPositiveButton(R.string.put_in_storage) { _, _, ->
 						component.amount += vPicker.value
 						vAmount.text = component.amount.toString()
-						// TODO: add into database
+
+						MainScope().launch {
+							ItemManager.updateAmountAsync(component)
+						}
 					}
 					.setNegativeButton(R.string.cancel, null)
 					.show()

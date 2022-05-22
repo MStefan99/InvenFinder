@@ -27,7 +27,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".activities.ComponentActivity" />
+		<activity android:name=".activities.ItemActivity" />
 		<activity android:name=".activities.SettingsActivity" />
 		<activity android:name=".activities.ConnectionActivity" />
 

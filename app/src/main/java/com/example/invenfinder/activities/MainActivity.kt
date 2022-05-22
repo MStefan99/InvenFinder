@@ -12,14 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.invenfinder.R
-import com.example.invenfinder.adapters.ComponentAdapter
-import com.example.invenfinder.utils.ComponentManager
+import com.example.invenfinder.adapters.ItemAdapter
+import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 
 class MainActivity : Activity() {
-	private val componentAdapter = ComponentAdapter(this)
+	private val itemAdapter = ItemAdapter(this)
 
 	private lateinit var vComponentList: RecyclerView
 	private lateinit var vSearchField: EditText
@@ -44,8 +44,8 @@ class MainActivity : Activity() {
 		if (url != null && username != null && password != null) {
 			MainScope().launch {
 				@Suppress("DeferredResultUnused")
-				ComponentManager.openConnectionAsync(
-					ComponentManager.ConnectionOptions(
+				ItemManager.openConnectionAsync(
+					ItemManager.ConnectionOptions(
 						url,
 						username,
 						password
@@ -58,7 +58,7 @@ class MainActivity : Activity() {
 			startActivity(Intent(this, SettingsActivity::class.java))
 		}
 
-		vSearchField.doOnTextChanged { text, _, _, _ -> componentAdapter.filter(text.toString()) }
+		vSearchField.doOnTextChanged { text, _, _, _ -> itemAdapter.filter(text.toString()) }
 
 		vRefreshLayout.setOnRefreshListener {
 			loadData()
@@ -71,7 +71,7 @@ class MainActivity : Activity() {
 			)
 		)
 		vComponentList.layoutManager = LinearLayoutManager(this)
-		vComponentList.adapter = componentAdapter
+		vComponentList.adapter = itemAdapter
 	}
 
 
@@ -83,11 +83,10 @@ class MainActivity : Activity() {
 
 
 	private fun loadData() {
-		vRefreshLayout.isRefreshing = true
 		val activity = this
 
 		MainScope().launch {
-			val components = ComponentManager.getComponentsAsync().await()
+			val components = ItemManager.getComponentsAsync().await()
 			vRefreshLayout.isRefreshing = false
 
 			if (components == null) {
@@ -97,8 +96,8 @@ class MainActivity : Activity() {
 				).show()
 			} else {
 				vRefreshLayout.isRefreshing = false
-				componentAdapter.setComponents(components)
-				componentAdapter.filter(vSearchField.text.toString())
+				itemAdapter.setComponents(components)
+				itemAdapter.filter(vSearchField.text.toString())
 			}
 		}
 	}

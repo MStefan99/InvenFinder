@@ -8,7 +8,7 @@ import java.sql.DriverManager
 import java.sql.SQLException
 
 
-object ComponentManager {
+object ItemManager {
 	data class ConnectionOptions(
 		var url: String,
 		var username: String,
@@ -56,8 +56,10 @@ object ComponentManager {
 		return withContext(Dispatchers.IO) {
 			async {
 				try {
-					val st = connection.await().createStatement()
-					val res = st.executeQuery("select * from components")
+					val st = connection
+						.await()
+						.createStatement()
+					val res = st.executeQuery("select * from components where amount > 0")
 
 					val components = ArrayList<Component>()
 
@@ -86,8 +88,19 @@ object ComponentManager {
 	}
 
 
-	suspend fun updateComponentAsync(component: Component) {
-		// TODO: implement
+	suspend fun updateAmountAsync(component: Component) {
+		return withContext(Dispatchers.IO) {
+			launch {
+				val st = connection
+					.await()
+					.prepareStatement("update components set amount = ? where id = ?")
+
+				st.setInt(1, component.amount)
+				st.setInt(2, component.id)
+
+				st.executeUpdate()
+			}
+		}
 	}
 
 

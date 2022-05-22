@@ -9,13 +9,13 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.R
-import com.example.invenfinder.activities.ComponentActivity
+import com.example.invenfinder.activities.ItemActivity
 import com.example.invenfinder.data.Component
 import com.example.invenfinder.data.Location
 
 
-class ComponentAdapter(private val activity: Activity) :
-	RecyclerView.Adapter<ComponentAdapter.ViewHolder>() {
+class ItemAdapter(private val activity: Activity) :
+	RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
 
 	private var components = ArrayList<Component>()
 	private val filtered = ArrayList(components)
@@ -34,7 +34,7 @@ class ComponentAdapter(private val activity: Activity) :
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 		val view = LayoutInflater
 			.from(parent.context)
-			.inflate(R.layout.component, parent, false)
+			.inflate(R.layout.element_item, parent, false)
 
 		return ViewHolder(view)
 	}
@@ -42,7 +42,7 @@ class ComponentAdapter(private val activity: Activity) :
 
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 		holder.vLayout.setOnClickListener {
-			val intent = Intent(activity, ComponentActivity::class.java)
+			val intent = Intent(activity, ItemActivity::class.java)
 			intent.putExtra("component", filtered[position])
 
 			activity.startActivity(intent)

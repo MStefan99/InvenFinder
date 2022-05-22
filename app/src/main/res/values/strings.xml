@@ -1,8 +1,8 @@
 <resources>
 	<string name="app_name">InvenFinder</string>
 
-	<string name="all_components">All components</string>
-	<string name="component_details">Component details</string>
+	<string name="all_items">All components</string>
+	<string name="item_details">Component details</string>
 	<string name="settings">Settings</string>
 	<string name="cancel">Cancel</string>
 	<string name="search">Search</string>
@@ -13,6 +13,7 @@
 	<string name="description">Description</string>
 	<string name="connection_settings">Connection settings</string>
 	<string name="url">URL</string>
+	<string name="host">Host</string>
 	<string name="username">Username</string>
 	<string name="password">Password</string>
 	<string name="url_hint">database.example.com</string>
