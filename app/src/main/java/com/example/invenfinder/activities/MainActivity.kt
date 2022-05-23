@@ -25,6 +25,7 @@ class MainActivity : Activity() {
 	private lateinit var vSearchField: EditText
 	private lateinit var vRefreshLayout: SwipeRefreshLayout
 	private lateinit var vSettings: ImageView
+	private lateinit var vAdd: ImageView
 
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +36,7 @@ class MainActivity : Activity() {
 		vSearchField = findViewById(R.id.search_field)
 		vRefreshLayout = findViewById(R.id.refresh_layout)
 		vSettings = findViewById(R.id.settings_button)
+		vAdd = findViewById(R.id.add_button)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 		val url = prefs.getString("url", null)
@@ -52,6 +54,11 @@ class MainActivity : Activity() {
 					)
 				)
 			}
+		}
+
+
+		vAdd.setOnClickListener {
+			startActivity(Intent(this, NewItemActivity::class.java))
 		}
 
 		vSettings.setOnClickListener {
@@ -83,6 +90,7 @@ class MainActivity : Activity() {
 
 
 	private fun loadData() {
+		vRefreshLayout.isRefreshing = true
 		val activity = this
 
 		MainScope().launch {

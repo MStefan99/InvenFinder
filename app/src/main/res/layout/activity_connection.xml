@@ -6,7 +6,7 @@
 	android:backgroundTint="?attr/colorPrimary">
 
 	<Toolbar
-		android:id="@+id/toolbar2"
+		android:id="@+id/toolbar"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:background="?attr/colorAccent"
@@ -29,30 +29,30 @@
 		app:layout_constraintTop_toTopOf="@+id/constraintLayout2">
 
 		<TextView
-			android:id="@+id/textView12"
+			android:id="@+id/name_label"
 			android:layout_width="wrap_content"
 			android:layout_height="0dp"
 			android:gravity="center_vertical"
 			android:text="@string/host"
 			android:textColor="?attr/colorForeground"
-			app:layout_constraintBottom_toTopOf="@+id/textView13"
+			app:layout_constraintBottom_toTopOf="@+id/description_label"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
 		<TextView
-			android:id="@+id/textView13"
+			android:id="@+id/description_label"
 			android:layout_width="wrap_content"
 			android:layout_height="0dp"
 			android:layout_marginTop="16dp"
 			android:gravity="center_vertical"
 			android:text="@string/username"
 			android:textColor="?attr/colorForeground"
-			app:layout_constraintBottom_toTopOf="@+id/textView14"
+			app:layout_constraintBottom_toTopOf="@+id/location_label"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/textView12" />
+			app:layout_constraintTop_toBottomOf="@+id/name_label" />
 
 		<TextView
-			android:id="@+id/textView14"
+			android:id="@+id/location_label"
 			android:layout_width="wrap_content"
 			android:layout_height="0dp"
 			android:layout_marginTop="16dp"
@@ -61,7 +61,7 @@
 			android:textColor="?attr/colorForeground"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/textView13" />
+			app:layout_constraintTop_toBottomOf="@+id/description_label" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -75,7 +75,7 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toEndOf="@+id/constraintLayout3"
-		app:layout_constraintTop_toBottomOf="@+id/toolbar2">
+		app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
 		<EditText
 			android:id="@+id/url_input"

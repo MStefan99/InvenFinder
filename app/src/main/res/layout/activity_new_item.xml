@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<Toolbar
+		android:id="@+id/toolbar"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:background="?attr/colorAccent"
+		android:title="@string/add_item"
+		android:titleTextColor="?attr/colorBackground"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<TextView
+		android:id="@+id/name_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="32dp"
+		android:text="@string/name"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+	<EditText
+		android:id="@+id/name_input"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:ems="10"
+		android:hint="@string/name"
+		android:inputType="textPersonName"
+		android:minHeight="48dp"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/name_label"
+		android:autofillHints="@string/name" />
+
+	<TextView
+		android:id="@+id/description_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:text="@string/description"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/name_input" />
+
+	<EditText
+		android:id="@+id/description_input"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:ems="10"
+		android:gravity="start|top"
+		android:hint="@string/description"
+		android:inputType="textMultiLine"
+		android:minHeight="48dp"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/description_label"
+		android:autofillHints="@string/description" />
+
+	<TextView
+		android:id="@+id/location_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:text="@string/location"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/description_input" />
+
+	<EditText
+		android:id="@+id/location_input"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:autofillHints="@string/location"
+		android:ems="10"
+		android:hint="@string/location_hint"
+		android:inputType="textPersonName"
+		android:minHeight="48dp"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/location_label" />
+
+	<TextView
+		android:id="@+id/amount_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:text="@string/amount"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/location_input" />
+
+	<EditText
+		android:id="@+id/amount_input"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:ems="10"
+		android:hint="@string/amount_hint"
+		android:inputType="number"
+		android:minHeight="48dp"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/amount_label"
+		android:autofillHints="@string/amount" />
+
+	<Button
+		android:id="@+id/button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="32dp"
+		android:layout_marginEnd="16dp"
+		android:text="@string/add"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/amount_input" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

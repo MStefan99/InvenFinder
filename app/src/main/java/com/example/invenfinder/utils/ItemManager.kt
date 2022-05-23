@@ -21,10 +21,33 @@ object ItemManager {
 	private const val dbName: String = "invenfinder"
 
 
-	suspend fun openConnectionAsync(options: ConnectionOptions): Deferred<Connection> {
-		return withContext(Dispatchers.IO) {
+	suspend fun testConnectionAsync(options: ConnectionOptions): Deferred<Boolean> =
+		withContext(Dispatchers.IO) {
 			async {
 				try {
+					DriverManager
+						.getConnection(
+							"$protocol${options.url}:$port/$dbName",
+							options.username,
+							options.password
+						)
+						.close()
+
+					return@async true
+				} catch (e: SQLException) {
+					return@async false
+				}
+			}
+		}
+
+
+	// TODO: return null if unable to connect?
+	suspend fun openConnectionAsync(options: ConnectionOptions): Deferred<Connection> =
+		withContext(Dispatchers.IO) {
+			async {
+				try {
+					DriverManager.setLoginTimeout(10)
+
 					val c = DriverManager
 						.getConnection(
 							"$protocol${options.url}:$port/$dbName",
@@ -43,17 +66,14 @@ object ItemManager {
 				}
 			}
 		}
-	}
 
 
 	// Only use returned connection if there's no suitable function
-	fun getConnectionAsync(): Deferred<Connection> {
-		return connection
-	}
+	fun getConnectionAsync(): Deferred<Connection> = connection
 
 
-	suspend fun getComponentsAsync(): Deferred<ArrayList<Component>?> {
-		return withContext(Dispatchers.IO) {
+	suspend fun getComponentsAsync(): Deferred<ArrayList<Component>?> =
+		withContext(Dispatchers.IO) {
 			async {
 				try {
 					val st = connection
@@ -85,37 +105,60 @@ object ItemManager {
 				}
 			}
 		}
-	}
 
 
-	suspend fun updateAmountAsync(component: Component) {
-		return withContext(Dispatchers.IO) {
-			launch {
-				val st = connection
-					.await()
-					.prepareStatement("update components set amount = ? where id = ?")
-
-				st.setInt(1, component.amount)
-				st.setInt(2, component.id)
-
-				st.executeUpdate()
-			}
-		}
-	}
-
-
-	suspend fun testConnectionAsync(options: ConnectionOptions): Deferred<Boolean> =
+	suspend fun getComponentAsync(): Deferred<Component?> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
-					DriverManager
-						.getConnection(
-							"$protocol${options.url}:$port/$dbName",
-							options.username,
-							options.password
-						)
-						.close()
+					// TODO: get component
+					return@async null
+				} catch (e: SQLException) {
+					return@async null
+				}
+			}
+		}
 
+
+	suspend fun updateAmountAsync(component: Component): Deferred<Component?> =
+		withContext(Dispatchers.IO) {
+			async {
+				try {
+					val st = connection
+						.await()
+						.prepareStatement("update components set amount = ? where id = ?")
+
+					st.setInt(1, component.amount)
+					st.setInt(2, component.id)
+
+					st.executeUpdate()
+
+					return@async component  // TODO: get component from db
+				} catch (e: SQLException) {
+					return@async null
+				}
+			}
+		}
+
+
+	suspend fun addComponentAsync(component: Component): Deferred<Component?> =
+		withContext(Dispatchers.IO) {
+			async {
+				try {
+					// TODO: add component to db
+					return@async null  // TODO: get component from db
+				} catch (e: SQLException) {
+					return@async null
+				}
+			}
+		}
+
+
+	suspend fun removeComponentAsync(component: Component): Deferred<Boolean> =
+		withContext(Dispatchers.IO) {
+			async {
+				try {
+					// TODO: remove item
 					return@async true
 				} catch (e: SQLException) {
 					return@async false
