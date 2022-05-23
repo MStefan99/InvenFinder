@@ -150,8 +150,27 @@ object ItemManager {
 		withContext(Dispatchers.IO) {
 			async {
 				try {
-					// TODO: get component
-					return@async null
+					val st = connection
+						.await()
+						.prepareStatement("select * from components where id = ?")
+					st.setInt(1, id)
+					val res = st.executeQuery()
+
+					if (res.next()) {
+						return@async Item(
+								res.getInt("id"),
+								res.getString("name"),
+								res.getString("description"),
+								Location(
+									res.getInt("drawer"),
+									res.getInt("col"),
+									res.getInt("row")
+								),
+								res.getInt("amount")
+						)
+					} else {
+						return@async null
+					}
 				} catch (e: SQLException) {
 					return@async null
 				}
