@@ -28,7 +28,7 @@
 		</activity>
 
 		<activity android:name=".activities.ItemActivity" />
-		<activity android:name=".activities.NewItemActivity" />
+		<activity android:name=".activities.ItemEditActivity" />
 		<activity android:name=".activities.SettingsActivity" />
 		<activity android:name=".activities.ConnectionActivity" />
 

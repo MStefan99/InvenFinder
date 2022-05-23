@@ -36,6 +36,8 @@
 	<string name="take_from_storage">Take from storage</string>
 	<string name="put_in_storage">Put in storage</string>
 	<string name="choose_amount">Choose amount</string>
+	<string name="name_cannot_be_empty">Name cannot be empty</string>
+	<string name="location_is_invalid">Location is invalid</string>
 
 <!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
 </resources>

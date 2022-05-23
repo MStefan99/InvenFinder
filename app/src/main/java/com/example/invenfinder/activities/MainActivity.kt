@@ -58,7 +58,7 @@ class MainActivity : Activity() {
 
 
 		vAdd.setOnClickListener {
-			startActivity(Intent(this, NewItemActivity::class.java))
+			startActivity(Intent(this, ItemEditActivity::class.java))
 		}
 
 		vSettings.setOnClickListener {
