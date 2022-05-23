@@ -123,7 +123,7 @@
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
 	<TextView
-		android:id="@+id/test_result"
+		android:id="@+id/test_label"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginEnd="16dp"

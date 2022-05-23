@@ -80,8 +80,10 @@ object ItemManager {
 				try {
 					val st = connection
 						.await()
-						.prepareStatement("insert into components(name, description, drawer, col, row, amount) " +
-								"values(?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)
+						.prepareStatement(
+							"insert into components(name, description, drawer, col, row, amount) " +
+									"values(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS
+						)
 					st.setString(1, item.name)
 					st.setString(2, item.description)
 					st.setInt(3, item.location.drawer)
@@ -158,19 +160,44 @@ object ItemManager {
 
 					if (res.next()) {
 						return@async Item(
-								res.getInt("id"),
-								res.getString("name"),
-								res.getString("description"),
-								Location(
-									res.getInt("drawer"),
-									res.getInt("col"),
-									res.getInt("row")
-								),
-								res.getInt("amount")
+							res.getInt("id"),
+							res.getString("name"),
+							res.getString("description"),
+							Location(
+								res.getInt("drawer"),
+								res.getInt("col"),
+								res.getInt("row")
+							),
+							res.getInt("amount")
 						)
 					} else {
 						return@async null
 					}
+				} catch (e: SQLException) {
+					return@async null
+				}
+			}
+		}
+
+
+	suspend fun updateItemAsync(item: Item): Deferred<Item?> =
+		withContext(Dispatchers.IO) {
+			async {
+				try {
+					val st = connection
+						.await()
+						.prepareStatement("update components set name = ?, description = ?, drawer = ?, " +
+								"col = ?, row = ?, amount = ? where id = ?")
+					st.setString(1, item.name)
+					st.setString(2, item.description)
+					st.setInt(3, item.location.drawer)
+					st.setInt(4, item.location.col)
+					st.setInt(5, item.location.row)
+					st.setInt(6, item.amount)
+					st.setInt(7, item.id)
+					st.executeUpdate()
+
+					return@async null
 				} catch (e: SQLException) {
 					return@async null
 				}

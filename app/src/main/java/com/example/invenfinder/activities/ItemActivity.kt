@@ -2,6 +2,7 @@ package com.example.invenfinder.activities
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.NumberPicker
@@ -14,29 +15,45 @@ import kotlinx.coroutines.launch
 
 
 class ItemActivity : Activity() {
+	private lateinit var vName: TextView
+	private lateinit var vDescription: TextView
+	private lateinit var vLocation: TextView
+	private lateinit var vAmount: TextView
+	private lateinit var vTake: ImageView
+	private lateinit var vPut: ImageView
+	private lateinit var vEdit: ImageView
+	private lateinit var vRemove: ImageView
+
+	private lateinit var item: Item
+
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_item)
 
-		val vName: TextView = findViewById(R.id.component_name)
-		val vDescription: TextView = findViewById(R.id.component_description)
-		val vLocation: TextView = findViewById(R.id.component_location)
-		val vAmount: TextView = findViewById(R.id.component_amount)
-		val vTakeStock: ImageView = findViewById(R.id.take_image)
-		val vPutStock: ImageView = findViewById(R.id.put_image)
-		val vRemove: ImageView = findViewById(R.id.remove_button)
+		vName = findViewById(R.id.component_name)
+		vDescription = findViewById(R.id.component_description)
+		vLocation = findViewById(R.id.component_location)
+		vAmount = findViewById(R.id.component_amount)
+		vTake = findViewById(R.id.take_button)
+		vPut = findViewById(R.id.put_button)
+		vEdit = findViewById(R.id.edit_button)
+		vRemove = findViewById(R.id.remove_button)
 
-		val item = intent.getParcelableExtra<Item>("item")
+		val receivedItem = intent.getParcelableExtra<Item>("item")
 
-		if (item == null) {
+		if (receivedItem == null) {
 			finish()
 			return
 		}
+		setItem(receivedItem)
 
-		vName.text = item.name
-		vDescription.text = item.description
-		vLocation.text = item.location.toString()
-		vAmount.text = item.amount.toString()
+		vEdit.setOnClickListener {
+			startActivityForResult(Intent(this, ItemEditActivity::class.java).apply {
+				putExtra("action", ItemEditActivity.Action.EDIT)
+				putExtra("item", item)
+			}, 0)
+		}
 
 		vRemove.setOnClickListener {
 			MainScope().launch {
@@ -46,7 +63,7 @@ class ItemActivity : Activity() {
 			}
 		}
 
-		vTakeStock.setOnClickListener {
+		vTake.setOnClickListener {
 			val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
 			val vPicker: NumberPicker = layout.findViewById(R.id.picker)
 
@@ -73,7 +90,7 @@ class ItemActivity : Activity() {
 				.show()
 		}
 
-		vPutStock.setOnClickListener {
+		vPut.setOnClickListener {
 			val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
 			val vPicker: NumberPicker = layout.findViewById(R.id.picker)
 
@@ -95,5 +112,23 @@ class ItemActivity : Activity() {
 				.setNegativeButton(R.string.cancel, null)
 				.show()
 		}
+	}
+
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+
+		val newItem: Item = data?.getParcelableExtra("item") ?: return
+		setItem(newItem)
+	}
+
+
+	private fun setItem(newItem: Item) {
+		item = newItem
+
+		vName.text = item.name
+		vDescription.text = item.description
+		vLocation.text = item.location.toString()
+		vAmount.text = item.amount.toString()
 	}
 }

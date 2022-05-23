@@ -32,6 +32,20 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/toolbar" />
 
+	<ImageView
+		android:id="@+id/edit_button"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="16dp"
+		android:adjustViewBounds="true"
+		android:contentDescription="@string/edit_item"
+		android:src="@drawable/pen"
+		app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+		app:layout_constraintEnd_toStartOf="@+id/remove_button"
+		app:layout_constraintTop_toTopOf="@+id/toolbar" />
+
 	<TextView
 		android:id="@+id/component_location"
 		android:layout_width="wrap_content"
@@ -114,14 +128,14 @@
 		app:layout_constraintTop_toTopOf="@+id/component_amount" />
 
 	<ImageView
-		android:id="@+id/take_image"
+		android:id="@+id/take_button"
 		android:layout_width="wrap_content"
 		android:layout_height="80dp"
 		android:layout_marginTop="32dp"
 		android:adjustViewBounds="true"
 		android:contentDescription="@string/take_from_storage"
 		android:src="@drawable/remove_stock"
-		app:layout_constraintEnd_toStartOf="@+id/put_image"
+		app:layout_constraintEnd_toStartOf="@+id/put_button"
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/component_description" />
@@ -133,22 +147,22 @@
 		android:layout_marginTop="16dp"
 		android:text="@string/take_from_storage"
 		android:textColor="?attr/colorMuted"
-		app:layout_constraintEnd_toEndOf="@+id/take_image"
-		app:layout_constraintStart_toStartOf="@+id/take_image"
-		app:layout_constraintTop_toBottomOf="@+id/take_image" />
+		app:layout_constraintEnd_toEndOf="@+id/take_button"
+		app:layout_constraintStart_toStartOf="@+id/take_button"
+		app:layout_constraintTop_toBottomOf="@+id/take_button" />
 
 	<ImageView
-		android:id="@+id/put_image"
+		android:id="@+id/put_button"
 		android:layout_width="wrap_content"
 		android:layout_height="0dp"
 		android:adjustViewBounds="true"
 		android:contentDescription="@string/put_in_storage"
 		android:src="@drawable/add_stock"
-		app:layout_constraintBottom_toBottomOf="@+id/take_image"
+		app:layout_constraintBottom_toBottomOf="@+id/take_button"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toEndOf="@+id/take_image"
-		app:layout_constraintTop_toTopOf="@+id/take_image" />
+		app:layout_constraintStart_toEndOf="@+id/take_button"
+		app:layout_constraintTop_toTopOf="@+id/take_button" />
 
 	<TextView
 		android:id="@+id/put_label"
@@ -157,8 +171,8 @@
 		android:layout_marginTop="16dp"
 		android:text="@string/put_in_storage"
 		android:textColor="?attr/colorMuted"
-		app:layout_constraintEnd_toEndOf="@+id/put_image"
-		app:layout_constraintStart_toStartOf="@+id/put_image"
-		app:layout_constraintTop_toBottomOf="@+id/put_image" />
+		app:layout_constraintEnd_toEndOf="@+id/put_button"
+		app:layout_constraintStart_toStartOf="@+id/put_button"
+		app:layout_constraintTop_toBottomOf="@+id/put_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

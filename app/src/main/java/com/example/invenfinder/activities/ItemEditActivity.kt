@@ -1,11 +1,12 @@
 package com.example.invenfinder.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.util.Log
+import android.widget.*
 import com.example.invenfinder.R
+import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.ItemBase
 import com.example.invenfinder.data.Location
 import com.example.invenfinder.utils.ItemManager
@@ -14,43 +15,87 @@ import kotlinx.coroutines.launch
 
 
 class ItemEditActivity : Activity() {
+	enum class Action {
+		ADD, EDIT
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_item_edit)
 
+		val vToolbar: Toolbar = findViewById(R.id.toolbar)
 		val vName: EditText = findViewById(R.id.name_input)
 		val vDescription: EditText = findViewById(R.id.description_input)
 		val vLocation: EditText = findViewById(R.id.location_input)
 		val vAmount: EditText = findViewById(R.id.amount_input)
-		val vLabel: TextView = findViewById(R.id.error_label)
-		val vAdd: Button = findViewById(R.id.add_button)
+		val vError: TextView = findViewById(R.id.error_label)
+		val vSubmit: Button = findViewById(R.id.submit_button)
 
-		vAdd.setOnClickListener {
+		val action = intent.getSerializableExtra("action") as Action
+		val item: Item? = intent.getParcelableExtra("item")
+
+		if (action == Action.ADD) {
+			vToolbar.setTitle(R.string.add_item)
+			vSubmit.setText(R.string.add)
+		} else if (action == Action.EDIT && item != null) {
+			vToolbar.setTitle(R.string.edit_item)
+			vSubmit.setText(R.string.save)
+
+			vName.setText(item.name)
+			vDescription.setText(item.description)
+			vLocation.setText(item.location.toString())
+			vAmount.setText(item.amount.toString())
+		} else {
+			Log.d("ITEM", "Trying to edit item but not item was provided")
+			finish()
+		}
+
+		vSubmit.setOnClickListener {
 			if (vName.text.isEmpty()) {
-				vLabel.setText(R.string.name_cannot_be_empty)
+				vError.setText(R.string.name_cannot_be_empty)
 				return@setOnClickListener
 			}
 
 			val location = Location.parseLocation(vLocation.text.toString().uppercase())
 			if (location == null) {
-				vLabel.setText(R.string.location_is_invalid)
+				vError.setText(R.string.location_is_invalid)
 				return@setOnClickListener
 			}
 
-			MainScope().launch {
-				val res = ItemManager.addItemAsync(
-					ItemBase(
-						vName.text.toString(),
-						vDescription.text.toString(),
-						location,
-						if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+			if (action == Action.ADD) {
+				MainScope().launch {
+					// TODO: check if successful
+
+					ItemManager.addItemAsync(
+						ItemBase(
+							vName.text.toString(),
+							vDescription.text.toString(),
+							location,
+							if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+						)
 					)
-				)
+				}
+				finish()
+			} else {
+				if (item == null) {  // Should never get here but Kotlin complains
+					return@setOnClickListener
+				}
 
-				// TODO: check if successful
+				item.name = vName.text.toString()
+				item.description = vDescription.text.toString()
+				item.location = location
+				item.amount = if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+
+				MainScope().launch {
+					ItemManager.updateItemAsync(item)
+				}
+
+				setResult(0, Intent().apply {
+					putExtra("item", item)
+				})
+
+				finish()
 			}
-
-			finish()
 		}
 	}
 }

@@ -8,14 +8,11 @@ import com.example.invenfinder.R
 
 
 class SettingsActivity : Activity() {
-	private lateinit var vConnection: FrameLayout
-
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_settings)
 
-		vConnection = findViewById(R.id.connection_layout)
+		val vConnection: FrameLayout = findViewById(R.id.connection_layout)
 
 		vConnection.setOnClickListener {
 			startActivity(Intent(this, ConnectionActivity::class.java))

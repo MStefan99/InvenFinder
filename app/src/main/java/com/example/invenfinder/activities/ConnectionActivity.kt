@@ -13,24 +13,16 @@ import kotlinx.coroutines.launch
 
 
 class ConnectionActivity : Activity() {
-	private lateinit var vURL: EditText
-	private lateinit var vUsername: EditText
-	private lateinit var vPassword: EditText
-	private lateinit var vTestButton: Button
-	private lateinit var vConnectButton: Button
-	private lateinit var vTestResult: TextView
-
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_connection)
 
-		vURL = findViewById(R.id.url_input)
-		vUsername = findViewById(R.id.username_input)
-		vPassword = findViewById(R.id.password_input)
-		vTestButton = findViewById(R.id.test_button)
-		vConnectButton = findViewById(R.id.save_button)
-		vTestResult = findViewById(R.id.test_result)
+		val vURL: EditText = findViewById(R.id.url_input)
+		val vUsername: EditText = findViewById(R.id.username_input)
+		val vPassword: EditText = findViewById(R.id.password_input)
+		val vTestButton: Button = findViewById(R.id.test_button)
+		val vConnectButton: Button = findViewById(R.id.save_button)
+		val vTestLabel: TextView = findViewById(R.id.test_label)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 		vURL.setText(prefs.getString("url", null))
@@ -38,8 +30,8 @@ class ConnectionActivity : Activity() {
 		vPassword.setText(prefs.getString("password", null))
 
 		vTestButton.setOnClickListener {
-			vTestResult.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestResult.setText(R.string.testing_e)
+			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
+			vTestLabel.setText(R.string.testing_e)
 
 			MainScope().launch {
 				val reachable = ItemManager.testConnectionAsync(
@@ -51,19 +43,19 @@ class ConnectionActivity : Activity() {
 				)
 
 				if (reachable.await()) {
-					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestResult.setText(R.string.connection_successful)
+					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+					vTestLabel.setText(R.string.connection_successful)
 				} else {
-					vTestResult.setTextColor(getColorFromAttr(R.attr.colorError))
-					vTestResult.setText(R.string.connection_failed)
+					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
+					vTestLabel.setText(R.string.connection_failed)
 				}
 			}
 		}
 
 
 		vConnectButton.setOnClickListener {
-			vTestResult.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestResult.setText(R.string.testing_e)
+			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
+			vTestLabel.setText(R.string.testing_e)
 
 			MainScope().launch {
 				val reachable = ItemManager.testConnectionAsync(
@@ -75,8 +67,8 @@ class ConnectionActivity : Activity() {
 				)
 
 				if (reachable.await()) {
-					vTestResult.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestResult.setText(R.string.saved)
+					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+					vTestLabel.setText(R.string.saved)
 
 					val editor = prefs.edit()
 					editor.putString("url", vURL.text.toString())
@@ -84,8 +76,8 @@ class ConnectionActivity : Activity() {
 					editor.putString("password", vPassword.text.toString())
 					editor.apply()
 				} else {
-					vTestResult.setTextColor(getColorFromAttr(R.attr.colorError))
-					vTestResult.setText(R.string.connection_failed)
+					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
+					vTestLabel.setText(R.string.connection_failed)
 				}
 			}
 		}

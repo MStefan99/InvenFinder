@@ -23,7 +23,6 @@ class ItemAdapter(private val activity: Activity) :
 
 	class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 		val vLayout: ConstraintLayout = view.findViewById(R.id.component_layout)
-
 		val vName: TextView = view.findViewById(R.id.component_name)
 		val vDescription: TextView = view.findViewById(R.id.component_description)
 		val vAmount: TextView = view.findViewById(R.id.component_amount)

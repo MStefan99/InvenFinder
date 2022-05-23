@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 class MainActivity : Activity() {
 	private val itemAdapter = ItemAdapter(this)
 
-	private lateinit var vComponentList: RecyclerView
-	private lateinit var vSearchField: EditText
-	private lateinit var vRefreshLayout: SwipeRefreshLayout
+	private lateinit var vList: RecyclerView
+	private lateinit var vSearch: EditText
+	private lateinit var vRefresh: SwipeRefreshLayout
 	private lateinit var vSettings: ImageView
 	private lateinit var vAdd: ImageView
 
@@ -32,11 +32,11 @@ class MainActivity : Activity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 
-		vComponentList = findViewById(R.id.component_list)
-		vSearchField = findViewById(R.id.search_field)
-		vRefreshLayout = findViewById(R.id.refresh_layout)
+		vList = findViewById(R.id.component_list)
+		vSearch = findViewById(R.id.search_field)
+		vRefresh = findViewById(R.id.refresh_layout)
 		vSettings = findViewById(R.id.settings_button)
-		vAdd = findViewById(R.id.add_button)
+		vAdd = findViewById(R.id.submit_button)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 		val url = prefs.getString("url", null)
@@ -58,27 +58,29 @@ class MainActivity : Activity() {
 
 
 		vAdd.setOnClickListener {
-			startActivity(Intent(this, ItemEditActivity::class.java))
+			startActivity(Intent(this, ItemEditActivity::class.java).apply {
+				putExtra("action", ItemEditActivity.Action.ADD)
+			})
 		}
 
 		vSettings.setOnClickListener {
 			startActivity(Intent(this, SettingsActivity::class.java))
 		}
 
-		vSearchField.doOnTextChanged { text, _, _, _ -> itemAdapter.filter(text.toString()) }
+		vSearch.doOnTextChanged { text, _, _, _ -> itemAdapter.filter(text.toString()) }
 
-		vRefreshLayout.setOnRefreshListener {
+		vRefresh.setOnRefreshListener {
 			loadData()
 		}
 
-		vComponentList.addItemDecoration(
+		vList.addItemDecoration(
 			DividerItemDecoration(
 				this,
 				DividerItemDecoration.VERTICAL
 			)
 		)
-		vComponentList.layoutManager = LinearLayoutManager(this)
-		vComponentList.adapter = itemAdapter
+		vList.layoutManager = LinearLayoutManager(this)
+		vList.adapter = itemAdapter
 	}
 
 
@@ -90,11 +92,11 @@ class MainActivity : Activity() {
 
 
 	private fun loadData() {
-		vRefreshLayout.isRefreshing = true
+		vRefresh.isRefreshing = true
 
 		MainScope().launch {
 			val components = ItemManager.getItemsAsync().await()
-			vRefreshLayout.isRefreshing = false
+			vRefresh.isRefreshing = false
 
 			if (components == null) {
 				Toast.makeText(
@@ -102,9 +104,9 @@ class MainActivity : Activity() {
 					Toast.LENGTH_LONG
 				).show()
 			} else {
-				vRefreshLayout.isRefreshing = false
+				vRefresh.isRefreshing = false
 				itemAdapter.setComponents(components)
-				itemAdapter.filter(vSearchField.text.toString())
+				itemAdapter.filter(vSearch.text.toString())
 			}
 		}
 	}
