@@ -24,6 +24,7 @@
 	<string name="connect">Connect</string>
 	<string name="save">Save</string>
 	<string name="add">Add</string>
+	<string name="remove">Remove</string>
 	<string name="database">Database</string>
 	<string name="database_connection">Database connection</string>
 	<string name="location_hint">1-A1</string>

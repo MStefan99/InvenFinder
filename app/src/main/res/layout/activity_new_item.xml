@@ -11,7 +11,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/colorAccent"
 		android:title="@string/add_item"
-		android:titleTextColor="?attr/colorBackground"
+		android:titleTextColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
@@ -130,12 +130,14 @@
 		android:autofillHints="@string/amount" />
 
 	<Button
-		android:id="@+id/button"
+		android:id="@+id/add_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="32dp"
 		android:layout_marginEnd="16dp"
+		android:backgroundTint="?attr/colorAccent"
 		android:text="@string/add"
+		android:textColor="?attr/colorOnAccent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/amount_input" />
 

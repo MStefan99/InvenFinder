@@ -52,10 +52,19 @@ data class Location(
 
 
 @Parcelize
-data class Component(
+class Item(
 	var id: Int,
-	var name: String,
-	var description: String?,
-	var location: Location,
-	var amount: Int
+	override var name: String,
+	override var description: String?,
+	override var location: Location,
+	override var amount: Int
+) : ItemBase(name, description, location, amount)
+
+
+@Parcelize
+open class ItemBase(
+	open var name: String,
+	open var description: String?,
+	open var location: Location,
+	open var amount: Int
 ) : Parcelable

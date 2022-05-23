@@ -6,9 +6,8 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.TextView
-import android.widget.Toolbar
 import com.example.invenfinder.R
-import com.example.invenfinder.data.Component
+import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -25,38 +24,48 @@ class ItemActivity : Activity() {
 		val vAmount: TextView = findViewById(R.id.component_amount)
 		val vTakeStock: ImageView = findViewById(R.id.take_image)
 		val vPutStock: ImageView = findViewById(R.id.put_image)
+		val vRemove: ImageView = findViewById(R.id.remove_button)
 
-		val component = intent.getParcelableExtra<Component>("component")
+		val item = intent.getParcelableExtra<Item>("item")
 
-		if (component == null) {
+		if (item == null) {
 			finish()
 			return
 		}
 
-		vName.text = component.name
-		vDescription.text = component.description
-		vLocation.text = component.location.toString()
-		vAmount.text = component.amount.toString()
+		vName.text = item.name
+		vDescription.text = item.description
+		vLocation.text = item.location.toString()
+		vAmount.text = item.amount.toString()
+
+		vRemove.setOnClickListener {
+			MainScope().launch {
+				@Suppress("DeferredResultUnused")
+				ItemManager.removeItemAsync(item)
+				finish()
+			}
+		}
 
 		vTakeStock.setOnClickListener {
 			val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
 			val vPicker: NumberPicker = layout.findViewById(R.id.picker)
 
 			vPicker.minValue = 1
-			vPicker.maxValue = component.amount
+			vPicker.maxValue = item.amount
 
 			AlertDialog
 				.Builder(this)
 				.setView(layout)
 				.setPositiveButton(R.string.take_from_storage) { _, _ ->
-					component.amount -= vPicker.value
-					vAmount.text = component.amount.toString()
+					item.amount -= vPicker.value
+					vAmount.text = item.amount.toString()
 
 					MainScope().launch {
-						ItemManager.updateAmountAsync(component)
+						@Suppress("DeferredResultUnused")
+						ItemManager.updateItemAmountAsync(item)
 					}
 
-					if (component.amount <= 0) {
+					if (item.amount <= 0) {
 						finish()
 					}
 				}
@@ -75,11 +84,12 @@ class ItemActivity : Activity() {
 				.Builder(this)
 				.setView(layout)
 				.setPositiveButton(R.string.put_in_storage) { _, _ ->
-					component.amount += vPicker.value
-					vAmount.text = component.amount.toString()
+					item.amount += vPicker.value
+					vAmount.text = item.amount.toString()
 
 					MainScope().launch {
-						ItemManager.updateAmountAsync(component)
+						@Suppress("DeferredResultUnused")
+						ItemManager.updateItemAmountAsync(item)
 					}
 				}
 				.setNegativeButton(R.string.cancel, null)

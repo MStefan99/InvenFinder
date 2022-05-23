@@ -91,15 +91,14 @@ class MainActivity : Activity() {
 
 	private fun loadData() {
 		vRefreshLayout.isRefreshing = true
-		val activity = this
 
 		MainScope().launch {
-			val components = ItemManager.getComponentsAsync().await()
+			val components = ItemManager.getItemsAsync().await()
 			vRefreshLayout.isRefreshing = false
 
 			if (components == null) {
 				Toast.makeText(
-					activity, "Unable to load items",
+					this@MainActivity, "Unable to load items",
 					Toast.LENGTH_LONG
 				).show()
 			} else {

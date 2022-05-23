@@ -10,15 +10,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.R
 import com.example.invenfinder.activities.ItemActivity
-import com.example.invenfinder.data.Component
+import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.Location
 
 
 class ItemAdapter(private val activity: Activity) :
 	RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
 
-	private var components = ArrayList<Component>()
-	private val filtered = ArrayList(components)
+	private var items = ArrayList<Item>()
+	private val filtered = ArrayList(items)
 
 
 	class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -43,7 +43,7 @@ class ItemAdapter(private val activity: Activity) :
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 		holder.vLayout.setOnClickListener {
 			val intent = Intent(activity, ItemActivity::class.java)
-			intent.putExtra("component", filtered[position])
+			intent.putExtra("item", filtered[position])
 
 			activity.startActivity(intent)
 		}
@@ -63,12 +63,12 @@ class ItemAdapter(private val activity: Activity) :
 		filtered.clear()
 
 		if (query == null || query.isEmpty()) {
-			filtered.addAll(components)
+			filtered.addAll(items)
 		} else {
 			val q = query.trim().lowercase()
 			val l = Location.parseLocation(query.trim().uppercase())
 
-			for (c in components) {
+			for (c in items) {
 				if (c.name.lowercase().contains(q)
 					|| c.description!!.lowercase().contains(q)
 					|| c.location == l) {
@@ -81,7 +81,7 @@ class ItemAdapter(private val activity: Activity) :
 	}
 
 
-	fun setComponents(c: ArrayList<Component>) {
-		components = c
+	fun setComponents(c: ArrayList<Item>) {
+		items = c
 	}
 }

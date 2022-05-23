@@ -1,11 +1,13 @@
 package com.example.invenfinder.utils
 
-import com.example.invenfinder.data.Component
+import com.example.invenfinder.data.Item
+import com.example.invenfinder.data.ItemBase
 import com.example.invenfinder.data.Location
 import kotlinx.coroutines.*
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.sql.Statement
 
 
 object ItemManager {
@@ -72,20 +74,57 @@ object ItemManager {
 	fun getConnectionAsync(): Deferred<Connection> = connection
 
 
-	suspend fun getComponentsAsync(): Deferred<ArrayList<Component>?> =
+	suspend fun addItemAsync(item: ItemBase): Deferred<Item?> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
 					val st = connection
 						.await()
-						.createStatement()
-					val res = st.executeQuery("select * from components where amount > 0")
+						.prepareStatement("insert into components(name, description, drawer, col, row, amount) " +
+								"values(?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)
+					st.setString(1, item.name)
+					st.setString(2, item.description)
+					st.setInt(3, item.location.drawer)
+					st.setInt(4, item.location.col)
+					st.setInt(5, item.location.row)
+					st.setInt(6, item.amount)
+					st.executeUpdate()
 
-					val components = ArrayList<Component>()
+					val generatedKeys = st.generatedKeys
+					if (generatedKeys.next()) {
+						val id: Int = generatedKeys.getInt(1)
+
+						return@async Item(
+							id,
+							item.name,
+							item.description,
+							item.location,
+							item.amount
+						)
+					} else {
+						return@async null
+					}
+				} catch (e: SQLException) {
+					return@async null
+				}
+			}
+		}
+
+
+	suspend fun getItemsAsync(): Deferred<ArrayList<Item>?> =
+		withContext(Dispatchers.IO) {
+			async {
+				try {
+					val st = connection
+						.await()
+						.prepareStatement("select * from components where amount > 0")
+					val res = st.executeQuery()
+
+					val items = ArrayList<Item>()
 
 					while (res.next()) {
-						components.add(
-							Component(
+						items.add(
+							Item(
 								res.getInt("id"),
 								res.getString("name"),
 								res.getString("description"),
@@ -99,7 +138,7 @@ object ItemManager {
 						)
 					}
 
-					return@async components
+					return@async items
 				} catch (e: SQLException) {
 					return@async null
 				}
@@ -107,7 +146,7 @@ object ItemManager {
 		}
 
 
-	suspend fun getComponentAsync(): Deferred<Component?> =
+	suspend fun getSingleItemAsync(id: Int): Deferred<Item?> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
@@ -120,20 +159,18 @@ object ItemManager {
 		}
 
 
-	suspend fun updateAmountAsync(component: Component): Deferred<Component?> =
+	suspend fun updateItemAmountAsync(item: Item): Deferred<Item?> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
 					val st = connection
 						.await()
 						.prepareStatement("update components set amount = ? where id = ?")
-
-					st.setInt(1, component.amount)
-					st.setInt(2, component.id)
-
+					st.setInt(1, item.amount)
+					st.setInt(2, item.id)
 					st.executeUpdate()
 
-					return@async component  // TODO: get component from db
+					return@async item  // TODO: get component from db
 				} catch (e: SQLException) {
 					return@async null
 				}
@@ -141,24 +178,16 @@ object ItemManager {
 		}
 
 
-	suspend fun addComponentAsync(component: Component): Deferred<Component?> =
+	suspend fun removeItemAsync(item: Item): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
-					// TODO: add component to db
-					return@async null  // TODO: get component from db
-				} catch (e: SQLException) {
-					return@async null
-				}
-			}
-		}
+					val st = connection
+						.await()
+						.prepareStatement("delete from components where id = ?")
+					st.setInt(1, item.id)
+					st.executeUpdate()
 
-
-	suspend fun removeComponentAsync(component: Component): Deferred<Boolean> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					// TODO: remove item
 					return@async true
 				} catch (e: SQLException) {
 					return@async false
