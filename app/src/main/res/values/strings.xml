@@ -6,6 +6,7 @@
 	<string name="item_details">Component details</string>
 	<string name="add_item">Add component</string>
 	<string name="edit_item">Edit component</string>
+	<string name="remove_item">Remove component</string>
 	<string name="settings">Settings</string>
 	<string name="cancel">Cancel</string>
 	<string name="search">Search</string>
@@ -42,6 +43,7 @@
 	<string name="choose_amount">Choose amount</string>
 	<string name="name_cannot_be_empty">Name cannot be empty</string>
 	<string name="location_is_invalid">Location is invalid</string>
+	<string name="remove_confirm">Are you sure you want to remove this component?</string>
 
 <!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
 </resources>

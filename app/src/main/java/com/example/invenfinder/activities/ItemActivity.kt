@@ -56,11 +56,19 @@ class ItemActivity : Activity() {
 		}
 
 		vRemove.setOnClickListener {
-			MainScope().launch {
-				@Suppress("DeferredResultUnused")
-				ItemManager.removeItemAsync(item)
-				finish()
-			}
+			AlertDialog
+				.Builder(this)
+				.setTitle(R.string.remove_item)
+				.setMessage(R.string.remove_confirm)
+				.setPositiveButton(R.string.remove) { _, _ ->
+					MainScope().launch {
+						@Suppress("DeferredResultUnused")
+						ItemManager.removeItemAsync(item)
+						finish()
+					}
+				}
+				.setNegativeButton(R.string.cancel, null)
+				.show()
 		}
 
 		vTake.setOnClickListener {
