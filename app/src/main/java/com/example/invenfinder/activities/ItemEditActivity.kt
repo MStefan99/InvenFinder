@@ -26,6 +26,7 @@ class ItemEditActivity : Activity() {
 		val vToolbar: Toolbar = findViewById(R.id.toolbar)
 		val vName: EditText = findViewById(R.id.name_input)
 		val vDescription: EditText = findViewById(R.id.description_input)
+		val vLink: EditText = findViewById(R.id.link_input)
 		val vLocation: EditText = findViewById(R.id.location_input)
 		val vAmount: EditText = findViewById(R.id.amount_input)
 		val vError: TextView = findViewById(R.id.error_label)
@@ -43,6 +44,7 @@ class ItemEditActivity : Activity() {
 
 			vName.setText(item.name)
 			vDescription.setText(item.description)
+			vLink.setText(item.link)
 			vLocation.setText(item.location.toString())
 			vAmount.setText(item.amount.toString())
 		} else {
@@ -56,8 +58,8 @@ class ItemEditActivity : Activity() {
 				return@setOnClickListener
 			}
 
-			val location = Location.parseLocation(vLocation.text.toString().uppercase())
-			if (location == null) {
+			val location = vLocation.text.toString().uppercase()
+			if (location.isEmpty()) {
 				vError.setText(R.string.location_is_invalid)
 				return@setOnClickListener
 			}
@@ -70,6 +72,7 @@ class ItemEditActivity : Activity() {
 						ItemBase(
 							vName.text.toString(),
 							vDescription.text.toString(),
+							vLink.text.toString(),
 							location,
 							if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
 						)

@@ -79,14 +79,14 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="16dp"
-		android:layout_marginTop="16dp"
+		android:layout_marginTop="8dp"
 		android:layout_marginEnd="16dp"
 		android:text="@string/name"
 		android:textColor="?attr/colorForeground"
 		android:textSize="24sp"
 		app:layout_constraintEnd_toStartOf="@+id/amount_image"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/component_location" />
+		app:layout_constraintTop_toTopOf="@+id/amount_image" />
 
 	<TextView
 		android:id="@+id/component_description"
@@ -98,6 +98,17 @@
 		android:textColor="?attr/colorForeground"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/component_name" />
+
+	<TextView
+		android:id="@+id/component_link"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="16dp"
+		android:text="@string/link"
+		android:textColor="?attr/colorForeground"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/component_description" />
 
 	<ImageView
 		android:id="@+id/location_image"
@@ -131,14 +142,14 @@
 		android:id="@+id/take_button"
 		android:layout_width="wrap_content"
 		android:layout_height="80dp"
-		android:layout_marginTop="32dp"
+		android:layout_marginTop="16dp"
 		android:adjustViewBounds="true"
 		android:contentDescription="@string/take_from_storage"
 		android:src="@drawable/remove_stock"
 		app:layout_constraintEnd_toStartOf="@+id/put_button"
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/component_description" />
+		app:layout_constraintTop_toBottomOf="@+id/component_link" />
 
 	<TextView
 		android:id="@+id/take_label"

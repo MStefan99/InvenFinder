@@ -65,7 +65,7 @@ class ItemAdapter(private val activity: Activity) :
 			filtered.addAll(items)
 		} else {
 			val q = query.trim().lowercase()
-			val l = Location.parseLocation(query.trim().uppercase())
+			val l = query.trim().uppercase()
 
 			for (c in items) {
 				if (c.name.lowercase().contains(q)

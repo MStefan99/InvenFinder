@@ -1,5 +1,6 @@
 package com.example.invenfinder.utils
 
+import android.util.Log
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.ItemBase
 import com.example.invenfinder.data.Location
@@ -81,15 +82,14 @@ object ItemManager {
 					val st = connection
 						.await()
 						.prepareStatement(
-							"insert into components(name, description, drawer, col, row, amount) " +
-									"values(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS
+							"insert into items(name, description, link, location, amount) " +
+									"values(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS
 						)
 					st.setString(1, item.name)
 					st.setString(2, item.description)
-					st.setInt(3, item.location.drawer)
-					st.setInt(4, item.location.col)
-					st.setInt(5, item.location.row)
-					st.setInt(6, item.amount)
+					st.setString(3, item.link)
+					st.setString(4, item.location)
+					st.setInt(5, item.amount)
 					st.executeUpdate()
 
 					val generatedKeys = st.generatedKeys
@@ -100,6 +100,7 @@ object ItemManager {
 							id,
 							item.name,
 							item.description,
+							item.link,
 							item.location,
 							item.amount
 						)
@@ -119,7 +120,7 @@ object ItemManager {
 				try {
 					val st = connection
 						.await()
-						.prepareStatement("select * from components where amount > 0")
+						.prepareStatement("select * from items")
 					val res = st.executeQuery()
 
 					val items = ArrayList<Item>()
@@ -130,11 +131,8 @@ object ItemManager {
 								res.getInt("id"),
 								res.getString("name"),
 								res.getString("description"),
-								Location(
-									res.getInt("drawer"),
-									res.getInt("col"),
-									res.getInt("row")
-								),
+								res.getString("link"),
+								res.getString("location"),
 								res.getInt("amount")
 							)
 						)
@@ -142,6 +140,7 @@ object ItemManager {
 
 					return@async items
 				} catch (e: SQLException) {
+					e.message?.let { Log.e("SQL error", it) };
 					return@async null
 				}
 			}
@@ -154,7 +153,7 @@ object ItemManager {
 				try {
 					val st = connection
 						.await()
-						.prepareStatement("select * from components where id = ?")
+						.prepareStatement("select * from items where id = ?")
 					st.setInt(1, id)
 					val res = st.executeQuery()
 
@@ -163,11 +162,8 @@ object ItemManager {
 							res.getInt("id"),
 							res.getString("name"),
 							res.getString("description"),
-							Location(
-								res.getInt("drawer"),
-								res.getInt("col"),
-								res.getInt("row")
-							),
+							res.getString("link"),
+							res.getString("location"),
 							res.getInt("amount")
 						)
 					} else {
@@ -186,15 +182,14 @@ object ItemManager {
 				try {
 					val st = connection
 						.await()
-						.prepareStatement("update components set name = ?, description = ?, drawer = ?, " +
-								"col = ?, row = ?, amount = ? where id = ?")
+						.prepareStatement("update items set name = ?, description = ?, link = ?, " +
+								"location = ?, amount = ? where id = ?")
 					st.setString(1, item.name)
 					st.setString(2, item.description)
-					st.setInt(3, item.location.drawer)
-					st.setInt(4, item.location.col)
-					st.setInt(5, item.location.row)
-					st.setInt(6, item.amount)
-					st.setInt(7, item.id)
+					st.setString(3, item.link)
+					st.setString(4, item.location)
+					st.setInt(5, item.amount)
+					st.setInt(6, item.id)
 					st.executeUpdate()
 
 					return@async null
@@ -211,7 +206,7 @@ object ItemManager {
 				try {
 					val st = connection
 						.await()
-						.prepareStatement("update components set amount = ? where id = ?")
+						.prepareStatement("update items set amount = ? where id = ?")
 					st.setInt(1, item.amount)
 					st.setInt(2, item.id)
 					st.executeUpdate()
@@ -230,7 +225,7 @@ object ItemManager {
 				try {
 					val st = connection
 						.await()
-						.prepareStatement("delete from components where id = ?")
+						.prepareStatement("delete from items where id = ?")
 					st.setInt(1, item.id)
 					st.executeUpdate()
 

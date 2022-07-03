@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Code/Apps/invenfinder-android/app/src/main/res/layout/activity_item.xml" value="0.29074074074074074" />
+        <entry key="..\:/Code/Apps/invenfinder-android/app/src/main/res/layout/activity_item_edit.xml" value="0.29074074074074074" />
+        <entry key="..\:/Code/Apps/invenfinder-android/app/src/main/res/layout/element_item.xml" value="0.38697916666666665" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.228" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/drawable/ic_launcher_background.xml" value="0.228" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/drawable/pencil.xml" value="0.2405" />
@@ -17,7 +20,7 @@
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/autofill_dropdown.xml" value="0.23143115942028986" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/component.xml" value="0.375" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/dialog_stock.xml" value="0.2368659420289855" />
-        <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/element_item.xml" value="0.2368659420289855" />
+        <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/element_item.xml" value="0.4083333333333333" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/stock_dialog.xml" value="0.22418478260869565" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/layout/test.xml" value="0.23143115942028986" />
         <entry key="..\:/Programming/Apps/Android/InvenFinder/app/src/main/res/menu/menu_main.xml" value="0.4083333333333333" />

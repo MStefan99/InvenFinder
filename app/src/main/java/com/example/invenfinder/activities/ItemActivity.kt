@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class ItemActivity : Activity() {
 	private lateinit var vName: TextView
 	private lateinit var vDescription: TextView
+	private lateinit var vLink: TextView
 	private lateinit var vLocation: TextView
 	private lateinit var vAmount: TextView
 	private lateinit var vTake: ImageView
@@ -33,6 +34,7 @@ class ItemActivity : Activity() {
 
 		vName = findViewById(R.id.component_name)
 		vDescription = findViewById(R.id.component_description)
+		vLink = findViewById(R.id.component_link)
 		vLocation = findViewById(R.id.component_location)
 		vAmount = findViewById(R.id.component_amount)
 		vTake = findViewById(R.id.take_button)
@@ -136,7 +138,8 @@ class ItemActivity : Activity() {
 
 		vName.text = item.name
 		vDescription.text = item.description
-		vLocation.text = item.location.toString()
+		vLink.text = item.link
+		vLocation.text = item.location
 		vAmount.text = item.amount.toString()
 	}
 }
