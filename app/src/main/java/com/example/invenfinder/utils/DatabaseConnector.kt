@@ -9,29 +9,20 @@ import java.sql.DriverManager
 import java.sql.SQLException
 import java.sql.Statement
 
+private const val protocol: String = "jdbc:mariadb://"
+private const val port: String = "3306"
+private const val dbName: String = "invenfinder"
 
-object ItemManager {
-	data class ConnectionOptions(
-		var url: String,
-		var username: String,
-		var password: String
-	)
+class DatabaseConnector(private var url: String) : ConnectorInterface() {
+	private var connection: CompletableDeferred<Connection?> = CompletableDeferred(null);
 
-	private val connection = CompletableDeferred<Connection>()
-	private const val protocol: String = "jdbc:mariadb://"
-	private const val port: String = "3306"
-	private const val dbName: String = "invenfinder"
-
-
-	suspend fun testConnectionAsync(options: ConnectionOptions): Deferred<Boolean> =
+	override suspend fun testConnectionAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
 					DriverManager
 						.getConnection(
-							"$protocol${options.url}:$port/$dbName",
-							options.username,
-							options.password
+							"$protocol$url:$port/$dbName",
 						)
 						.close()
 
@@ -42,9 +33,7 @@ object ItemManager {
 			}
 		}
 
-
-	// TODO: return null if unable to connect?
-	suspend fun openConnectionAsync(options: ConnectionOptions): Deferred<Connection> =
+	override suspend fun loginAsync(username: String, password: String): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
@@ -52,34 +41,35 @@ object ItemManager {
 
 					val c = DriverManager
 						.getConnection(
-							"$protocol${options.url}:$port/$dbName",
-							options.username,
-							options.password
+							"$protocol$url:$port/$dbName",
+							username,
+							password
 						)
 
 					if (connection.isCompleted) {
-						connection.await().close()
+						connection.await()?.close()
 					}
 
 					connection.complete(c)
-					return@async c
+					return@async true
 				} catch (e: SQLException) {
-					return@async connection.await()
+					return@async false
 				}
 			}
 		}
 
+	override suspend fun logoutAsync(): Deferred<Boolean> {
+		connection = CompletableDeferred(null)
+		return CompletableDeferred(true)
+	}
 
-	// Only use returned connection if there's no suitable function
-	fun getConnectionAsync(): Deferred<Connection> = connection
-
-
-	suspend fun addItemAsync(item: NewItem): Deferred<Item?> =
+	override suspend fun addAsync(item: NewItem): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
+				val conn = connection.await() ?: throw Error("Not connected");
+
 				try {
-					val st = connection
-						.await()
+					val st = conn
 						.prepareStatement(
 							"insert into items(name, description, link, location, amount) " +
 									"values(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS
@@ -92,33 +82,29 @@ object ItemManager {
 					st.executeUpdate()
 
 					val generatedKeys = st.generatedKeys
-					if (generatedKeys.next()) {
-						val id: Int = generatedKeys.getInt(1)
+					val id: Int = generatedKeys.getInt(1)
 
-						return@async Item(
-							id,
-							item.name,
-							item.description,
-							item.link,
-							item.location,
-							item.amount
-						)
-					} else {
-						return@async null
-					}
+					return@async Item(
+						id,
+						item.name,
+						item.description,
+						item.link,
+						item.location,
+						item.amount
+					)
 				} catch (e: SQLException) {
-					return@async null
+					throw Error("Adding an item failed: ", e.cause)
 				}
 			}
 		}
 
-
-	suspend fun getItemsAsync(): Deferred<ArrayList<Item>?> =
+	override suspend fun getAllAsync(): Deferred<ArrayList<Item>> =
 		withContext(Dispatchers.IO) {
 			async {
+				val conn = connection.await() ?: throw Error("Not connected");
+
 				try {
-					val st = connection
-						.await()
+					val st = conn
 						.prepareStatement("select * from items")
 					val res = st.executeQuery()
 
@@ -140,18 +126,18 @@ object ItemManager {
 					return@async items
 				} catch (e: SQLException) {
 					e.message?.let { Log.e("SQL error", it) };
-					return@async null
+					throw Error("Failed to retrieve items: ", e.cause);
 				}
 			}
 		}
 
-
-	suspend fun getSingleItemAsync(id: Int): Deferred<Item?> =
+	override suspend fun getByIDAsync(id: Int): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
+				val conn = connection.await() ?: throw Error("Not connected");
+
 				try {
-					val st = connection
-						.await()
+					val st = conn
 						.prepareStatement("select * from items where id = ?")
 					st.setInt(1, id)
 					val res = st.executeQuery()
@@ -166,21 +152,40 @@ object ItemManager {
 							res.getInt("amount")
 						)
 					} else {
-						return@async null
+						throw Error("Item not found")
 					}
 				} catch (e: SQLException) {
-					return@async null
+					throw Error("Retrieving an item failed: ", e.cause)
 				}
 			}
 		}
 
-
-	suspend fun updateItemAsync(item: Item): Deferred<Item?> =
+	override suspend fun editAmountAsync(id: Int, amount: Int): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
+				val conn = connection.await() ?: throw Error("Not connected");
+
 				try {
-					val st = connection
-						.await()
+					val st = conn
+						.prepareStatement("update items set amount = ? where id = ?")
+					st.setInt(1, amount)
+					st.setInt(2, id)
+					st.executeUpdate()
+
+					return@async getByIDAsync(id).await()
+				} catch (e: SQLException) {
+					throw Error("Failed to update item amount: ", e.cause)
+				}
+			}
+		}
+
+	override suspend fun editAsync(item: Item): Deferred<Item> =
+		withContext(Dispatchers.IO) {
+			async {
+				val conn = connection.await() ?: throw Error("Not connected");
+
+				try {
+					val st = conn
 						.prepareStatement(
 							"update items set name = ?, description = ?, link = ?, " +
 									"location = ?, amount = ? where id = ?"
@@ -193,46 +198,28 @@ object ItemManager {
 					st.setInt(6, item.id)
 					st.executeUpdate()
 
-					return@async null
+					return@async getByIDAsync(item.id).await()
 				} catch (e: SQLException) {
-					return@async null
+					throw Error("Failed to update item: ", e.cause)
 				}
 			}
 		}
 
-
-	suspend fun updateItemAmountAsync(item: Item): Deferred<Item?> =
+	override suspend fun deleteAsync(item: Item): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
+				val conn = connection.await() ?: throw Error("Not connected");
+				val i = getByIDAsync(item.id).await()
+
 				try {
-					val st = connection
-						.await()
-						.prepareStatement("update items set amount = ? where id = ?")
-					st.setInt(1, item.amount)
-					st.setInt(2, item.id)
-					st.executeUpdate()
-
-					return@async item  // TODO: get component from db
-				} catch (e: SQLException) {
-					return@async null
-				}
-			}
-		}
-
-
-	suspend fun removeItemAsync(item: Item): Deferred<Boolean> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
+					val st = conn
 						.prepareStatement("delete from items where id = ?")
 					st.setInt(1, item.id)
 					st.executeUpdate()
 
-					return@async true
+					return@async i
 				} catch (e: SQLException) {
-					return@async false
+					throw Error("Failed to delete item: ", e.cause)
 				}
 			}
 		}

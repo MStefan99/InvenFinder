@@ -12,11 +12,11 @@ class Item(
 	override var link: String?,
 	override var location: String,
 	override var amount: Int
-) : ItemBase(name, description, link, location, amount)
+) : NewItem(name, description, link, location, amount)
 
 
 @Parcelize
-open class ItemBase(
+open class NewItem(
 	open var name: String,
 	open var description: String?,
 	open var link: String?,

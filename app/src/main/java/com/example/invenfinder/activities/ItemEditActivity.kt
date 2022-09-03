@@ -7,8 +7,7 @@ import android.util.Log
 import android.widget.*
 import com.example.invenfinder.R
 import com.example.invenfinder.data.Item
-import com.example.invenfinder.data.ItemBase
-import com.example.invenfinder.data.Location
+import com.example.invenfinder.data.NewItem
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -69,7 +68,7 @@ class ItemEditActivity : Activity() {
 					// TODO: check if successful
 
 					ItemManager.addItemAsync(
-						ItemBase(
+						NewItem(
 							vName.text.toString(),
 							vDescription.text.toString(),
 							vLink.text.toString(),
