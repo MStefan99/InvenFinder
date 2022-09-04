@@ -67,7 +67,7 @@ class ItemEditActivity : Activity() {
 				MainScope().launch {
 					// TODO: check if successful
 
-					ItemManager.addItemAsync(
+					ItemManager.addAsync(
 						NewItem(
 							vName.text.toString(),
 							vDescription.text.toString(),
@@ -89,7 +89,7 @@ class ItemEditActivity : Activity() {
 				item.amount = if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
 
 				MainScope().launch {
-					ItemManager.updateItemAsync(item)
+					ItemManager.editAsync(item)
 				}
 
 				setResult(0, Intent().apply {

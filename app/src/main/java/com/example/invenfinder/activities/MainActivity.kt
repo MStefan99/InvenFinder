@@ -46,12 +46,10 @@ class MainActivity : Activity() {
 		if (url != null && username != null && password != null) {
 			MainScope().launch {
 				@Suppress("DeferredResultUnused")
-				ItemManager.openConnectionAsync(
-					ItemManager.ConnectionOptions(
-						url,
-						username,
-						password
-					)
+				ItemManager.loginAsync(
+					url,
+					username,
+					password
 				)
 			}
 		}
@@ -95,7 +93,7 @@ class MainActivity : Activity() {
 		vRefresh.isRefreshing = true
 
 		MainScope().launch {
-			val components = ItemManager.getItemsAsync().await()
+			val components = ItemManager.getAllAsync().await()
 			vRefresh.isRefreshing = false
 
 			if (components == null) {

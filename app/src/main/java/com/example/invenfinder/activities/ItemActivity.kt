@@ -65,7 +65,7 @@ class ItemActivity : Activity() {
 				.setPositiveButton(R.string.remove) { _, _ ->
 					MainScope().launch {
 						@Suppress("DeferredResultUnused")
-						ItemManager.removeItemAsync(item)
+						ItemManager.deleteAsync(item)
 						finish()
 					}
 				}
@@ -89,7 +89,7 @@ class ItemActivity : Activity() {
 
 					MainScope().launch {
 						@Suppress("DeferredResultUnused")
-						ItemManager.updateItemAmountAsync(item)
+						ItemManager.editAmountAsync(item.id, item.amount)
 					}
 
 					if (item.amount <= 0) {
@@ -116,7 +116,7 @@ class ItemActivity : Activity() {
 
 					MainScope().launch {
 						@Suppress("DeferredResultUnused")
-						ItemManager.updateItemAmountAsync(item)
+						ItemManager.editAmountAsync(item.id, item.amount)
 					}
 				}
 				.setNegativeButton(R.string.cancel, null)

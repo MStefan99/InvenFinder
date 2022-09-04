@@ -34,12 +34,10 @@ class ConnectionActivity : Activity() {
 			vTestLabel.setText(R.string.testing_e)
 
 			MainScope().launch {
-				val reachable = ItemManager.testConnectionAsync(
-					ItemManager.ConnectionOptions(
-						vURL.text.toString(),
-						vUsername.text.toString(),
-						vPassword.text.toString()
-					)
+				val reachable = ItemManager.loginAsync(
+					vURL.text.toString(),
+					vUsername.text.toString(),
+					vPassword.text.toString()
 				)
 
 				if (reachable.await()) {
@@ -58,12 +56,10 @@ class ConnectionActivity : Activity() {
 			vTestLabel.setText(R.string.testing_e)
 
 			MainScope().launch {
-				val reachable = ItemManager.testConnectionAsync(
-					ItemManager.ConnectionOptions(
-						vURL.text.toString(),
-						vUsername.text.toString(),
-						vPassword.text.toString()
-					)
+				val reachable = ItemManager.loginAsync(
+					vURL.text.toString(),
+					vUsername.text.toString(),
+					vPassword.text.toString()
 				)
 
 				if (reachable.await()) {
