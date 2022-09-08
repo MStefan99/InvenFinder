@@ -11,9 +11,9 @@ import java.sql.Statement
 
 private const val protocol: String = "jdbc:mariadb://"
 private const val port: String = "3306"
-private const val dbName: String = "invenfinder"
+private const val db: String = "invenfinder"
 
-class DatabaseConnector(private var url: String) : ConnectorInterface() {
+class DatabaseConnector(private var host: String) : ConnectorInterface() {
 	private var connection: CompletableDeferred<Connection?> = CompletableDeferred(null);
 
 	override suspend fun testConnectionAsync(): Deferred<Boolean> =
@@ -22,7 +22,7 @@ class DatabaseConnector(private var url: String) : ConnectorInterface() {
 				try {
 					DriverManager
 						.getConnection(
-							"$protocol$url:$port/$dbName",
+							"$protocol$host:$port/$db",
 						)
 						.close()
 
@@ -41,7 +41,7 @@ class DatabaseConnector(private var url: String) : ConnectorInterface() {
 
 					val c = DriverManager
 						.getConnection(
-							"$protocol$url:$port/$dbName",
+							"$protocol$host:$port/$db",
 							username,
 							password
 						)

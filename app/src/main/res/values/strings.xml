@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">InvenFinder</string>
+	<string name="app_name">InvenBeta</string>
 
 	<string name="item">Component</string>
 	<string name="all_items">All components</string>
