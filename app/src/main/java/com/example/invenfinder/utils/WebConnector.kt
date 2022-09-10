@@ -13,7 +13,7 @@ import java.util.*
 const val apiPrefix = "api"
 
 class WebConnector : ConnectorInterface() {
-	val client = OkHttpClient()
+	private val client = OkHttpClient()
 
 	override suspend fun testConnectionAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
@@ -51,31 +51,26 @@ class WebConnector : ConnectorInterface() {
 	): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				try {
-					val payload = JSONObject()
-					payload.put("username", username)
-					payload.put("password", password)
+				val payload = JSONObject()
+				payload.put("username", username)
+				payload.put("password", password)
 
-					val res = client.newCall(
-						Request.Builder()
-							.url("$url/$apiPrefix/login")
-							.post(payload.toString().toRequestBody())
-							.build()
-					).execute()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/login")
+						.post(payload.toString().toRequestBody())
+						.build()
+				).execute()
 
-					if (res.code == 201) {
-						val data = JSONObject(res.body!!.string())
+				val result = JSONObject(res.body!!.string())
+				if (res.code == 201) {
 
-						val editor = Preferences.getPreferences().edit()
-						editor.putString("url", url)
-						editor.putString("key", data.getString("key"))
-						editor.apply()
-					}
-
-					return@async res.code == 201
-				} catch (e: Throwable) {
-					return@async false
+					val editor = Preferences.getPreferences().edit()
+					editor.putString("url", url)
+					editor.putString("key", result.getString("key"))
+					editor.apply()
 				}
+				return@async res.code == 201
 			}
 		}
 
@@ -96,7 +91,6 @@ class WebConnector : ConnectorInterface() {
 				if (res.code == 200) {
 					Preferences.getPreferences().edit().remove("key").apply()
 				}
-
 				return@async res.code == 200
 			}
 		}
@@ -123,15 +117,20 @@ class WebConnector : ConnectorInterface() {
 						.build()
 				).execute()
 
-				val result = JSONObject(res.body!!.string())
-				return@async Item(
-					result.getInt("id"),
-					result.getString("name"),
-					result.getString("description"),
-					result.getString("link"),
-					result.getString("location"),
-					result.getInt("amount")
-				)
+				if (res.code == 201) {
+					val result = JSONObject(res.body!!.string())
+					return@async Item(
+						result.getInt("id"),
+						result.getString("name"),
+						result.getString("description"),
+						result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
+					)
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Error(error.getString("message"))
+				}
 			}
 		}
 
@@ -169,7 +168,10 @@ class WebConnector : ConnectorInterface() {
 					}
 
 					return@async items
-				} else throw Error("Failed to get items")
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Error(error.getString("message"))
+				}
 			}
 		}
 
@@ -190,21 +192,28 @@ class WebConnector : ConnectorInterface() {
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/items/$id/amount")
-						.header("API-Key", prefs.getString("key", null)
-							?: throw Error("Not logged in"))
+						.header(
+							"API-Key", prefs.getString("key", null)
+								?: throw Error("Not logged in")
+						)
 						.put(payload.toString().toRequestBody())
 						.build()
 				).execute()
 
-				val result = JSONObject(res.body!!.string())
-				return@async Item(
-					result.getInt("id"),
-					result.getString("name"),
-					result.getString("description"),
-					result.getString("link"),
-					result.getString("location"),
-					result.getInt("amount")
-				)
+				if (res.code == 200) {
+					val result = JSONObject(res.body!!.string())
+					return@async Item(
+						result.getInt("id"),
+						result.getString("name"),
+						result.getString("description"),
+						result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
+					)
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Error(error.getString("message"))
+				}
 			}
 		}
 
@@ -225,21 +234,28 @@ class WebConnector : ConnectorInterface() {
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/items/${item.id}")
-						.header("API-Key", prefs.getString("key", null)
-							?: throw Error("Not logged in"))
+						.header(
+							"API-Key", prefs.getString("key", null)
+								?: throw Error("Not logged in")
+						)
 						.patch(payload.toString().toRequestBody())
 						.build()
 				).execute()
 
-				val result = JSONObject(res.body!!.string())
-				return@async Item(
-					result.getInt("id"),
-					result.getString("name"),
-					result.getString("description"),
-					result.getString("link"),
-					result.getString("location"),
-					result.getInt("amount")
-				)
+				if (res.code == 200) {
+					val result = JSONObject(res.body!!.string())
+					return@async Item(
+						result.getInt("id"),
+						result.getString("name"),
+						result.getString("description"),
+						result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
+					)
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Error(error.getString("message"))
+				}
 			}
 		}
 
@@ -253,21 +269,28 @@ class WebConnector : ConnectorInterface() {
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/items/${item.id}")
-						.header("API-Key", prefs.getString("key", null)
-							?: throw Error("Not logged in"))
+						.header(
+							"API-Key", prefs.getString("key", null)
+								?: throw Error("Not logged in")
+						)
 						.delete()
 						.build()
 				).execute()
 
-				val result = JSONObject(res.body!!.string())
-				return@async Item(
-					result.getInt("id"),
-					result.getString("name"),
-					result.getString("description"),
-					result.getString("link"),
-					result.getString("location"),
-					result.getInt("amount")
-				)
+				if (res.code == 200) {
+					val result = JSONObject(res.body!!.string())
+					return@async Item(
+						result.getInt("id"),
+						result.getString("name"),
+						result.getString("description"),
+						result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
+					)
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Error(error.getString("message"))
+				}
 			}
 		}
 }

@@ -65,17 +65,20 @@ class ItemEditActivity : Activity() {
 
 			if (action == Action.ADD) {
 				MainScope().launch {
-					// TODO: check if successful
-
-					ItemManager.addAsync(
-						NewItem(
-							vName.text.toString(),
-							vDescription.text.toString(),
-							vLink.text.toString(),
-							location,
-							if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+					try {
+						@Suppress("DeferredResultUnused")
+						ItemManager.addAsync(
+							NewItem(
+								vName.text.toString(),
+								vDescription.text.toString(),
+								vLink.text.toString(),
+								location,
+								if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+							)
 						)
-					)
+					} catch (e: Error) {
+						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+					}
 				}
 				finish()
 			} else {
@@ -89,7 +92,12 @@ class ItemEditActivity : Activity() {
 				item.amount = if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
 
 				MainScope().launch {
-					ItemManager.editAsync(item)
+					try {
+						@Suppress("DeferredResultUnused")
+						ItemManager.editAsync(item)
+					} catch (e: Error) {
+						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+					}
 				}
 
 				setResult(0, Intent().apply {

@@ -6,6 +6,7 @@ import android.util.TypedValue
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import com.example.invenfinder.R
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
@@ -34,18 +35,22 @@ class ConnectionActivity : Activity() {
 			vTestLabel.setText(R.string.testing_e)
 
 			MainScope().launch {
-				val reachable = ItemManager.loginAsync(
-					vURL.text.toString(),
-					vUsername.text.toString(),
-					vPassword.text.toString()
-				)
+				try {
+					val reachable = ItemManager.loginAsync(
+						vURL.text.toString(),
+						vUsername.text.toString(),
+						vPassword.text.toString()
+					)
 
-				if (reachable.await()) {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestLabel.setText(R.string.connection_successful)
-				} else {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
-					vTestLabel.setText(R.string.connection_failed)
+					if (reachable.await()) {
+						vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+						vTestLabel.setText(R.string.connection_successful)
+					} else {
+						vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
+						vTestLabel.setText(R.string.connection_failed)
+					}
+				} catch (e: Error) {
+					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
 			}
 		}
@@ -56,24 +61,28 @@ class ConnectionActivity : Activity() {
 			vTestLabel.setText(R.string.testing_e)
 
 			MainScope().launch {
-				val reachable = ItemManager.loginAsync(
-					vURL.text.toString(),
-					vUsername.text.toString(),
-					vPassword.text.toString()
-				)
+				try {
+					val reachable = ItemManager.loginAsync(
+						vURL.text.toString(),
+						vUsername.text.toString(),
+						vPassword.text.toString()
+					)
 
-				if (reachable.await()) {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestLabel.setText(R.string.saved)
+					if (reachable.await()) {
+						vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+						vTestLabel.setText(R.string.saved)
 
-					val editor = prefs.edit()
-					editor.putString("url", vURL.text.toString())
-					editor.putString("username", vUsername.text.toString())
-					editor.putString("password", vPassword.text.toString())
-					editor.apply()
-				} else {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
-					vTestLabel.setText(R.string.connection_failed)
+						val editor = prefs.edit()
+						editor.putString("url", vURL.text.toString())
+						editor.putString("username", vUsername.text.toString())
+						editor.putString("password", vPassword.text.toString())
+						editor.apply()
+					} else {
+						vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
+						vTestLabel.setText(R.string.connection_failed)
+					}
+				} catch (e: Error) {
+					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
 			}
 		}
