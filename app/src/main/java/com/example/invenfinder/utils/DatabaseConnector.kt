@@ -11,7 +11,11 @@ private const val port: String = "3306"
 private const val db: String = "invenfinder"
 
 class DatabaseConnector : ConnectorInterface() {
-	private var connection: CompletableDeferred<Connection?> = CompletableDeferred(null);
+	private var connection: CompletableDeferred<Connection?> = CompletableDeferred()
+
+	init {
+		connection.complete(null)
+	}
 
 	suspend fun openConnectionAsync(): Deferred<Connection> =
 		withContext(Dispatchers.IO) {

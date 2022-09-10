@@ -6,20 +6,21 @@ import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedInputStream
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
-import java.io.OutputStreamWriter
-import java.io.OutputStream
-
 
 const val apiPrefix = "api"
 
 fun getBody(conn: HttpURLConnection): String {
 	val inStream = BufferedInputStream(conn.inputStream)
 	val s = Scanner(inStream).useDelimiter("\\A")
-	return if (s.hasNext()) s.next() else ""
+	val res = if (s.hasNext()) s.next() else ""
+	s.close()
+	inStream.close()
+	return res
 }
 
 fun setBody(conn: HttpURLConnection, data: String) {
@@ -111,9 +112,38 @@ class WebConnector : ConnectorInterface() {
 			}
 		}
 
-	override suspend fun addAsync(item: NewItem): Deferred<Item> {
-		TODO("Not yet implemented")
-	}
+	override suspend fun addAsync(item: NewItem): Deferred<Item> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
+
+				val conn = URL("$url/$apiPrefix/items").openConnection() as HttpURLConnection
+				conn.setRequestProperty(
+					"API-Key", prefs.getString("key", null) ?: throw Error("Not signed in")
+				)
+				val payload = JSONObject()
+				payload.put("name", item.name)
+				payload.put("description", item.description)
+				payload.put("link", item.link)
+				payload.put("location", item.location)
+				payload.put("amount", item.amount)
+
+				setBody(conn, payload.toString())
+				conn.connect()
+
+				val result = JSONObject(getBody(conn))
+				return@async Item(
+					result.getInt("id"),
+					result.getString("name"),
+					result.getString("description"),
+					result.getString("link"),
+					result.getString("location"),
+					result.getInt("amount")
+				)
+			}
+		}
 
 	override suspend fun getAllAsync(): Deferred<ArrayList<Item>> =
 		withContext(Dispatchers.IO) {
@@ -156,15 +186,98 @@ class WebConnector : ConnectorInterface() {
 		TODO("Not yet implemented")
 	}
 
-	override suspend fun editAmountAsync(id: Int, amount: Int): Deferred<Item> {
-		TODO("Not yet implemented")
-	}
+	override suspend fun editAmountAsync(id: Int, amount: Int): Deferred<Item> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
 
-	override suspend fun editAsync(item: Item): Deferred<Item> {
-		TODO("Not yet implemented")
-	}
+				val conn = URL("$url/$apiPrefix/items/$id/amount").openConnection() as HttpURLConnection
+				conn.requestMethod = "PUT"
+				conn.setRequestProperty(
+					"API-Key", prefs.getString("key", null)
+						?: throw Error("Not logged in")
+				)
 
-	override suspend fun deleteAsync(item: Item): Deferred<Item> {
-		TODO("Not yet implemented")
-	}
+				val payload = JSONObject()
+				payload.put("amount", amount)
+				setBody(conn, payload.toString())
+				conn.connect()
+
+				val result = JSONObject(getBody(conn))
+				return@async Item(
+					result.getInt("id"),
+					result.getString("name"),
+					result.getString("description"),
+					result.getString("link"),
+					result.getString("location"),
+					result.getInt("amount")
+				)
+			}
+		}
+
+	override suspend fun editAsync(item: Item): Deferred<Item> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
+
+				val conn = URL("$url/$apiPrefix/items/${item.id}").openConnection() as HttpURLConnection
+				conn.requestMethod = "PATCH"
+				conn.setRequestProperty(
+					"API-Key", prefs.getString("key", null)
+						?: throw Error("Not logged in")
+				)
+
+				val payload = JSONObject()
+				payload.put("name", item.name)
+				payload.put("description", item.description)
+				payload.put("link", item.link)
+				payload.put("location", item.location)
+				payload.put("amount", item.amount)
+
+				setBody(conn, payload.toString())
+				conn.connect()
+
+				val result = JSONObject(getBody(conn))
+				return@async Item(
+					result.getInt("id"),
+					result.getString("name"),
+					result.getString("description"),
+					result.getString("link"),
+					result.getString("location"),
+					result.getInt("amount")
+				)
+			}
+		}
+
+	override suspend fun deleteAsync(item: Item): Deferred<Item> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
+
+				val conn = URL("$url/$apiPrefix/items/${item.id}").openConnection() as HttpURLConnection
+				conn.requestMethod = "DELETE"
+				conn.setRequestProperty(
+					"API-Key", prefs.getString("key", null)
+						?: throw Error("Not logged in")
+				)
+
+				conn.connect()
+
+				val result = JSONObject(getBody(conn))
+				return@async Item(
+					result.getInt("id"),
+					result.getString("name"),
+					result.getString("description"),
+					result.getString("link"),
+					result.getString("location"),
+					result.getInt("amount")
+				)
+			}
+		}
 }
