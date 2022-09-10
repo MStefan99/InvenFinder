@@ -71,7 +71,6 @@ class MainActivity : Activity() {
 
 	override fun onResume() {
 		super.onResume()
-
 		loadData()
 	}
 
@@ -80,11 +79,15 @@ class MainActivity : Activity() {
 		vRefresh.isRefreshing = true
 
 		MainScope().launch {
-			val components = ItemManager.getAllAsync().await()
+			try {
+				val components = ItemManager.getAllAsync().await()
+				itemAdapter.setComponents(components)
+				itemAdapter.filter(vSearch.text.toString())
+			} catch (e: Error) {
+				Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+			}
 
 			vRefresh.isRefreshing = false
-			itemAdapter.setComponents(components)
-			itemAdapter.filter(vSearch.text.toString())
 		}
 	}
 }

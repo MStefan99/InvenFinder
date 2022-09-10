@@ -8,19 +8,28 @@ import kotlinx.coroutines.*
 object ItemManager {
 	private var connector: CompletableDeferred<ConnectorInterface> = CompletableDeferred()
 
+	init {
+		val prefs = Preferences.getPreferences()
+		val url = prefs.getString("url", null) ?: throw Error("Server address not set")
+
+		connector.complete(if (url.contains("http")) WebConnector() else DatabaseConnector())
+	}
+
 	suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				val webConnector = WebConnector()
-				if (webConnector.loginAsync(url, username, password).await()) {
-					connector.complete(webConnector)
-					return@async true
-				}
-
-				val dbConnector = DatabaseConnector()
-				if (dbConnector.loginAsync(url, username, password).await()) {
-					connector.complete(dbConnector)
-					return@async true
+				if (url.contains("http")) {
+					val webConnector = WebConnector()
+					if (webConnector.loginAsync(url, username, password).await()) {
+						connector.complete(webConnector)
+						return@async true
+					}
+				} else {
+					val dbConnector = DatabaseConnector()
+					if (dbConnector.loginAsync(url, username, password).await()) {
+						connector.complete(dbConnector)
+						return@async true
+					}
 				}
 
 				return@async false

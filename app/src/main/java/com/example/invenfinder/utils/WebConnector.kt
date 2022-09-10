@@ -10,6 +10,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
+import java.io.OutputStreamWriter
+import java.io.OutputStream
+
 
 const val apiPrefix = "api"
 
@@ -19,12 +22,21 @@ fun getBody(conn: HttpURLConnection): String {
 	return if (s.hasNext()) s.next() else ""
 }
 
+fun setBody(conn: HttpURLConnection, data: String) {
+	val os: OutputStream = conn.outputStream
+	val osw = OutputStreamWriter(os, "UTF-8")
+	osw.write(data)
+	osw.flush()
+	osw.close()
+	os.close()
+}
+
 class WebConnector : ConnectorInterface() {
 	override suspend fun testConnectionAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				val url = Preferences.getPreferences().getString("url", null)
-					?: throw Error("Server URL not set")
+					?: throw Error("Server address not set")
 
 				val conn = URL("$url/$apiPrefix").openConnection() as HttpURLConnection
 				conn.connect()
@@ -50,30 +62,45 @@ class WebConnector : ConnectorInterface() {
 	): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				val conn = URL("$url/$apiPrefix/login").openConnection() as HttpURLConnection
-				conn.requestMethod = "POST"
-				conn.connect()
+				try {
+					val conn = URL("$url/$apiPrefix/login").openConnection() as HttpURLConnection
+					conn.requestMethod = "POST"
+					conn.setRequestProperty("Content-Type", "application/json")
 
-				if (conn.responseCode == 200) {
-					val data = JSONObject(getBody(conn))
+					val body = JSONObject()
+					body.put("username", username)
+					body.put("password", password)
+					setBody(conn, body.toString())
 
-					val editor = Preferences.getPreferences().edit()
-					editor.putString("url", url)
-					editor.putString("key", data.getString("key"))
-					editor.apply()
+					conn.connect()
+
+					if (conn.responseCode == 201) {
+						val data = JSONObject(getBody(conn))
+
+						val editor = Preferences.getPreferences().edit()
+						editor.putString("url", url)
+						editor.putString("key", data.getString("key"))
+						editor.apply()
+					}
+
+					return@async conn.responseCode == 201
+				} catch (e: Throwable) {
+					return@async false
 				}
-
-				return@async conn.responseCode == 200
 			}
 		}
 
 	override suspend fun logoutAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				val url = Preferences.getPreferences().getString("url", null)
-					?: throw Error("Server URL not set")
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
 
 				val conn = URL("$url/$apiPrefix/logout").openConnection() as HttpURLConnection
+				conn.setRequestProperty(
+					"API-Key", prefs.getString("key", null) ?: throw Error("Not logged in")
+				)
 				conn.connect()
 
 				if (conn.responseCode == 200) {
@@ -91,31 +118,37 @@ class WebConnector : ConnectorInterface() {
 	override suspend fun getAllAsync(): Deferred<ArrayList<Item>> =
 		withContext(Dispatchers.IO) {
 			async {
-				val url = Preferences.getPreferences().getString("url", null)
-					?: throw Error("Server URL not set")
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
 
 				val conn = URL("$url/$apiPrefix/items").openConnection() as HttpURLConnection
+				conn.setRequestProperty(
+					"API-Key", prefs.getString("key", null) ?: throw Error("Not signed in")
+				)
 				conn.connect()
 
-				val data = JSONArray(getBody(conn))
-				val items = ArrayList<Item>()
+				if (conn.responseCode == 200) {
+					val data = JSONArray(getBody(conn))
+					val items = ArrayList<Item>()
 
-				for (i in 0..data.length()) {
-					val jsonItem = data.getJSONObject(i)
+					for (i in 0 until data.length()) {
+						val jsonItem = data.getJSONObject(i)
 
-					items.add(
-						Item(
-							jsonItem.getInt("id"),
-							jsonItem.getString("name"),
-							jsonItem.getString("description"),
-							jsonItem.getString("link"),
-							jsonItem.getString("location"),
-							jsonItem.getInt("amount")
+						items.add(
+							Item(
+								jsonItem.getInt("id"),
+								jsonItem.getString("name"),
+								jsonItem.getString("description"),
+								jsonItem.getString("link"),
+								jsonItem.getString("location"),
+								jsonItem.getInt("amount")
+							)
 						)
-					)
-				}
+					}
 
-				return@async items
+					return@async items
+				} else throw Error("Failed to get items")
 			}
 		}
 
