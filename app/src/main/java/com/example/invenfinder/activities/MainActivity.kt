@@ -14,6 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.invenfinder.R
 import com.example.invenfinder.adapters.ItemAdapter
 import com.example.invenfinder.utils.ItemManager
+import com.example.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -39,21 +40,7 @@ class MainActivity : Activity() {
 		vAdd = findViewById(R.id.submit_button)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
-		val url = prefs.getString("url", null)
-		val username = prefs.getString("username", null)
-		val password = prefs.getString("password", null)
-
-		if (url != null && username != null && password != null) {
-			MainScope().launch {
-				@Suppress("DeferredResultUnused")
-				ItemManager.loginAsync(
-					url,
-					username,
-					password
-				)
-			}
-		}
-
+		Preferences.setPreferences(prefs)
 
 		vAdd.setOnClickListener {
 			startActivity(Intent(this, ItemEditActivity::class.java).apply {
@@ -94,18 +81,10 @@ class MainActivity : Activity() {
 
 		MainScope().launch {
 			val components = ItemManager.getAllAsync().await()
-			vRefresh.isRefreshing = false
 
-			if (components == null) {
-				Toast.makeText(
-					this@MainActivity, "Unable to load items",
-					Toast.LENGTH_LONG
-				).show()
-			} else {
-				vRefresh.isRefreshing = false
-				itemAdapter.setComponents(components)
-				itemAdapter.filter(vSearch.text.toString())
-			}
+			vRefresh.isRefreshing = false
+			itemAdapter.setComponents(components)
+			itemAdapter.filter(vSearch.text.toString())
 		}
 	}
 }

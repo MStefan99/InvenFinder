@@ -11,14 +11,14 @@ object ItemManager {
 	suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				val webConnector = WebConnector(url)
-				if (webConnector.loginAsync(username, password).await()) {
+				val webConnector = WebConnector()
+				if (webConnector.loginAsync(url, username, password).await()) {
 					connector.complete(webConnector)
 					return@async true
 				}
 
-				val dbConnector = DatabaseConnector(url)
-				if (dbConnector.loginAsync(username, password).await()) {
+				val dbConnector = DatabaseConnector()
+				if (dbConnector.loginAsync(url, username, password).await()) {
 					connector.complete(dbConnector)
 					return@async true
 				}
