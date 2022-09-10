@@ -11,44 +11,25 @@ private const val port: String = "3306"
 private const val db: String = "invenfinder"
 
 class DatabaseConnector : ConnectorInterface() {
-	private var connection: CompletableDeferred<Connection?> = CompletableDeferred()
-
-	init {
-		connection.complete(null)
-	}
-
-	suspend fun openConnectionAsync(): Deferred<Connection> =
+	private suspend fun openConnectionAsync(): Deferred<Connection> =
 		withContext(Dispatchers.IO) {
 			async {
-				val savedConn = connection.await()
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Database URL not set")
+				val username = prefs.getString("username", null)
+					?: throw Error("Database username not set")
+				val password = prefs.getString("password", null)
+					?: throw Error("Database password not set")
 
-				if (savedConn != null) {
-					return@async savedConn
-				} else {
-					val prefs = Preferences.getPreferences()
-					val url = prefs.getString("url", null)
-						?: throw Error("Database URL not set")
-					val username = prefs.getString("username", null)
-						?: throw Error("Database username not set")
-					val password = prefs.getString("password", null)
-						?: throw Error("Database password not set")
-
-					try {
-						val conn = DriverManager.getConnection(
-							"$protocol$url:$port/$db",
-							username,
-							password
-						)
-
-						if (connection.isCompleted) {
-							connection.await()?.close()
-						}
-
-						connection.complete(conn)
-						return@async conn
-					} catch (e: SQLException) {
-						throw Error("Failed to open database connection: ", e.cause)
-					}
+				try {
+					return@async DriverManager.getConnection(
+						"$protocol$url:$port/$db",
+						username,
+						password
+					)
+				} catch (e: SQLException) {
+					throw Error("Failed to open database connection: ", e.cause)
 				}
 			}
 		}
@@ -90,23 +71,24 @@ class DatabaseConnector : ConnectorInterface() {
 			}
 		}
 
-	override suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean> =
+	override suspend fun loginAsync(
+		url: String,
+		username: String,
+		password: String
+	): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				try {
 					DriverManager.setLoginTimeout(10)
 					val prefs = Preferences.getPreferences()
 
-					val c = DriverManager
+					DriverManager
 						.getConnection(
 							"$protocol$url:$port/$db",
 							username,
 							password
 						)
-
-					if (connection.isCompleted) {
-						connection.await()?.close()
-					}
+						.close()
 
 					val prefEditor = prefs.edit()
 					prefEditor.putString("url", url)
@@ -114,7 +96,6 @@ class DatabaseConnector : ConnectorInterface() {
 					prefEditor.putString("password", password)
 					prefEditor.apply()
 
-					connection.complete(c)
 					return@async true
 				} catch (e: SQLException) {
 					return@async false
@@ -128,7 +109,6 @@ class DatabaseConnector : ConnectorInterface() {
 		prefEditor.remove("password")
 		prefEditor.apply()
 
-		connection = CompletableDeferred(null)
 		return CompletableDeferred(true)
 	}
 
@@ -151,7 +131,11 @@ class DatabaseConnector : ConnectorInterface() {
 					st.executeUpdate()
 
 					val generatedKeys = st.generatedKeys
+					if (generatedKeys.next()) {
 					val id: Int = generatedKeys.getInt(1)
+
+					st.close()
+					conn.close()
 
 					return@async Item(
 						id,
@@ -161,6 +145,9 @@ class DatabaseConnector : ConnectorInterface() {
 						item.location,
 						item.amount
 					)
+					} else {
+						throw Error("Failed to get item ID")
+					}
 				} catch (e: SQLException) {
 					throw Error("Adding an item failed: ", e.cause)
 				}
@@ -192,6 +179,9 @@ class DatabaseConnector : ConnectorInterface() {
 						)
 					}
 
+					st.close()
+					conn.close()
+
 					return@async items
 				} catch (e: SQLException) {
 					e.message?.let { Log.e("SQL error", it) };
@@ -210,6 +200,9 @@ class DatabaseConnector : ConnectorInterface() {
 						.prepareStatement("select * from items where id = ?")
 					st.setInt(1, id)
 					val res = st.executeQuery()
+
+						st.close()
+						conn.close()
 
 					if (res.next()) {
 						return@async Item(
@@ -241,6 +234,9 @@ class DatabaseConnector : ConnectorInterface() {
 					st.setInt(2, id)
 					st.executeUpdate()
 
+					st.close()
+					conn.close()
+
 					return@async getByIDAsync(id).await()
 				} catch (e: SQLException) {
 					throw Error("Failed to update item amount: ", e.cause)
@@ -267,6 +263,9 @@ class DatabaseConnector : ConnectorInterface() {
 					st.setInt(6, item.id)
 					st.executeUpdate()
 
+					st.close()
+					conn.close()
+
 					return@async getByIDAsync(item.id).await()
 				} catch (e: SQLException) {
 					throw Error("Failed to update item: ", e.cause)
@@ -285,6 +284,9 @@ class DatabaseConnector : ConnectorInterface() {
 						.prepareStatement("delete from items where id = ?")
 					st.setInt(1, item.id)
 					st.executeUpdate()
+
+					st.close()
+					conn.close()
 
 					return@async i
 				} catch (e: SQLException) {

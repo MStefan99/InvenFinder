@@ -10,9 +10,8 @@ object ItemManager {
 
 	init {
 		val prefs = Preferences.getPreferences()
-		val url = prefs.getString("url", null) ?: throw Error("Server address not set")
-
-		connector.complete(if (url.contains("http")) WebConnector() else DatabaseConnector())
+		val url = prefs.getString("url", null)
+		connector.complete(if (url?.contains("http") == true) WebConnector() else DatabaseConnector())
 	}
 
 	suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean> =
@@ -21,13 +20,13 @@ object ItemManager {
 				if (url.contains("http")) {
 					val webConnector = WebConnector()
 					if (webConnector.loginAsync(url, username, password).await()) {
-						connector.complete(webConnector)
+						connector = CompletableDeferred(webConnector)
 						return@async true
 					}
 				} else {
 					val dbConnector = DatabaseConnector()
 					if (dbConnector.loginAsync(url, username, password).await()) {
-						connector.complete(dbConnector)
+						connector = CompletableDeferred(dbConnector)
 						return@async true
 					}
 				}
