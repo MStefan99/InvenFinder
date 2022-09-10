@@ -3,56 +3,44 @@ package com.example.invenfinder.utils
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.NewItem
 import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.BufferedInputStream
-import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 const val apiPrefix = "api"
 
-fun getBody(conn: HttpURLConnection): String {
-	val inStream = BufferedInputStream(conn.inputStream)
-	val s = Scanner(inStream).useDelimiter("\\A")
-	val res = if (s.hasNext()) s.next() else ""
-	s.close()
-	inStream.close()
-	return res
-}
-
-fun setBody(conn: HttpURLConnection, data: String) {
-	val os: OutputStream = conn.outputStream
-	val osw = OutputStreamWriter(os, "UTF-8")
-	osw.write(data)
-	osw.flush()
-	osw.close()
-	os.close()
-}
-
 class WebConnector : ConnectorInterface() {
+	val client = OkHttpClient()
+
 	override suspend fun testConnectionAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				val url = Preferences.getPreferences().getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix").openConnection() as HttpURLConnection
-				conn.connect()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix")
+						.build()
+				).execute()
 
-				return@async conn.getHeaderField("who-am-i") == "Invenfinder"
+				return@async res.header("who-am-i") == "Invenfinder"
 			}
 		}
 
 	override suspend fun testConnectionAsync(url: String): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				val conn = URL("$url/$apiPrefix").openConnection() as HttpURLConnection
-				conn.connect()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix")
+						.build()
+				).execute()
 
-				return@async conn.getHeaderField("who-am-i") == "Invenfinder"
+				return@async res.header("who-am-i") == "Invenfinder"
 			}
 		}
 
@@ -64,19 +52,19 @@ class WebConnector : ConnectorInterface() {
 		withContext(Dispatchers.IO) {
 			async {
 				try {
-					val conn = URL("$url/$apiPrefix/login").openConnection() as HttpURLConnection
-					conn.requestMethod = "POST"
-					conn.setRequestProperty("Content-Type", "application/json")
+					val payload = JSONObject()
+					payload.put("username", username)
+					payload.put("password", password)
 
-					val body = JSONObject()
-					body.put("username", username)
-					body.put("password", password)
-					setBody(conn, body.toString())
+					val res = client.newCall(
+						Request.Builder()
+							.url("$url/$apiPrefix/login")
+							.post(payload.toString().toRequestBody())
+							.build()
+					).execute()
 
-					conn.connect()
-
-					if (conn.responseCode == 201) {
-						val data = JSONObject(getBody(conn))
+					if (res.code == 201) {
+						val data = JSONObject(res.body!!.string())
 
 						val editor = Preferences.getPreferences().edit()
 						editor.putString("url", url)
@@ -84,7 +72,7 @@ class WebConnector : ConnectorInterface() {
 						editor.apply()
 					}
 
-					return@async conn.responseCode == 201
+					return@async res.code == 201
 				} catch (e: Throwable) {
 					return@async false
 				}
@@ -98,17 +86,18 @@ class WebConnector : ConnectorInterface() {
 				val url = prefs.getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix/logout").openConnection() as HttpURLConnection
-				conn.setRequestProperty(
-					"API-Key", prefs.getString("key", null) ?: throw Error("Not logged in")
-				)
-				conn.connect()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/logout")
+						.header("API-Key", prefs.getString("key", null) ?: throw Error("Not logged in"))
+						.build()
+				).execute()
 
-				if (conn.responseCode == 200) {
+				if (res.code == 200) {
 					Preferences.getPreferences().edit().remove("key").apply()
 				}
 
-				return@async conn.responseCode == 200
+				return@async res.code == 200
 			}
 		}
 
@@ -119,10 +108,6 @@ class WebConnector : ConnectorInterface() {
 				val url = prefs.getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix/items").openConnection() as HttpURLConnection
-				conn.setRequestProperty(
-					"API-Key", prefs.getString("key", null) ?: throw Error("Not signed in")
-				)
 				val payload = JSONObject()
 				payload.put("name", item.name)
 				payload.put("description", item.description)
@@ -130,10 +115,15 @@ class WebConnector : ConnectorInterface() {
 				payload.put("location", item.location)
 				payload.put("amount", item.amount)
 
-				setBody(conn, payload.toString())
-				conn.connect()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items")
+						.header("API-Key", prefs.getString("key", null) ?: throw Error("Not signed in"))
+						.post(payload.toString().toRequestBody())
+						.build()
+				).execute()
 
-				val result = JSONObject(getBody(conn))
+				val result = JSONObject(res.body!!.string())
 				return@async Item(
 					result.getInt("id"),
 					result.getString("name"),
@@ -152,14 +142,15 @@ class WebConnector : ConnectorInterface() {
 				val url = prefs.getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix/items").openConnection() as HttpURLConnection
-				conn.setRequestProperty(
-					"API-Key", prefs.getString("key", null) ?: throw Error("Not signed in")
-				)
-				conn.connect()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items")
+						.header("API-Key", prefs.getString("key", null) ?: throw Error("Not signed in"))
+						.build()
+				).execute()
 
-				if (conn.responseCode == 200) {
-					val data = JSONArray(getBody(conn))
+				if (res.code == 200) {
+					val data = JSONArray(res.body!!.string())
 					val items = ArrayList<Item>()
 
 					for (i in 0 until data.length()) {
@@ -193,19 +184,19 @@ class WebConnector : ConnectorInterface() {
 				val url = prefs.getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix/items/$id/amount").openConnection() as HttpURLConnection
-				conn.requestMethod = "PUT"
-				conn.setRequestProperty(
-					"API-Key", prefs.getString("key", null)
-						?: throw Error("Not logged in")
-				)
-
 				val payload = JSONObject()
 				payload.put("amount", amount)
-				setBody(conn, payload.toString())
-				conn.connect()
 
-				val result = JSONObject(getBody(conn))
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items/$id/amount")
+						.header("API-Key", prefs.getString("key", null)
+							?: throw Error("Not logged in"))
+						.put(payload.toString().toRequestBody())
+						.build()
+				).execute()
+
+				val result = JSONObject(res.body!!.string())
 				return@async Item(
 					result.getInt("id"),
 					result.getString("name"),
@@ -224,13 +215,6 @@ class WebConnector : ConnectorInterface() {
 				val url = prefs.getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix/items/${item.id}").openConnection() as HttpURLConnection
-				conn.requestMethod = "PATCH"
-				conn.setRequestProperty(
-					"API-Key", prefs.getString("key", null)
-						?: throw Error("Not logged in")
-				)
-
 				val payload = JSONObject()
 				payload.put("name", item.name)
 				payload.put("description", item.description)
@@ -238,10 +222,16 @@ class WebConnector : ConnectorInterface() {
 				payload.put("location", item.location)
 				payload.put("amount", item.amount)
 
-				setBody(conn, payload.toString())
-				conn.connect()
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items/${item.id}")
+						.header("API-Key", prefs.getString("key", null)
+							?: throw Error("Not logged in"))
+						.patch(payload.toString().toRequestBody())
+						.build()
+				).execute()
 
-				val result = JSONObject(getBody(conn))
+				val result = JSONObject(res.body!!.string())
 				return@async Item(
 					result.getInt("id"),
 					result.getString("name"),
@@ -260,16 +250,16 @@ class WebConnector : ConnectorInterface() {
 				val url = prefs.getString("url", null)
 					?: throw Error("Server address not set")
 
-				val conn = URL("$url/$apiPrefix/items/${item.id}").openConnection() as HttpURLConnection
-				conn.requestMethod = "DELETE"
-				conn.setRequestProperty(
-					"API-Key", prefs.getString("key", null)
-						?: throw Error("Not logged in")
-				)
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items/${item.id}")
+						.header("API-Key", prefs.getString("key", null)
+							?: throw Error("Not logged in"))
+						.delete()
+						.build()
+				).execute()
 
-				conn.connect()
-
-				val result = JSONObject(getBody(conn))
+				val result = JSONObject(res.body!!.string())
 				return@async Item(
 					result.getInt("id"),
 					result.getString("name"),
