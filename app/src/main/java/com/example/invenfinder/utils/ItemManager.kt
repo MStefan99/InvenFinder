@@ -1,238 +1,67 @@
 package com.example.invenfinder.utils
 
-import android.util.Log
 import com.example.invenfinder.data.Item
-import com.example.invenfinder.data.ItemBase
-import com.example.invenfinder.data.Location
+import com.example.invenfinder.data.NewItem
 import kotlinx.coroutines.*
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.SQLException
-import java.sql.Statement
 
 
-object ItemManager {
-	data class ConnectionOptions(
-		var url: String,
-		var username: String,
-		var password: String
-	)
+object ItemManager: ConnectorInterface() {
+	private var connector: CompletableDeferred<ConnectorInterface> = CompletableDeferred()
 
-	private val connection = CompletableDeferred<Connection>()
-	private const val protocol: String = "jdbc:mariadb://"
-	private const val port: String = "3306"
-	private const val dbName: String = "invenfinder"
+	init {
+		val prefs = Preferences.getPreferences()
+		val url = prefs.getString("url", null)
+		connector.complete(if (url?.contains("http") == true) WebConnector() else DatabaseConnector())
+	}
 
+	override suspend fun testConnectionAsync() =
+		connector.await().testConnectionAsync()
 
-	suspend fun testConnectionAsync(options: ConnectionOptions): Deferred<Boolean> =
+	override suspend fun testConnectionAsync(url: String) =
+		connector.await().testConnectionAsync(url)
+
+	override suspend fun testAuthAsync(): Deferred<Boolean> =
+		connector.await().testAuthAsync()
+
+	override suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
-				try {
-					DriverManager
-						.getConnection(
-							"$protocol${options.url}:$port/$dbName",
-							options.username,
-							options.password
-						)
-						.close()
-
-					return@async true
-				} catch (e: SQLException) {
-					return@async false
-				}
-			}
-		}
-
-
-	// TODO: return null if unable to connect?
-	suspend fun openConnectionAsync(options: ConnectionOptions): Deferred<Connection> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					DriverManager.setLoginTimeout(10)
-
-					val c = DriverManager
-						.getConnection(
-							"$protocol${options.url}:$port/$dbName",
-							options.username,
-							options.password
-						)
-
-					if (connection.isCompleted) {
-						connection.await().close()
+				if (url.contains("http")) {
+					val webConnector = WebConnector()
+					if (webConnector.loginAsync(url, username, password).await()) {
+						connector = CompletableDeferred(webConnector)
+						return@async true
 					}
-
-					connection.complete(c)
-					return@async c
-				} catch (e: SQLException) {
-					return@async connection.await()
-				}
-			}
-		}
-
-
-	// Only use returned connection if there's no suitable function
-	fun getConnectionAsync(): Deferred<Connection> = connection
-
-
-	suspend fun addItemAsync(item: ItemBase): Deferred<Item?> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
-						.prepareStatement(
-							"insert into items(name, description, link, location, amount) " +
-									"values(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS
-						)
-					st.setString(1, item.name)
-					st.setString(2, item.description)
-					st.setString(3, item.link)
-					st.setString(4, item.location)
-					st.setInt(5, item.amount)
-					st.executeUpdate()
-
-					val generatedKeys = st.generatedKeys
-					if (generatedKeys.next()) {
-						val id: Int = generatedKeys.getInt(1)
-
-						return@async Item(
-							id,
-							item.name,
-							item.description,
-							item.link,
-							item.location,
-							item.amount
-						)
-					} else {
-						return@async null
+				} else {
+					val dbConnector = DatabaseConnector()
+					if (dbConnector.loginAsync(url, username, password).await()) {
+						connector = CompletableDeferred(dbConnector)
+						return@async true
 					}
-				} catch (e: SQLException) {
-					return@async null
 				}
+
+				return@async false
 			}
 		}
 
+	override suspend fun logoutAsync(): Deferred<Boolean> =
+		connector.await().logoutAsync()
 
-	suspend fun getItemsAsync(): Deferred<ArrayList<Item>?> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
-						.prepareStatement("select * from items")
-					val res = st.executeQuery()
+	override suspend fun addAsync(item: NewItem): Deferred<Item> =
+		connector.await().addAsync(item)
 
-					val items = ArrayList<Item>()
+	override suspend fun getAllAsync(): Deferred<ArrayList<Item>> =
+		connector.await().getAllAsync()
 
-					while (res.next()) {
-						items.add(
-							Item(
-								res.getInt("id"),
-								res.getString("name"),
-								res.getString("description"),
-								res.getString("link"),
-								res.getString("location"),
-								res.getInt("amount")
-							)
-						)
-					}
+	override suspend fun getByIDAsync(id: Int): Deferred<Item> =
+		connector.await().getByIDAsync(id)
 
-					return@async items
-				} catch (e: SQLException) {
-					e.message?.let { Log.e("SQL error", it) };
-					return@async null
-				}
-			}
-		}
+	override suspend fun editAmountAsync(id: Int, amount: Int): Deferred<Item> =
+		connector.await().editAmountAsync(id, amount)
 
+	override suspend fun editAsync(item: Item): Deferred<Item> =
+		connector.await().editAsync(item)
 
-	suspend fun getSingleItemAsync(id: Int): Deferred<Item?> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
-						.prepareStatement("select * from items where id = ?")
-					st.setInt(1, id)
-					val res = st.executeQuery()
-
-					if (res.next()) {
-						return@async Item(
-							res.getInt("id"),
-							res.getString("name"),
-							res.getString("description"),
-							res.getString("link"),
-							res.getString("location"),
-							res.getInt("amount")
-						)
-					} else {
-						return@async null
-					}
-				} catch (e: SQLException) {
-					return@async null
-				}
-			}
-		}
-
-
-	suspend fun updateItemAsync(item: Item): Deferred<Item?> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
-						.prepareStatement("update items set name = ?, description = ?, link = ?, " +
-								"location = ?, amount = ? where id = ?")
-					st.setString(1, item.name)
-					st.setString(2, item.description)
-					st.setString(3, item.link)
-					st.setString(4, item.location)
-					st.setInt(5, item.amount)
-					st.setInt(6, item.id)
-					st.executeUpdate()
-
-					return@async null
-				} catch (e: SQLException) {
-					return@async null
-				}
-			}
-		}
-
-
-	suspend fun updateItemAmountAsync(item: Item): Deferred<Item?> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
-						.prepareStatement("update items set amount = ? where id = ?")
-					st.setInt(1, item.amount)
-					st.setInt(2, item.id)
-					st.executeUpdate()
-
-					return@async item  // TODO: get component from db
-				} catch (e: SQLException) {
-					return@async null
-				}
-			}
-		}
-
-
-	suspend fun removeItemAsync(item: Item): Deferred<Boolean> =
-		withContext(Dispatchers.IO) {
-			async {
-				try {
-					val st = connection
-						.await()
-						.prepareStatement("delete from items where id = ?")
-					st.setInt(1, item.id)
-					st.executeUpdate()
-
-					return@async true
-				} catch (e: SQLException) {
-					return@async false
-				}
-			}
-		}
+	override suspend fun deleteAsync(item: Item): Deferred<Item> =
+		connector.await().deleteAsync(item)
 }

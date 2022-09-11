@@ -7,8 +7,7 @@ import android.util.Log
 import android.widget.*
 import com.example.invenfinder.R
 import com.example.invenfinder.data.Item
-import com.example.invenfinder.data.ItemBase
-import com.example.invenfinder.data.Location
+import com.example.invenfinder.data.NewItem
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -66,17 +65,20 @@ class ItemEditActivity : Activity() {
 
 			if (action == Action.ADD) {
 				MainScope().launch {
-					// TODO: check if successful
-
-					ItemManager.addItemAsync(
-						ItemBase(
-							vName.text.toString(),
-							vDescription.text.toString(),
-							vLink.text.toString(),
-							location,
-							if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+					try {
+						@Suppress("DeferredResultUnused")
+						ItemManager.addAsync(
+							NewItem(
+								vName.text.toString(),
+								vDescription.text.toString(),
+								vLink.text.toString(),
+								location,
+								if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+							)
 						)
-					)
+					} catch (e: Exception) {
+						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+					}
 				}
 				finish()
 			} else {
@@ -90,7 +92,12 @@ class ItemEditActivity : Activity() {
 				item.amount = if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
 
 				MainScope().launch {
-					ItemManager.updateItemAsync(item)
+					try {
+						@Suppress("DeferredResultUnused")
+						ItemManager.editAsync(item)
+					} catch (e: Exception) {
+						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+					}
 				}
 
 				setResult(0, Intent().apply {

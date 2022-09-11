@@ -6,8 +6,10 @@ import android.util.TypedValue
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import com.example.invenfinder.R
 import com.example.invenfinder.utils.ItemManager
+import com.example.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -20,64 +22,82 @@ class ConnectionActivity : Activity() {
 		val vURL: EditText = findViewById(R.id.url_input)
 		val vUsername: EditText = findViewById(R.id.username_input)
 		val vPassword: EditText = findViewById(R.id.password_input)
-		val vTestButton: Button = findViewById(R.id.test_button)
-		val vConnectButton: Button = findViewById(R.id.save_button)
-		val vTestLabel: TextView = findViewById(R.id.test_label)
+		val vLoginButton: Button = findViewById(R.id.login_button)
+		val vLogoutButton: Button = findViewById(R.id.logout_button)
+		val vTestLabel: TextView = findViewById(R.id.status_label)
 
-		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
+		fun resetState() {
+			vLoginButton.isEnabled = false
+			vLogoutButton.isEnabled = false
+
+			vLoginButton.setTextColor(getColorFromAttr(R.attr.colorMuted))
+			vLogoutButton.setTextColor(getColorFromAttr(R.attr.colorMuted))
+
+			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
+			vTestLabel.setText(R.string.checking_e)
+		}
+
+		fun setState(connected: Boolean) {
+			vLoginButton.isEnabled = !connected
+			vLogoutButton.isEnabled = connected
+
+			if (connected) {
+				vLogoutButton.setTextColor(getColorFromAttr(R.attr.colorBackground))
+				vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
+				vTestLabel.setText(R.string.signed_in)
+			} else {
+				vLoginButton.setTextColor(getColorFromAttr(R.attr.colorBackground))
+				vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
+				vTestLabel.setText(R.string.not_signed_in)
+			}
+		}
+
+		val prefs = Preferences.getPreferences()
 		vURL.setText(prefs.getString("url", null))
 		vUsername.setText(prefs.getString("username", null))
 		vPassword.setText(prefs.getString("password", null))
 
-		vTestButton.setOnClickListener {
+		MainScope().launch {
+			try {
+				resetState()
+				setState(ItemManager.testAuthAsync().await())
+			} catch (e: Exception) {
+				setState(false)
+				Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
+			}
+		}
+
+		vLoginButton.setOnClickListener {
 			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestLabel.setText(R.string.testing_e)
+			vTestLabel.setText(R.string.signing_in_e)
 
 			MainScope().launch {
-				val reachable = ItemManager.testConnectionAsync(
-					ItemManager.ConnectionOptions(
+				try {
+					resetState()
+					setState(ItemManager.loginAsync(
 						vURL.text.toString(),
 						vUsername.text.toString(),
 						vPassword.text.toString()
-					)
-				)
-
-				if (reachable.await()) {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestLabel.setText(R.string.connection_successful)
-				} else {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
-					vTestLabel.setText(R.string.connection_failed)
+					).await())
+				} catch (e: Exception) {
+					setState(false)
+					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
 			}
 		}
 
 
-		vConnectButton.setOnClickListener {
+		vLogoutButton.setOnClickListener {
 			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestLabel.setText(R.string.testing_e)
+			vTestLabel.setText(R.string.signing_out_e)
 
 			MainScope().launch {
-				val reachable = ItemManager.testConnectionAsync(
-					ItemManager.ConnectionOptions(
-						vURL.text.toString(),
-						vUsername.text.toString(),
-						vPassword.text.toString()
-					)
-				)
-
-				if (reachable.await()) {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-					vTestLabel.setText(R.string.saved)
-
-					val editor = prefs.edit()
-					editor.putString("url", vURL.text.toString())
-					editor.putString("username", vUsername.text.toString())
-					editor.putString("password", vPassword.text.toString())
-					editor.apply()
-				} else {
-					vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
-					vTestLabel.setText(R.string.connection_failed)
+				try {
+					resetState()
+					setState(!ItemManager.logoutAsync().await())
+				} catch (e: Exception) {
+					setState(true)
+					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
 			}
 		}

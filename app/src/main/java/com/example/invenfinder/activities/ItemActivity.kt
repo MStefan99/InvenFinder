@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.TextView
+import android.widget.Toast
 import com.example.invenfinder.R
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.ItemManager
@@ -64,9 +65,13 @@ class ItemActivity : Activity() {
 				.setMessage(R.string.remove_confirm)
 				.setPositiveButton(R.string.remove) { _, _ ->
 					MainScope().launch {
-						@Suppress("DeferredResultUnused")
-						ItemManager.removeItemAsync(item)
-						finish()
+						try {
+							@Suppress("DeferredResultUnused")
+							ItemManager.deleteAsync(item)
+							finish()
+						} catch (e: Exception) {
+							Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+						}
 					}
 				}
 				.setNegativeButton(R.string.cancel, null)
@@ -88,8 +93,12 @@ class ItemActivity : Activity() {
 					vAmount.text = item.amount.toString()
 
 					MainScope().launch {
-						@Suppress("DeferredResultUnused")
-						ItemManager.updateItemAmountAsync(item)
+						try {
+							@Suppress("DeferredResultUnused")
+							ItemManager.editAmountAsync(item.id, item.amount)
+						} catch (e: Exception) {
+							Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+						}
 					}
 
 					if (item.amount <= 0) {
@@ -115,8 +124,12 @@ class ItemActivity : Activity() {
 					vAmount.text = item.amount.toString()
 
 					MainScope().launch {
-						@Suppress("DeferredResultUnused")
-						ItemManager.updateItemAmountAsync(item)
+						try {
+							@Suppress("DeferredResultUnused")
+							ItemManager.editAmountAsync(item.id, item.amount)
+						} catch (e: Exception) {
+							Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+						}
 					}
 				}
 				.setNegativeButton(R.string.cancel, null)
