@@ -83,7 +83,7 @@ class MainActivity : Activity() {
 				val components = ItemManager.getAllAsync().await()
 				itemAdapter.setComponents(components)
 				itemAdapter.filter(vSearch.text.toString())
-			} catch (e: Error) {
+			} catch (e: Throwable) {
 				Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
 			}
 

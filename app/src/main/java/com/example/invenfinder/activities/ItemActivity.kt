@@ -69,7 +69,7 @@ class ItemActivity : Activity() {
 							@Suppress("DeferredResultUnused")
 							ItemManager.deleteAsync(item)
 							finish()
-						} catch (e: Error) {
+						} catch (e: Throwable) {
 							Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
 						}
 					}
@@ -96,7 +96,7 @@ class ItemActivity : Activity() {
 						try {
 							@Suppress("DeferredResultUnused")
 							ItemManager.editAmountAsync(item.id, item.amount)
-						} catch (e: Error) {
+						} catch (e: Throwable) {
 							Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
 						}
 					}
@@ -127,7 +127,7 @@ class ItemActivity : Activity() {
 						try {
 							@Suppress("DeferredResultUnused")
 							ItemManager.editAmountAsync(item.id, item.amount)
-						} catch (e: Error) {
+						} catch (e: Throwable) {
 							Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
 						}
 					}

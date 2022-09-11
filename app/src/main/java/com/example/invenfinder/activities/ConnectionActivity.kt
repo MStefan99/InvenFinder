@@ -49,7 +49,7 @@ class ConnectionActivity : Activity() {
 						vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
 						vTestLabel.setText(R.string.connection_failed)
 					}
-				} catch (e: Error) {
+				} catch (e: Throwable) {
 					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
 			}
@@ -81,7 +81,7 @@ class ConnectionActivity : Activity() {
 						vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
 						vTestLabel.setText(R.string.connection_failed)
 					}
-				} catch (e: Error) {
+				} catch (e: Throwable) {
 					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
 			}
