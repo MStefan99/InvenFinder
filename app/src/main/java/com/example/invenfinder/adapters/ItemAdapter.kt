@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.invenfinder.R
 import com.example.invenfinder.activities.ItemActivity
 import com.example.invenfinder.data.Item
-import com.example.invenfinder.data.Location
 
 
 class ItemAdapter(private val activity: Activity) :
@@ -70,7 +69,8 @@ class ItemAdapter(private val activity: Activity) :
 			for (c in items) {
 				if (c.name.lowercase().contains(q)
 					|| c.description!!.lowercase().contains(q)
-					|| c.location == l) {
+					|| c.location == l
+				) {
 					filtered.add(c)
 				}
 			}

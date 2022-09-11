@@ -5,7 +5,7 @@ import com.example.invenfinder.data.NewItem
 import kotlinx.coroutines.*
 
 
-object ItemManager: ConnectorInterface() {
+object ItemManager : ConnectorInterface() {
 	private var connector: CompletableDeferred<ConnectorInterface> = CompletableDeferred()
 
 	init {
@@ -23,7 +23,11 @@ object ItemManager: ConnectorInterface() {
 	override suspend fun testAuthAsync(): Deferred<Boolean> =
 		connector.await().testAuthAsync()
 
-	override suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean> =
+	override suspend fun loginAsync(
+		url: String,
+		username: String,
+		password: String
+	): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
 				if (url.contains("http")) {

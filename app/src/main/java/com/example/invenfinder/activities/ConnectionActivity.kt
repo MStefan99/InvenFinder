@@ -55,7 +55,6 @@ class ConnectionActivity : Activity() {
 		val prefs = Preferences.getPreferences()
 		vURL.setText(prefs.getString("url", null))
 		vUsername.setText(prefs.getString("username", null))
-		vPassword.setText(prefs.getString("password", null))
 
 		MainScope().launch {
 			try {
@@ -74,11 +73,13 @@ class ConnectionActivity : Activity() {
 			MainScope().launch {
 				try {
 					resetState()
-					setState(ItemManager.loginAsync(
-						vURL.text.toString(),
-						vUsername.text.toString(),
-						vPassword.text.toString()
-					).await())
+					setState(
+						ItemManager.loginAsync(
+							vURL.text.toString(),
+							vUsername.text.toString(),
+							vPassword.text.toString()
+						).await()
+					)
 				} catch (e: Exception) {
 					setState(false)
 					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()

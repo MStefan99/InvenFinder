@@ -2,13 +2,15 @@ package com.example.invenfinder.utils
 
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.NewItem
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 const val apiPrefix = "api"
@@ -16,7 +18,7 @@ const val apiPrefix = "api"
 class WebConnector : ConnectorInterface() {
 	private val client = OkHttpClient.Builder()
 		.connectTimeout(10, TimeUnit.SECONDS)
-		.build();
+		.build()
 
 	override suspend fun testConnectionAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
@@ -75,8 +77,8 @@ class WebConnector : ConnectorInterface() {
 		withContext(Dispatchers.IO) {
 			async {
 				val payload = JSONObject()
-				payload.put("username", username)
-				payload.put("password", password)
+					.put("username", username)
+					.put("password", password)
 
 				val res = client.newCall(
 					Request.Builder()
@@ -87,11 +89,11 @@ class WebConnector : ConnectorInterface() {
 
 				val result = JSONObject(res.body!!.string())
 				if (res.code == 201) {
-
-					val editor = Preferences.getPreferences().edit()
-					editor.putString("url", url)
-					editor.putString("key", result.getString("key"))
-					editor.apply()
+					Preferences.getPreferences().edit()
+						.putString("url", url)
+						.putString("username", username)
+						.putString("key", result.getString("key"))
+						.apply()
 				}
 				return@async res.code == 201
 			}
@@ -112,7 +114,9 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					Preferences.getPreferences().edit().remove("key").apply()
+					Preferences.getPreferences().edit()
+						.remove("key")
+						.apply()
 				}
 				return@async res.code == 200
 			}
@@ -126,11 +130,11 @@ class WebConnector : ConnectorInterface() {
 					?: throw Exception("Server address not set")
 
 				val payload = JSONObject()
-				payload.put("name", item.name)
-				payload.put("description", item.description)
-				payload.put("link", item.link)
-				payload.put("location", item.location)
-				payload.put("amount", item.amount)
+					.put("name", item.name)
+					.put("description", item.description)
+					.put("link", item.link)
+					.put("location", item.location)
+					.put("amount", item.amount)
 
 				val res = client.newCall(
 					Request.Builder()
@@ -176,20 +180,19 @@ class WebConnector : ConnectorInterface() {
 					val items = ArrayList<Item>()
 
 					for (i in 0 until data.length()) {
-						val jsonItem = data.getJSONObject(i)
+						val item = data.getJSONObject(i)
 
 						items.add(
 							Item(
-								jsonItem.getInt("id"),
-								jsonItem.getString("name"),
-								jsonItem.getString("description"),
-								jsonItem.getString("link"),
-								jsonItem.getString("location"),
-								jsonItem.getInt("amount")
+								item.getInt("id"),
+								item.getString("name"),
+								item.getString("description"),
+								item.getString("link"),
+								item.getString("location"),
+								item.getInt("amount")
 							)
 						)
 					}
-
 					return@async items
 				} else {
 					val error = JSONObject(res.body!!.string())
@@ -210,7 +213,7 @@ class WebConnector : ConnectorInterface() {
 					?: throw Exception("Server address not set")
 
 				val payload = JSONObject()
-				payload.put("amount", amount)
+					.put("amount", amount)
 
 				val res = client.newCall(
 					Request.Builder()
@@ -224,14 +227,14 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val result = JSONObject(res.body!!.string())
+					val item = JSONObject(res.body!!.string())
 					return@async Item(
-						result.getInt("id"),
-						result.getString("name"),
-						result.getString("description"),
-						result.getString("link"),
-						result.getString("location"),
-						result.getInt("amount")
+						item.getInt("id"),
+						item.getString("name"),
+						item.getString("description"),
+						item.getString("link"),
+						item.getString("location"),
+						item.getInt("amount")
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
@@ -248,11 +251,11 @@ class WebConnector : ConnectorInterface() {
 					?: throw Exception("Server address not set")
 
 				val payload = JSONObject()
-				payload.put("name", item.name)
-				payload.put("description", item.description)
-				payload.put("link", item.link)
-				payload.put("location", item.location)
-				payload.put("amount", item.amount)
+					.put("name", item.name)
+					.put("description", item.description)
+					.put("link", item.link)
+					.put("location", item.location)
+					.put("amount", item.amount)
 
 				val res = client.newCall(
 					Request.Builder()
@@ -266,14 +269,14 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val result = JSONObject(res.body!!.string())
+					val receivedItem = JSONObject(res.body!!.string())
 					return@async Item(
-						result.getInt("id"),
-						result.getString("name"),
-						result.getString("description"),
-						result.getString("link"),
-						result.getString("location"),
-						result.getInt("amount")
+						receivedItem.getInt("id"),
+						receivedItem.getString("name"),
+						receivedItem.getString("description"),
+						receivedItem.getString("link"),
+						receivedItem.getString("location"),
+						receivedItem.getInt("amount")
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
@@ -301,14 +304,14 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val result = JSONObject(res.body!!.string())
+					val receivedItem = JSONObject(res.body!!.string())
 					return@async Item(
-						result.getInt("id"),
-						result.getString("name"),
-						result.getString("description"),
-						result.getString("link"),
-						result.getString("location"),
-						result.getInt("amount")
+						receivedItem.getInt("id"),
+						receivedItem.getString("name"),
+						receivedItem.getString("description"),
+						receivedItem.getString("link"),
+						receivedItem.getString("location"),
+						receivedItem.getInt("amount")
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())

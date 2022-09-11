@@ -4,7 +4,10 @@ import android.util.Log
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.NewItem
 import kotlinx.coroutines.*
-import java.sql.*
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.SQLException
+import java.sql.Statement
 
 private const val protocol: String = "jdbc:mariadb://"
 private const val port: String = "3306"
@@ -112,11 +115,11 @@ class DatabaseConnector : ConnectorInterface() {
 						)
 						.close()
 
-					val prefEditor = prefs.edit()
-					prefEditor.putString("url", url)
-					prefEditor.putString("username", username)
-					prefEditor.putString("password", password)
-					prefEditor.apply()
+					prefs.edit()
+						.putString("url", url)
+						.putString("username", username)
+						.putString("password", password)
+						.apply()
 
 					return@async true
 				} catch (e: SQLException) {
@@ -126,10 +129,9 @@ class DatabaseConnector : ConnectorInterface() {
 		}
 
 	override suspend fun logoutAsync(): Deferred<Boolean> {
-		val prefEditor = Preferences.getPreferences().edit()
-		prefEditor.remove("username")
-		prefEditor.remove("password")
-		prefEditor.apply()
+		Preferences.getPreferences().edit()
+			.remove("password")
+			.apply()
 
 		return CompletableDeferred(true)
 	}
@@ -206,8 +208,8 @@ class DatabaseConnector : ConnectorInterface() {
 
 					return@async items
 				} catch (e: SQLException) {
-					e.message?.let { Log.e("SQL error", it) };
-					throw Exception("Failed to retrieve items: ", e.cause);
+					e.message?.let { Log.e("SQL error", it) }
+					throw Exception("Failed to retrieve items: ", e.cause)
 				}
 			}
 		}
