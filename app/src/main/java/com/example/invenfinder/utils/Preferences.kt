@@ -11,7 +11,7 @@ object Preferences {
 
 	fun getPreferences(): SharedPreferences {
 		if (!this::preferences.isInitialized) {
-			throw Error("Preferences not initialized")
+			throw Exception("Preferences not initialized")
 		}
 
 		return this.preferences

@@ -22,7 +22,7 @@ class WebConnector : ConnectorInterface() {
 		withContext(Dispatchers.IO) {
 			async {
 				val url = Preferences.getPreferences().getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val res = client.newCall(
 					Request.Builder()
@@ -52,7 +52,7 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 				val key = prefs.getString("key", null)
 					?: return@async false
 
@@ -102,12 +102,12 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/logout")
-						.header("API-Key", prefs.getString("key", null) ?: throw Error("Not logged in"))
+						.header("API-Key", prefs.getString("key", null) ?: throw Exception("Not logged in"))
 						.build()
 				).execute()
 
@@ -123,7 +123,7 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val payload = JSONObject()
 				payload.put("name", item.name)
@@ -135,7 +135,7 @@ class WebConnector : ConnectorInterface() {
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/items")
-						.header("API-Key", prefs.getString("key", null) ?: throw Error("Not signed in"))
+						.header("API-Key", prefs.getString("key", null) ?: throw Exception("Not signed in"))
 						.post(payload.toString().toRequestBody())
 						.build()
 				).execute()
@@ -152,7 +152,7 @@ class WebConnector : ConnectorInterface() {
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
-					throw Error(error.getString("message"))
+					throw Exception(error.getString("message"))
 				}
 			}
 		}
@@ -162,12 +162,12 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/items")
-						.header("API-Key", prefs.getString("key", null) ?: throw Error("Not signed in"))
+						.header("API-Key", prefs.getString("key", null) ?: throw Exception("Not signed in"))
 						.build()
 				).execute()
 
@@ -193,7 +193,7 @@ class WebConnector : ConnectorInterface() {
 					return@async items
 				} else {
 					val error = JSONObject(res.body!!.string())
-					throw Error(error.getString("message"))
+					throw Exception(error.getString("message"))
 				}
 			}
 		}
@@ -207,7 +207,7 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val payload = JSONObject()
 				payload.put("amount", amount)
@@ -217,7 +217,7 @@ class WebConnector : ConnectorInterface() {
 						.url("$url/$apiPrefix/items/$id/amount")
 						.header(
 							"API-Key", prefs.getString("key", null)
-								?: throw Error("Not logged in")
+								?: throw Exception("Not logged in")
 						)
 						.put(payload.toString().toRequestBody())
 						.build()
@@ -235,7 +235,7 @@ class WebConnector : ConnectorInterface() {
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
-					throw Error(error.getString("message"))
+					throw Exception(error.getString("message"))
 				}
 			}
 		}
@@ -245,7 +245,7 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val payload = JSONObject()
 				payload.put("name", item.name)
@@ -259,7 +259,7 @@ class WebConnector : ConnectorInterface() {
 						.url("$url/$apiPrefix/items/${item.id}")
 						.header(
 							"API-Key", prefs.getString("key", null)
-								?: throw Error("Not logged in")
+								?: throw Exception("Not logged in")
 						)
 						.patch(payload.toString().toRequestBody())
 						.build()
@@ -277,7 +277,7 @@ class WebConnector : ConnectorInterface() {
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
-					throw Error(error.getString("message"))
+					throw Exception(error.getString("message"))
 				}
 			}
 		}
@@ -287,14 +287,14 @@ class WebConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Server address not set")
+					?: throw Exception("Server address not set")
 
 				val res = client.newCall(
 					Request.Builder()
 						.url("$url/$apiPrefix/items/${item.id}")
 						.header(
 							"API-Key", prefs.getString("key", null)
-								?: throw Error("Not logged in")
+								?: throw Exception("Not logged in")
 						)
 						.delete()
 						.build()
@@ -312,7 +312,7 @@ class WebConnector : ConnectorInterface() {
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
-					throw Error(error.getString("message"))
+					throw Exception(error.getString("message"))
 				}
 			}
 		}

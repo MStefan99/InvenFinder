@@ -16,11 +16,11 @@ class DatabaseConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Database URL not set")
+					?: throw Exception("Database URL not set")
 				val username = prefs.getString("username", null)
-					?: throw Error("Database username not set")
+					?: throw Exception("Database username not set")
 				val password = prefs.getString("password", null)
-					?: throw Error("Database password not set")
+					?: throw Exception("Database password not set")
 
 				return@async DriverManager.getConnection(
 					"$protocol$url:$port/$db",
@@ -34,7 +34,7 @@ class DatabaseConnector : ConnectorInterface() {
 		withContext(Dispatchers.IO) {
 			async {
 				val url = Preferences.getPreferences().getString("url", null)
-					?: throw Error("Database URL not set")
+					?: throw Exception("Database URL not set")
 
 				try {
 					DriverManager
@@ -72,11 +72,11 @@ class DatabaseConnector : ConnectorInterface() {
 			async {
 				val prefs = Preferences.getPreferences()
 				val url = prefs.getString("url", null)
-					?: throw Error("Database URL not set")
+					?: throw Exception("Database URL not set")
 				val username = prefs.getString("username", null)
-					?: throw Error("Database username not set")
+					?: throw Exception("Database username not set")
 				val password = prefs.getString("password", null)
-					?: throw Error("Database password not set")
+					?: throw Exception("Database password not set")
 
 				try {
 					DriverManager.getConnection(
@@ -168,10 +168,10 @@ class DatabaseConnector : ConnectorInterface() {
 							item.amount
 						)
 					} else {
-						throw Error("Failed to get item ID")
+						throw Exception("Failed to get item ID")
 					}
 				} catch (e: SQLException) {
-					throw Error("Adding an item failed: ", e.cause)
+					throw Exception("Adding an item failed: ", e.cause)
 				}
 			}
 		}
@@ -207,7 +207,7 @@ class DatabaseConnector : ConnectorInterface() {
 					return@async items
 				} catch (e: SQLException) {
 					e.message?.let { Log.e("SQL error", it) };
-					throw Error("Failed to retrieve items: ", e.cause);
+					throw Exception("Failed to retrieve items: ", e.cause);
 				}
 			}
 		}
@@ -236,10 +236,10 @@ class DatabaseConnector : ConnectorInterface() {
 							res.getInt("amount")
 						)
 					} else {
-						throw Error("Item not found")
+						throw Exception("Item not found")
 					}
 				} catch (e: SQLException) {
-					throw Error("Retrieving an item failed: ", e.cause)
+					throw Exception("Retrieving an item failed: ", e.cause)
 				}
 			}
 		}
@@ -261,7 +261,7 @@ class DatabaseConnector : ConnectorInterface() {
 
 					return@async getByIDAsync(id).await()
 				} catch (e: SQLException) {
-					throw Error("Failed to update item amount: ", e.cause)
+					throw Exception("Failed to update item amount: ", e.cause)
 				}
 			}
 		}
@@ -290,7 +290,7 @@ class DatabaseConnector : ConnectorInterface() {
 
 					return@async getByIDAsync(item.id).await()
 				} catch (e: SQLException) {
-					throw Error("Failed to update item: ", e.cause)
+					throw Exception("Failed to update item: ", e.cause)
 				}
 			}
 		}
@@ -312,7 +312,7 @@ class DatabaseConnector : ConnectorInterface() {
 
 					return@async i
 				} catch (e: SQLException) {
-					throw Error("Failed to delete item: ", e.cause)
+					throw Exception("Failed to delete item: ", e.cause)
 				}
 			}
 		}

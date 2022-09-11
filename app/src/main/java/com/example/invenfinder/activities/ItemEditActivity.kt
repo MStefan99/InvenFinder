@@ -76,7 +76,7 @@ class ItemEditActivity : Activity() {
 								if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
 							)
 						)
-					} catch (e: Throwable) {
+					} catch (e: Exception) {
 						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
 					}
 				}
@@ -95,7 +95,7 @@ class ItemEditActivity : Activity() {
 					try {
 						@Suppress("DeferredResultUnused")
 						ItemManager.editAsync(item)
-					} catch (e: Throwable) {
+					} catch (e: Exception) {
 						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
 					}
 				}

@@ -61,7 +61,7 @@ class ConnectionActivity : Activity() {
 			try {
 				resetState()
 				setState(ItemManager.testAuthAsync().await())
-			} catch (e: Throwable) {
+			} catch (e: Exception) {
 				setState(false)
 				Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 			}
@@ -79,7 +79,7 @@ class ConnectionActivity : Activity() {
 						vUsername.text.toString(),
 						vPassword.text.toString()
 					).await())
-				} catch (e: Throwable) {
+				} catch (e: Exception) {
 					setState(false)
 					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
@@ -95,7 +95,7 @@ class ConnectionActivity : Activity() {
 				try {
 					resetState()
 					setState(!ItemManager.logoutAsync().await())
-				} catch (e: Throwable) {
+				} catch (e: Exception) {
 					setState(true)
 					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 				}
