@@ -22,15 +22,11 @@ class DatabaseConnector : ConnectorInterface() {
 				val password = prefs.getString("password", null)
 					?: throw Error("Database password not set")
 
-				try {
-					return@async DriverManager.getConnection(
-						"$protocol$url:$port/$db",
-						username,
-						password
-					)
-				} catch (e: SQLException) {
-					throw Error("Failed to open database connection: ", e.cause)
-				}
+				return@async DriverManager.getConnection(
+					"$protocol$url:$port/$db",
+					username,
+					password
+				)
 			}
 		}
 
@@ -62,6 +58,32 @@ class DatabaseConnector : ConnectorInterface() {
 						.getConnection(
 							"$protocol$url:$port/$db",
 						)
+						.close()
+
+					return@async true
+				} catch (e: SQLException) {
+					return@async false
+				}
+			}
+		}
+
+	override suspend fun testAuthAsync(): Deferred<Boolean> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Database URL not set")
+				val username = prefs.getString("username", null)
+					?: throw Error("Database username not set")
+				val password = prefs.getString("password", null)
+					?: throw Error("Database password not set")
+
+				try {
+					DriverManager.getConnection(
+						"$protocol$url:$port/$db",
+						username,
+						password
+					)
 						.close()
 
 					return@async true
@@ -132,19 +154,19 @@ class DatabaseConnector : ConnectorInterface() {
 
 					val generatedKeys = st.generatedKeys
 					if (generatedKeys.next()) {
-					val id: Int = generatedKeys.getInt(1)
+						val id: Int = generatedKeys.getInt(1)
 
-					st.close()
-					conn.close()
+						st.close()
+						conn.close()
 
-					return@async Item(
-						id,
-						item.name,
-						item.description,
-						item.link,
-						item.location,
-						item.amount
-					)
+						return@async Item(
+							id,
+							item.name,
+							item.description,
+							item.link,
+							item.location,
+							item.amount
+						)
 					} else {
 						throw Error("Failed to get item ID")
 					}
@@ -201,8 +223,8 @@ class DatabaseConnector : ConnectorInterface() {
 					st.setInt(1, id)
 					val res = st.executeQuery()
 
-						st.close()
-						conn.close()
+					st.close()
+					conn.close()
 
 					if (res.next()) {
 						return@async Item(

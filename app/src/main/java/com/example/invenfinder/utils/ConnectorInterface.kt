@@ -7,6 +7,7 @@ import kotlinx.coroutines.Deferred
 abstract class ConnectorInterface {
 	abstract suspend fun testConnectionAsync(): Deferred<Boolean>
 	abstract suspend fun testConnectionAsync(url: String): Deferred<Boolean>
+	abstract suspend fun testAuthAsync(): Deferred<Boolean>
 	abstract suspend fun loginAsync(url: String, username: String, password: String): Deferred<Boolean>
 	abstract suspend fun logoutAsync(): Deferred<Boolean>
 

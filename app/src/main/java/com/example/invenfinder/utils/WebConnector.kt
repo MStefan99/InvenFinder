@@ -9,11 +9,14 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 const val apiPrefix = "api"
 
 class WebConnector : ConnectorInterface() {
-	private val client = OkHttpClient()
+	private val client = OkHttpClient.Builder()
+		.connectTimeout(10, TimeUnit.SECONDS)
+		.build();
 
 	override suspend fun testConnectionAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
@@ -41,6 +44,26 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				return@async res.header("who-am-i") == "Invenfinder"
+			}
+		}
+
+	override suspend fun testAuthAsync(): Deferred<Boolean> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Error("Server address not set")
+				val key = prefs.getString("key", null)
+					?: return@async false
+
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/auth")
+						.header("API-Key", key)
+						.build()
+				).execute()
+
+				return@async res.code == 200
 			}
 		}
 
