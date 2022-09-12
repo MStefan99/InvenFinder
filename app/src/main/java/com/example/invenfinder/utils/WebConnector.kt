@@ -201,9 +201,37 @@ class WebConnector : ConnectorInterface() {
 			}
 		}
 
-	override suspend fun getByIDAsync(id: Int): Deferred<Item> {
-		TODO("Not yet implemented")
-	}
+	override suspend fun getByIDAsync(id: Int): Deferred<Item> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Exception("Server address not set")
+
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items/$id")
+						.header("API-Key", prefs.getString("key", null) ?: throw Exception("Not signed in"))
+						.build()
+				).execute()
+
+				if (res.code == 200) {
+					val data = JSONObject(res.body!!.string())
+					val item = Item(
+								data.getInt("id"),
+								data.getString("name"),
+								data.getString("description"),
+								data.getString("link"),
+								data.getString("location"),
+								data.getInt("amount")
+							)
+					return@async item
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Exception(error.getString("message"))
+				}
+			}
+		}
 
 	override suspend fun editAmountAsync(id: Int, amount: Int): Deferred<Item> =
 		withContext(Dispatchers.IO) {
