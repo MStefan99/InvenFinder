@@ -42,11 +42,11 @@ class ConnectionActivity : Activity() {
 			vLogoutButton.isEnabled = connected
 
 			if (connected) {
-				vLogoutButton.setTextColor(getColorFromAttr(R.attr.colorBackground))
+				vLogoutButton.setTextColor(getColorFromAttr(R.attr.colorOnAccent))
 				vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
 				vTestLabel.setText(R.string.signed_in)
 			} else {
-				vLoginButton.setTextColor(getColorFromAttr(R.attr.colorBackground))
+				vLoginButton.setTextColor(getColorFromAttr(R.attr.colorOnAccent))
 				vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
 				vTestLabel.setText(R.string.not_signed_in)
 			}
