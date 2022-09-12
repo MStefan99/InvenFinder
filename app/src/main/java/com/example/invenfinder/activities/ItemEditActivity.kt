@@ -67,7 +67,7 @@ class ItemEditActivity : Activity() {
 				MainScope().launch {
 					try {
 						@Suppress("DeferredResultUnused")
-						ItemManager.addAsync(
+						val newItem = ItemManager.addAsync(
 							NewItem(
 								vName.text.toString(),
 								vDescription.text.toString(),
@@ -75,7 +75,11 @@ class ItemEditActivity : Activity() {
 								location,
 								if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
 							)
-						)
+						).await()
+						startActivity(Intent(this@ItemEditActivity, ItemActivity::class.java).apply {
+							flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
+							putExtra("item", newItem)
+						})
 					} catch (e: Exception) {
 						Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
 					}

@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.invenfinder.R
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.ItemManager
@@ -25,6 +26,7 @@ class ItemActivity : Activity() {
 	private lateinit var vPut: ImageView
 	private lateinit var vEdit: ImageView
 	private lateinit var vRemove: ImageView
+	private lateinit var vRefresh: SwipeRefreshLayout
 
 	private lateinit var item: Item
 
@@ -33,6 +35,7 @@ class ItemActivity : Activity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_item)
 
+		vRefresh = findViewById(R.id.refresh_layout)
 		vName = findViewById(R.id.component_name)
 		vDescription = findViewById(R.id.component_description)
 		vLink = findViewById(R.id.component_link)
@@ -43,13 +46,18 @@ class ItemActivity : Activity() {
 		vEdit = findViewById(R.id.edit_button)
 		vRemove = findViewById(R.id.remove_button)
 
-		val receivedItem = intent.getParcelableExtra<Item>("item")
-
-		if (receivedItem == null) {
-			finish()
-			return
+		intent.getParcelableExtra<Item>("item").let { item ->
+			if (item == null) {
+				finish()
+				return
+			}
+			setItem(item)
+			loadItem(item.id)
 		}
-		setItem(receivedItem)
+
+		vRefresh.setOnRefreshListener {
+			loadItem(item.id)
+		}
 
 		vEdit.setOnClickListener {
 			startActivityForResult(Intent(this, ItemEditActivity::class.java).apply {
@@ -137,7 +145,6 @@ class ItemActivity : Activity() {
 		}
 	}
 
-
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
 
@@ -145,6 +152,17 @@ class ItemActivity : Activity() {
 		setItem(newItem)
 	}
 
+	private fun loadItem(id: Int) {
+		MainScope().launch {
+			vRefresh.isRefreshing = true
+			try {
+				setItem(ItemManager.getByIDAsync(item.id).await())
+			} catch (e: Exception) {
+				Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+			}
+			vRefresh.isRefreshing = false
+		}
+	}
 
 	private fun setItem(newItem: Item) {
 		item = newItem
