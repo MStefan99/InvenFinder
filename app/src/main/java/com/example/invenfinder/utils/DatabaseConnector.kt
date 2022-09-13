@@ -106,18 +106,19 @@ class DatabaseConnector : ConnectorInterface() {
 				try {
 					DriverManager.setLoginTimeout(10)
 					val prefs = Preferences.getPreferences()
+					val trimmedUsername = username.trim()
 
 					DriverManager
 						.getConnection(
 							"$protocol$url:$port/$db",
-							username,
+							trimmedUsername,
 							password
 						)
 						.close()
 
 					prefs.edit()
 						.putString("url", url)
-						.putString("username", username)
+						.putString("username", trimmedUsername)
 						.putString("password", password)
 						.apply()
 
@@ -147,6 +148,12 @@ class DatabaseConnector : ConnectorInterface() {
 							"insert into items(name, description, link, location, amount) " +
 									"values(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS
 						)
+
+					item.name = item.name.trim()
+					item.description = item.description?.trim()
+					item.link = item.link?.trim()
+					item.location = item.location.trim()
+
 					st.setString(1, item.name)
 					st.setString(2, item.description)
 					st.setString(3, item.link)
@@ -279,6 +286,12 @@ class DatabaseConnector : ConnectorInterface() {
 							"update items set name = ?, description = ?, link = ?, " +
 									"location = ?, amount = ? where id = ?"
 						)
+
+					item.name = item.name.trim()
+					item.description = item.description?.trim()
+					item.link = item.link?.trim()
+					item.location = item.location.trim()
+
 					st.setString(1, item.name)
 					st.setString(2, item.description)
 					st.setString(3, item.link)
