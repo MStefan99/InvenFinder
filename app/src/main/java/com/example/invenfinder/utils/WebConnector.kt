@@ -1,5 +1,6 @@
 package com.example.invenfinder.utils
 
+import android.util.Log
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.NewItem
 import kotlinx.coroutines.Deferred
@@ -149,8 +150,8 @@ class WebConnector : ConnectorInterface() {
 					return@async Item(
 						result.getInt("id"),
 						result.getString("name"),
-						result.getString("description"),
-						result.getString("link"),
+						if (result.isNull("description")) null else result.getString("description"),
+						if (result.isNull("link")) null else result.getString("link"),
 						result.getString("location"),
 						result.getInt("amount")
 					)
@@ -180,16 +181,16 @@ class WebConnector : ConnectorInterface() {
 					val items = ArrayList<Item>()
 
 					for (i in 0 until data.length()) {
-						val item = data.getJSONObject(i)
+						val result = data.getJSONObject(i)
 
 						items.add(
 							Item(
-								item.getInt("id"),
-								item.getString("name"),
-								item.getString("description"),
-								item.getString("link"),
-								item.getString("location"),
-								item.getInt("amount")
+								result.getInt("id"),
+								result.getString("name"),
+								if (result.isNull("description")) null else result.getString("description"),
+								if (result.isNull("link")) null else result.getString("link"),
+								result.getString("location"),
+								result.getInt("amount")
 							)
 						)
 					}
@@ -216,16 +217,16 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val data = JSONObject(res.body!!.string())
-					val item = Item(
-								data.getInt("id"),
-								data.getString("name"),
-								data.getString("description"),
-								data.getString("link"),
-								data.getString("location"),
-								data.getInt("amount")
-							)
-					return@async item
+					val result = JSONObject(res.body!!.string())
+
+					return@async Item(
+						result.getInt("id"),
+						result.getString("name"),
+						if (result.isNull("description")) null else result.getString("description"),
+						if (result.isNull("link")) null else result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
+					)
 				} else {
 					val error = JSONObject(res.body!!.string())
 					throw Exception(error.getString("message"))
@@ -255,14 +256,15 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val item = JSONObject(res.body!!.string())
+					val result = JSONObject(res.body!!.string())
+
 					return@async Item(
-						item.getInt("id"),
-						item.getString("name"),
-						item.getString("description"),
-						item.getString("link"),
-						item.getString("location"),
-						item.getInt("amount")
+						result.getInt("id"),
+						result.getString("name"),
+						if (result.isNull("description")) null else result.getString("description"),
+						if (result.isNull("link")) null else result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
@@ -280,10 +282,11 @@ class WebConnector : ConnectorInterface() {
 
 				val payload = JSONObject()
 					.put("name", item.name)
-					.put("description", item.description)
-					.put("link", item.link)
+					.put("description", item.description ?: JSONObject.NULL)
+					.put("link", item.link ?: JSONObject.NULL)
 					.put("location", item.location)
 					.put("amount", item.amount)
+				Log.i("Payload", payload.toString());
 
 				val res = client.newCall(
 					Request.Builder()
@@ -297,14 +300,15 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val receivedItem = JSONObject(res.body!!.string())
+					val result = JSONObject(res.body!!.string())
+
 					return@async Item(
-						receivedItem.getInt("id"),
-						receivedItem.getString("name"),
-						receivedItem.getString("description"),
-						receivedItem.getString("link"),
-						receivedItem.getString("location"),
-						receivedItem.getInt("amount")
+						result.getInt("id"),
+						result.getString("name"),
+						if (result.isNull("description")) null else result.getString("description"),
+						if (result.isNull("link")) null else result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())
@@ -332,14 +336,15 @@ class WebConnector : ConnectorInterface() {
 				).execute()
 
 				if (res.code == 200) {
-					val receivedItem = JSONObject(res.body!!.string())
+					val result = JSONObject(res.body!!.string())
+
 					return@async Item(
-						receivedItem.getInt("id"),
-						receivedItem.getString("name"),
-						receivedItem.getString("description"),
-						receivedItem.getString("link"),
-						receivedItem.getString("location"),
-						receivedItem.getInt("amount")
+						result.getInt("id"),
+						result.getString("name"),
+						if (result.isNull("description")) null else result.getString("description"),
+						if (result.isNull("link")) null else result.getString("link"),
+						result.getString("location"),
+						result.getInt("amount")
 					)
 				} else {
 					val error = JSONObject(res.body!!.string())

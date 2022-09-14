@@ -168,8 +168,8 @@ class ItemActivity : Activity() {
 		item = newItem
 
 		vName.text = item.name
-		vDescription.text = item.description
-		vLink.text = item.link
+		vDescription.text = item.description ?: "No description"
+		vLink.text = item.link ?: "No link"
 		vLocation.text = item.location
 		vAmount.text = item.amount.toString()
 	}

@@ -42,9 +42,9 @@ class ItemEditActivity : Activity() {
 			vSubmit.setText(R.string.save)
 
 			vName.setText(item.name)
-			vDescription.setText(item.description)
-			vLink.setText(item.link)
-			vLocation.setText(item.location.toString())
+			vDescription.setText(item.description ?: "")
+			vLink.setText(item.link ?: "")
+			vLocation.setText(item.location)
 			vAmount.setText(item.amount.toString())
 		} else {
 			Log.d("ITEM", "Trying to edit item but not item was provided")
@@ -57,7 +57,7 @@ class ItemEditActivity : Activity() {
 				return@setOnClickListener
 			}
 
-			val location = vLocation.text.toString().uppercase()
+			val location = vLocation.text.toString()
 			if (location.isEmpty()) {
 				vError.setText(R.string.location_is_invalid)
 				return@setOnClickListener
@@ -70,10 +70,10 @@ class ItemEditActivity : Activity() {
 						val newItem = ItemManager.addAsync(
 							NewItem(
 								vName.text.toString(),
-								vDescription.text.toString(),
-								vLink.text.toString(),
+								vDescription.text.toString().let { it.ifEmpty { null } },
+								vLink.text.toString().let { it.ifEmpty { null } },
 								location,
-								if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+								vAmount.text.toString().let {if (it.isNotEmpty()) it.toInt() else 0}
 							)
 						).await()
 						startActivity(Intent(this@ItemEditActivity, ItemActivity::class.java).apply {
@@ -91,9 +91,10 @@ class ItemEditActivity : Activity() {
 				}
 
 				item.name = vName.text.toString()
-				item.description = vDescription.text.toString()
+				item.description = vDescription.text.toString().let { it.ifEmpty { null } }
+				item.link = vLink.text.toString().let { it.ifEmpty { null } }
 				item.location = location
-				item.amount = if (vAmount.text.isNotEmpty()) vAmount.text.toString().toInt() else 0
+				item.amount = vAmount.text.toString().let { if (it.isNotEmpty()) it.toInt() else 0 }
 
 				MainScope().launch {
 					try {
