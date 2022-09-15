@@ -1,17 +1,29 @@
 package com.example.invenfinder.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.invenfinder.R
 import com.example.invenfinder.components.TitleBar
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.ItemManager
@@ -21,8 +33,8 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-	private var items by mutableStateOf(mutableListOf<Item>())
-	var filteredItems by mutableStateOf(mutableListOf<Item>())
+	private var items by mutableStateOf(listOf<Item>())
+	var filteredItems by mutableStateOf(listOf<Item>())
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -32,10 +44,52 @@ class MainActivity : ComponentActivity() {
 
 		setContent {
 			var searchQuery by remember { mutableStateOf("") }
+
 			Column {
-				TitleBar("Inventory")
-				SearchField(searchQuery, onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
-				ItemList(filteredItems)
+				TitleBar("Inventory") {
+					Image(
+						painterResource(R.drawable.add_button),
+						stringResource(R.string.add_item),
+						modifier = Modifier
+							.height(28.dp)
+							.clickable {
+								startActivity(Intent(this@MainActivity, ItemEditActivity::class.java).apply {
+									putExtra("action", ItemEditActivity.Action.ADD)
+								})
+							})
+					Spacer(modifier = Modifier.padding(start = 12.dp))
+					Image(
+						painterResource(R.drawable.settings),
+						stringResource(R.string.settings),
+						modifier = Modifier
+							.height(28.dp)
+							.clickable {
+								startActivity(Intent(this@MainActivity, ConnectionActivity::class.java))
+							}
+					)
+				}
+				Column(
+					modifier = Modifier.padding(horizontal = 16.dp)
+				) {
+					SearchField(
+						searchQuery,
+						onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
+					if (items.isEmpty()) {
+						Text(stringResource(R.string.inventory_empty))
+					} else if (filteredItems.isEmpty()) {
+						Text(stringResource(R.string.search_empty))
+					} else {
+						ItemList(filteredItems) {
+							this@MainActivity.startActivity(
+								Intent(
+									this@MainActivity,
+									ItemActivity::class.java
+								).apply {
+									putExtra("item", it)
+								})
+						}
+					}
+				}
 			}
 		}
 	}
@@ -60,24 +114,57 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ItemList(items: List<Item>) {
-	if (items.isEmpty()) {
-		Text("No items")
-	} else {
-		LazyColumn {
-			items(items) { item ->
-				Text(item.name)
-			}
+fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}) {
+	TextField(
+		value = query,
+		onValueChange = onQueryChange,
+		leadingIcon = { Icon(Icons.Default.Search, null) },
+		placeholder = { Text(stringResource(R.string.search)) },
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(bottom = 8.dp)
+	)
+}
+
+@Composable
+fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
+	LazyColumn {
+		items(items) { item ->
+			Item(item, onItemClick)
 		}
 	}
 }
 
 @Composable
-fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}) {
-	TextField(value = query, onValueChange = onQueryChange, modifier = Modifier.fillMaxWidth())
+fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
+	Surface(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(vertical = 8.dp)
+			.clickable { onItemClick(item) }
+	) {
+		Row {
+			Column {
+				Text(
+					item.name,
+					fontSize = 16.sp, fontWeight = FontWeight(500),
+					modifier = Modifier.padding(bottom = 8.dp)
+				)
+				item.description?.let { Text(it) }
+			}
+			Spacer(modifier = Modifier.weight(1f))
+			Column {
+				Text(
+					item.location,
+					modifier = Modifier.padding(bottom = 8.dp)
+				)
+				Text(item.amount.toString())
+			}
+		}
+	}
 }
 
-fun filter(items: MutableList<Item>, query: String?): MutableList<Item> {
+fun filter(items: List<Item>, query: String?): List<Item> {
 	val filtered = ArrayList<Item>()
 
 	if (query == null || query.isEmpty()) {
@@ -89,7 +176,7 @@ fun filter(items: MutableList<Item>, query: String?): MutableList<Item> {
 		for (c in items) {
 			if (c.name.lowercase().contains(q)
 				|| c.description!!.lowercase().contains(q)
-				|| c.location == l.lowercase()
+				|| c.location.lowercase() == l
 			) {
 				filtered.add(c)
 			}

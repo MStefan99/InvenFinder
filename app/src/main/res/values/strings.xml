@@ -2,6 +2,9 @@
 	<string name="app_name">InvenFinder</string>
 
 	<string name="item">Component</string>
+	<string name="inventory">Inventory</string>
+	<string name="inventory_empty">Your inventory is empty! Add some items and they will appear here</string>
+	<string name="search_empty">Nothing found. Try adjusting your search</string>
 	<string name="all_items">All components</string>
 	<string name="item_details">Component details</string>
 	<string name="add_item">Add component</string>
