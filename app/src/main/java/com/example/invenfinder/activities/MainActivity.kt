@@ -1,93 +1,64 @@
 package com.example.invenfinder.activities
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.widget.doOnTextChanged
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.invenfinder.R
-import com.example.invenfinder.adapters.ItemAdapter
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.ItemManager
 import com.example.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 
-class MainActivity : Activity() {
-	private val itemAdapter = ItemAdapter(this)
-
-	private lateinit var vList: RecyclerView
-	private lateinit var vSearch: EditText
-	private lateinit var vRefresh: SwipeRefreshLayout
-	private lateinit var vSettings: ImageView
-	private lateinit var vAdd: ImageView
-
+class MainActivity : ComponentActivity() {
+	private var items by mutableStateOf(listOf<Item>())
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_main)
-
-		vList = findViewById(R.id.component_list)
-		vSearch = findViewById(R.id.search_field)
-		vRefresh = findViewById(R.id.refresh_layout)
-		vSettings = findViewById(R.id.settings_button)
-		vAdd = findViewById(R.id.submit_button)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 		Preferences.setPreferences(prefs)
 
-		vAdd.setOnClickListener {
-			startActivity(Intent(this, ItemEditActivity::class.java).apply {
-				putExtra("action", ItemEditActivity.Action.ADD)
-			})
+		setContent {
+			ItemList(items)
 		}
-
-		vSettings.setOnClickListener {
-			startActivity(Intent(this, SettingsActivity::class.java))
-		}
-
-		vSearch.doOnTextChanged { text, _, _, _ -> itemAdapter.filter(text.toString()) }
-
-		vRefresh.setOnRefreshListener {
-			loadData()
-		}
-
-		vList.addItemDecoration(
-			DividerItemDecoration(
-				this,
-				DividerItemDecoration.VERTICAL
-			)
-		)
-		vList.layoutManager = LinearLayoutManager(this)
-		vList.adapter = itemAdapter
 	}
-
 
 	override fun onResume() {
 		super.onResume()
-		loadData()
+		MainScope().launch {
+			items = loadItems()
+		}
 	}
 
-
-	private fun loadData() {
-		vRefresh.isRefreshing = true
-
-		MainScope().launch {
-			try {
-				val components = ItemManager.getAllAsync().await()
-				itemAdapter.setComponents(components)
-				itemAdapter.filter(vSearch.text.toString())
-			} catch (e: Exception) {
-				Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+	@Composable
+	fun ItemList(items: List<Item>) {
+		if (items.isEmpty()) {
+			Text("No items")
+		} else {
+			LazyColumn {
+				items(items) { item ->
+					Text(item.name)
+				}
 			}
+		}
+	}
 
-			vRefresh.isRefreshing = false
+	private suspend fun loadItems(): ArrayList<Item> {
+		return try {
+			ItemManager.getAllAsync().await()
+			//				itemAdapter.filter(vSearch.text.toString())
+		} catch (e: Exception) {
+			Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+			ArrayList()
 		}
 	}
 }
