@@ -16,6 +16,8 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.invenfinder.components.TitleBar
 
 enum class SettingsOptionType {
 	Button
@@ -46,7 +48,10 @@ class SettingsActivity : ComponentActivity() {
 		)
 
 		setContent {
-			SettingsContent(defaultSettings)
+			Column {
+				TitleBar("Settings")
+				SettingsContent(defaultSettings)
+			}
 		}
 	}
 }
@@ -54,10 +59,10 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 fun SettingsContent(sections: List<SettingsSection>) {
 	LazyColumn(
-		modifier = Modifier.padding(16.dp)
+		modifier = Modifier.padding(horizontal = 16.dp)
 	) {
 		items(sections) { section ->
-			Text(section.title, style = MaterialTheme.typography.h4)
+			Text(section.title, fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
 			Column {
 				for (option in section.options) {
 					TextButton(
