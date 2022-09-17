@@ -53,9 +53,7 @@ class MainActivity : ComponentActivity() {
 						modifier = Modifier
 							.height(28.dp)
 							.clickable {
-								startActivity(Intent(this@MainActivity, ItemEditActivity::class.java).apply {
-									putExtra("action", ItemEditActivity.Action.Add)
-								})
+								startActivity(Intent(this@MainActivity, ItemEditActivity::class.java))
 							})
 					Spacer(modifier = Modifier.padding(start = 12.dp))
 					Image(
@@ -85,7 +83,7 @@ class MainActivity : ComponentActivity() {
 									this@MainActivity,
 									ItemActivity::class.java
 								).apply {
-									putExtra("item", it)
+									putExtra("itemID", it.id)
 								})
 						}
 					}

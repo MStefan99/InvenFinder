@@ -46,23 +46,13 @@ class ItemActivity : Activity() {
 		vEdit = findViewById(R.id.edit_button)
 		vRemove = findViewById(R.id.remove_button)
 
-		intent.getParcelableExtra<Item>("item").let { item ->
-			if (item == null) {
-				finish()
-				return
-			}
-			setItem(item)
-			loadItem(item.id)
-		}
-
 		vRefresh.setOnRefreshListener {
 			loadItem(item.id)
 		}
 
 		vEdit.setOnClickListener {
 			startActivityForResult(Intent(this, ItemEditActivity::class.java).apply {
-				putExtra("action", ItemEditActivity.Action.Edit)
-				putExtra("item", item)
+				putExtra("itemID", item.id)
 			}, 0)
 		}
 
@@ -145,6 +135,11 @@ class ItemActivity : Activity() {
 		}
 	}
 
+	override fun onResume() {
+		super.onResume()
+		loadItem(intent.getIntExtra("itemID", 0))
+	}
+
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
 
@@ -156,7 +151,7 @@ class ItemActivity : Activity() {
 		MainScope().launch {
 			vRefresh.isRefreshing = true
 			try {
-				setItem(ItemManager.getByIDAsync(item.id).await())
+				setItem(ItemManager.getByIDAsync(id).await())
 			} catch (e: Exception) {
 				Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
 			}

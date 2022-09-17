@@ -23,18 +23,11 @@ import kotlinx.coroutines.launch
 
 
 class ItemEditActivity : ComponentActivity() {
-	enum class Action {
-		Add,
-		Edit
-	}
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		val itemID: Int? = if (intent.hasExtra("itemID")) intent.getIntExtra("itemID", 0) else null
 
-		val action = intent.getSerializableExtra("action") as Action
-		val parcelableItem: Item? = intent.getParcelableExtra("item")
-
-		if (action == Action.Add) {
+		if (itemID == null) {
 			setContent {
 				var item by remember { mutableStateOf(NewItem("", null, null, "", 1)) }
 
@@ -49,7 +42,7 @@ class ItemEditActivity : ComponentActivity() {
 								val newItem = ItemManager.addAsync(item).await()
 								startActivity(Intent(this@ItemEditActivity, ItemActivity::class.java).apply {
 									flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-									putExtra("item", newItem)
+									putExtra("itemID", newItem.id)
 								})
 							} catch (e: Exception) {
 								Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
@@ -60,38 +53,45 @@ class ItemEditActivity : ComponentActivity() {
 				}
 			}
 		} else {
-			if (parcelableItem == null) {
-				finish()
-				return
+			var item by mutableStateOf<Item?>(null)
+
+			MainScope().launch {
+				try {
+					item = ItemManager.getByIDAsync(itemID).await()
+				} catch (e: Exception) {
+					Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+				}
 			}
 
 			setContent {
-				val item by remember { mutableStateOf(parcelableItem) }
-
-				Column {
-					TitleBar(stringResource(R.string.edit_item))
-					ItemEditor(item, modifier = Modifier.padding(horizontal = 16.dp), onItemUpdate = {
-						item.name = it.name
-						item.description = it.description
-						item.link = it.link
-						item.location = it.location
-						item.amount = it.amount
-					}, onItemSave = {
-						MainScope().launch {
-							try {
-								@Suppress("DeferredResultUnused")
-								ItemManager.editAsync(item)
-							} catch (e: Exception) {
-								Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+				item?.let {
+					Column {
+						TitleBar(stringResource(R.string.edit_item))
+						ItemEditor(it, modifier = Modifier.padding(horizontal = 16.dp), onItemUpdate = {
+							it.name = it.name
+							it.description = it.description
+							it.link = it.link
+							it.location = it.location
+							it.amount = it.amount
+						}, onItemSave = {
+							MainScope().launch {
+								try {
+									@Suppress("DeferredResultUnused")
+									ItemManager.editAsync(it)
+								} catch (e: Exception) {
+									Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+								}
 							}
-						}
 
-						setResult(0, Intent().apply {
-							putExtra("item", item)
+							setResult(0, Intent().apply {
+								putExtra("itemID", it.id)
+							})
+
+							finish()
 						})
-
-						finish()
-					})
+					}
+				} ?: run {
+					Text("Loading item...")
 				}
 			}
 		}
