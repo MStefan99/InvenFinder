@@ -46,32 +46,14 @@ class MainActivity : ComponentActivity() {
 			var searchQuery by remember { mutableStateOf("") }
 
 			Column {
-				TitleBar("Inventory") {
-					Image(
-						painterResource(R.drawable.add_button),
-						stringResource(R.string.add_item),
-						modifier = Modifier
-							.height(28.dp)
-							.clickable {
-								startActivity(Intent(this@MainActivity, ItemEditActivity::class.java))
-							})
-					Spacer(modifier = Modifier.padding(start = 12.dp))
-					Image(
-						painterResource(R.drawable.settings),
-						stringResource(R.string.settings),
-						modifier = Modifier
-							.height(28.dp)
-							.clickable {
-								startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-							}
-					)
-				}
+				Title()
 				Column(
 					modifier = Modifier.padding(horizontal = 16.dp)
 				) {
 					SearchField(
 						searchQuery,
 						onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
+
 					if (items.isEmpty()) {
 						Text(stringResource(R.string.inventory_empty))
 					} else if (filteredItems.isEmpty()) {
@@ -108,10 +90,34 @@ class MainActivity : ComponentActivity() {
 			ArrayList()
 		}
 	}
+
+	@Composable
+	private fun Title() {
+		TitleBar("Inventory") {
+			Image(
+				painterResource(R.drawable.add_button),
+				stringResource(R.string.add_item),
+				modifier = Modifier
+					.height(28.dp)
+					.clickable {
+						startActivity(Intent(this@MainActivity, ItemEditActivity::class.java))
+					})
+			Spacer(modifier = Modifier.padding(start = 16.dp))
+			Image(
+				painterResource(R.drawable.settings),
+				stringResource(R.string.settings),
+				modifier = Modifier
+					.height(28.dp)
+					.clickable {
+						startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+					}
+			)
+		}
+	}
 }
 
 @Composable
-fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}) {
+private fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}) {
 	TextField(
 		value = query,
 		onValueChange = onQueryChange,
@@ -124,7 +130,7 @@ fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}) {
 }
 
 @Composable
-fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
+private fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
 	LazyColumn {
 		items(items) { item ->
 			Item(item, onItemClick)
@@ -133,7 +139,7 @@ fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
 }
 
 @Composable
-fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
+private fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 	Surface(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -162,7 +168,7 @@ fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 	}
 }
 
-fun filter(items: List<Item>, query: String?): List<Item> {
+private fun filter(items: List<Item>, query: String?): List<Item> {
 	val filtered = ArrayList<Item>()
 
 	if (query == null || query.isEmpty()) {

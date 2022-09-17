@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
@@ -19,17 +18,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.invenfinder.components.TitleBar
 
-enum class SettingsOptionType {
+private enum class SettingsOptionType {
 	Button
 }
 
-class SettingsOption(
+private class SettingsOption(
 	val type: SettingsOptionType = SettingsOptionType.Button,
 	val text: String = "",
 	val onClick: () -> Unit = {}
 )
 
-class SettingsSection(
+private class SettingsSection(
 	val title: String = "",
 	val options: Array<SettingsOption> = arrayOf()
 )
@@ -57,7 +56,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingsContent(sections: List<SettingsSection>) {
+private fun SettingsContent(sections: List<SettingsSection>) {
 	LazyColumn(
 		modifier = Modifier.padding(horizontal = 16.dp)
 	) {

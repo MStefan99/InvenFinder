@@ -28,9 +28,9 @@ class ItemEditActivity : ComponentActivity() {
 		val itemID: Int? = if (intent.hasExtra("itemID")) intent.getIntExtra("itemID", 0) else null
 
 		if (itemID == null) {
-			setContent {
-				var item by remember { mutableStateOf(NewItem("", null, null, "", 1)) }
+			var item by mutableStateOf(NewItem("", null, null, "", 1))
 
+			setContent {
 				Column {
 					TitleBar(stringResource(R.string.add_item))
 					ItemEditor(item, modifier = Modifier.padding(horizontal = 16.dp), onItemUpdate = {
@@ -90,8 +90,6 @@ class ItemEditActivity : ComponentActivity() {
 							finish()
 						})
 					}
-				} ?: run {
-					Text("Loading item...")
 				}
 			}
 		}
@@ -99,7 +97,7 @@ class ItemEditActivity : ComponentActivity() {
 }
 
 @Composable
-fun ItemEditor(
+private fun ItemEditor(
 	i: NewItem,
 	onItemUpdate: (NewItem) -> Unit,
 	onItemSave: () -> Unit,
