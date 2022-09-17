@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 							.height(28.dp)
 							.clickable {
 								startActivity(Intent(this@MainActivity, ItemEditActivity::class.java).apply {
-									putExtra("action", ItemEditActivity.Action.ADD)
+									putExtra("action", ItemEditActivity.Action.Add)
 								})
 							})
 					Spacer(modifier = Modifier.padding(start = 12.dp))
@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
 						modifier = Modifier
 							.height(28.dp)
 							.clickable {
-								startActivity(Intent(this@MainActivity, ConnectionActivity::class.java))
+								startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
 							}
 					)
 				}
@@ -105,7 +105,6 @@ class MainActivity : ComponentActivity() {
 	private suspend fun loadItems(): ArrayList<Item> {
 		return try {
 			ItemManager.getAllAsync().await()
-			//				itemAdapter.filter(vSearch.text.toString())
 		} catch (e: Exception) {
 			Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
 			ArrayList()
@@ -143,21 +142,22 @@ fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 			.padding(vertical = 8.dp)
 			.clickable { onItemClick(item) }
 	) {
-		Row {
-			Column {
+		Column {
+			Row {
 				Text(
 					item.name,
 					fontSize = 16.sp, fontWeight = FontWeight(500),
 					modifier = Modifier.padding(bottom = 8.dp)
 				)
-				item.description?.let { Text(it) }
-			}
-			Spacer(modifier = Modifier.weight(1f))
-			Column {
+				Spacer(modifier = Modifier.weight(1f))
 				Text(
 					item.location,
 					modifier = Modifier.padding(bottom = 8.dp)
 				)
+			}
+			Row {
+				item.description?.let { Text(it) }
+				Spacer(modifier = Modifier.weight(1f))
 				Text(item.amount.toString())
 			}
 		}

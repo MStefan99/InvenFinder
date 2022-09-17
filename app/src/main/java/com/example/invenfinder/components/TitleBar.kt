@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 
 @Preview(widthDp = 320)
 @Composable
-fun TitleBar(name: String = "Title", content: @Composable () -> Unit = {Text("Content")}) {
+fun TitleBar(name: String = "Title", content: @Composable () -> Unit = {}) {
 	TopAppBar (
 		modifier = Modifier.padding(bottom = 16.dp)) {
 		Row(

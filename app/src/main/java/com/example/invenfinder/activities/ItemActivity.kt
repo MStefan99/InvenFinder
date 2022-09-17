@@ -61,7 +61,7 @@ class ItemActivity : Activity() {
 
 		vEdit.setOnClickListener {
 			startActivityForResult(Intent(this, ItemEditActivity::class.java).apply {
-				putExtra("action", ItemEditActivity.Action.EDIT)
+				putExtra("action", ItemEditActivity.Action.Edit)
 				putExtra("item", item)
 			}, 0)
 		}
