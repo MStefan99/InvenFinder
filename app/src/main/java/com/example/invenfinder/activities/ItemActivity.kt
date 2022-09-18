@@ -1,22 +1,17 @@
 package com.example.invenfinder.activities
 
-import android.app.AlertDialog
+//import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -30,6 +25,7 @@ import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 class ItemActivity : ComponentActivity() {
@@ -53,6 +49,8 @@ class ItemActivity : ComponentActivity() {
 
 	@Composable
 	private fun Title(item: Item) {
+		var deleteDialogVisible by remember { mutableStateOf(false) }
+
 		TitleBar(stringResource(R.string.item_details)) {
 			Image(
 				painterResource(R.drawable.pen),
@@ -71,27 +69,47 @@ class ItemActivity : ComponentActivity() {
 				modifier = Modifier
 					.height(28.dp)
 					.clickable {
-						AlertDialog
-							.Builder(this@ItemActivity)
-							.setTitle(R.string.remove_item)
-							.setMessage(R.string.remove_confirm)
-							.setPositiveButton(R.string.remove) { _, _ ->
-								MainScope().launch {
-									try {
-										@Suppress("DeferredResultUnused")
-										ItemManager.deleteAsync(item)
-										finish()
-									} catch (e: Exception) {
-										Toast
-											.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG)
-											.show()
-									}
-								}
-							}
-							.setNegativeButton(R.string.cancel, null)
-							.show()
+						deleteDialogVisible = true
 					}
 			)
+		}
+
+		if (deleteDialogVisible) {
+			AlertDialog(onDismissRequest = { deleteDialogVisible = false },
+				title = {
+					Text(
+						stringResource(R.string.remove_item),
+						fontSize = 20.sp,
+						fontWeight = FontWeight(500)
+					)
+				},
+				text = { Text(stringResource(R.string.remove_confirm)) },
+				buttons = {
+					Row(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
+						Spacer(modifier = Modifier.weight(1f))
+						OutlinedButton(
+							onClick = { deleteDialogVisible = false },
+							modifier = Modifier.padding(end = 8.dp)
+						) {
+							Text(stringResource(R.string.cancel))
+						}
+						OutlinedButton(onClick = {
+							MainScope().launch {
+								try {
+									@Suppress("DeferredResultUnused")
+									ItemManager.deleteAsync(item)
+									finish()
+								} catch (e: Exception) {
+									Toast
+										.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG)
+										.show()
+								}
+							}
+						}) {
+							Text(stringResource(R.string.remove))
+						}
+					}
+				})
 		}
 	}
 
@@ -160,37 +178,25 @@ class ItemActivity : ComponentActivity() {
 		}
 	}
 
+	private enum class Action {
+		Take,
+		Put
+	}
+
 	@Composable
 	private fun ItemButtons(item: Item) {
+		var amountDialogAction by remember { mutableStateOf<Action?>(null) }
+		var changeAmount by remember { mutableStateOf(1) }
+
+		fun setDialog(action: Action?) {
+			amountDialogAction = action
+			changeAmount = 1
+		}
+
 		Row(modifier = Modifier.padding(top = 32.dp)) {
 			Spacer(modifier = Modifier.weight(1f))
 			Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-				val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
-				val vPicker: NumberPicker = layout.findViewById(R.id.picker)
-				vPicker.minValue = 1
-				vPicker.maxValue = item.amount
-
-				AlertDialog
-					.Builder(this@ItemActivity)
-					.setView(layout)
-					.setPositiveButton(R.string.take_from_storage) { _, _ ->
-						item.amount -= vPicker.value
-
-						MainScope().launch {
-							try {
-								@Suppress("DeferredResultUnused")
-								ItemManager.editAmountAsync(item.id, item.amount)
-							} catch (e: Exception) {
-								Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
-							}
-						}
-
-						if (item.amount <= 0) {
-							finish()
-						}
-					}
-					.setNegativeButton(R.string.cancel, null)
-					.show()
+				setDialog(Action.Take)
 			}) {
 				Image(
 					painterResource(R.drawable.remove_stock),
@@ -203,29 +209,7 @@ class ItemActivity : ComponentActivity() {
 			}
 			Spacer(modifier = Modifier.weight(1f))
 			Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-				val layout = layoutInflater.inflate(R.layout.dialog_stock, null)
-				val vPicker: NumberPicker = layout.findViewById(R.id.picker)
-
-				vPicker.minValue = 1
-				vPicker.maxValue = 1000
-
-				AlertDialog
-					.Builder(this@ItemActivity)
-					.setView(layout)
-					.setPositiveButton(R.string.put_in_storage) { _, _ ->
-						item.amount += vPicker.value
-
-						MainScope().launch {
-							try {
-								@Suppress("DeferredResultUnused")
-								ItemManager.editAmountAsync(item.id, item.amount)
-							} catch (e: Exception) {
-								Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
-							}
-						}
-					}
-					.setNegativeButton(R.string.cancel, null)
-					.show()
+				setDialog(Action.Put)
 			}) {
 				Image(
 					painterResource(R.drawable.add_stock), stringResource(R.string.put_in_storage),
@@ -236,6 +220,59 @@ class ItemActivity : ComponentActivity() {
 				Text(stringResource(R.string.put_in_storage))
 			}
 			Spacer(modifier = Modifier.weight(1f))
+		}
+
+		if (amountDialogAction != null) {
+			val text = if (amountDialogAction == Action.Take)
+				stringResource(R.string.take_from_storage)
+			else stringResource(R.string.put_in_storage)
+
+			AlertDialog(onDismissRequest = { setDialog(null) },
+				title = {
+					Text(
+						text,
+						fontSize = 20.sp,
+						fontWeight = FontWeight(500),
+						modifier = Modifier.padding(bottom = 16.dp)
+					)
+				}, text = {
+					TextField(
+						value = changeAmount.toString(),
+						onValueChange = { a ->
+							if (a.isEmpty()) {
+								changeAmount = 0
+							}
+							a.toIntOrNull()?.let { changeAmount = abs(it) }
+						},
+						modifier = Modifier.padding(top = 16.dp)
+					)
+				}, buttons = {
+					Row(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
+						Spacer(modifier = Modifier.weight(1f))
+						OutlinedButton(
+							onClick = { setDialog(null) },
+							modifier = Modifier.padding(end = 8.dp)
+						) {
+							Text(stringResource(R.string.cancel))
+						}
+						OutlinedButton(onClick = {
+							if (amountDialogAction == Action.Take) item.amount -= changeAmount
+							else item.amount += changeAmount
+							setDialog(null)
+
+							MainScope().launch {
+								try {
+									@Suppress("DeferredResultUnused")
+									ItemManager.editAmountAsync(item.id, item.amount)
+								} catch (e: Exception) {
+									Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+								}
+							}
+						}) {
+							Text(text)
+						}
+					}
+				})
 		}
 	}
 

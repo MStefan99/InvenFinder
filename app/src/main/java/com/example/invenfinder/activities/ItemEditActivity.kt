@@ -20,6 +20,7 @@ import com.example.invenfinder.data.NewItem
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 class ItemEditActivity : ComponentActivity() {
@@ -146,7 +147,10 @@ private fun ItemEditor(
 		TextField(
 			item.amount.toString(),
 			onValueChange = { amount ->
-				item.amount = if (amount.isNotEmpty()) amount.toInt() else 0; onItemUpdate(item)
+				if (amount.isEmpty()) {
+					item.amount = 0
+				}
+				amount.toIntOrNull()?.let { item.amount = abs(it) }
 			},
 			modifier = Modifier
 				.fillMaxWidth()
