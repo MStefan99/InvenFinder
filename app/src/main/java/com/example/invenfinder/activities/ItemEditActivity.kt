@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
@@ -115,7 +116,7 @@ private fun ItemEditor(
 			.padding(bottom = 16.dp)
 	) {
 		Text(stringResource(R.string.name))
-		TextField(
+		OutlinedTextField(
 			item.name,
 			onValueChange = { name -> item.name = name; onItemUpdate(item) },
 			modifier = Modifier
@@ -124,7 +125,7 @@ private fun ItemEditor(
 		)
 
 		Text(stringResource(R.string.description))
-		TextField(
+		OutlinedTextField(
 			item.description ?: "",
 			onValueChange = { desc -> item.description = desc.ifEmpty { null }; onItemUpdate(item) },
 			modifier = Modifier
@@ -133,7 +134,7 @@ private fun ItemEditor(
 		)
 
 		Text(stringResource(R.string.link))
-		TextField(
+		OutlinedTextField(
 			item.link ?: "",
 			onValueChange = { link -> item.link = link.ifEmpty { null }; onItemUpdate(item) },
 			modifier = Modifier
@@ -142,7 +143,7 @@ private fun ItemEditor(
 		)
 
 		Text(stringResource(R.string.location))
-		TextField(
+		OutlinedTextField(
 			item.location,
 			onValueChange = { location -> item.location = location; onItemUpdate(item) },
 			modifier = Modifier
@@ -151,7 +152,7 @@ private fun ItemEditor(
 		)
 
 		Text(stringResource(R.string.amount))
-		TextField(
+		OutlinedTextField(
 			item.amount.toString(),
 			onValueChange = { amount ->
 				if (amount.isEmpty()) {

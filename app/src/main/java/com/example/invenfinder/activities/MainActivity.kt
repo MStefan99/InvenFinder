@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.invenfinder.R
 import com.example.invenfinder.components.TitleBar
 import com.example.invenfinder.data.Item
+import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
 import com.example.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
@@ -43,7 +45,11 @@ class MainActivity : ComponentActivity() {
 		setContent {
 			var searchQuery by remember { mutableStateOf("") }
 
-			Column {
+			Column(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(AppColors.auto.background)
+			) {
 				Title()
 				Column(
 					modifier = Modifier.padding(horizontal = 16.dp)
@@ -116,11 +122,19 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}) {
-	TextField(
+	OutlinedTextField(
 		value = query,
 		onValueChange = onQueryChange,
 		leadingIcon = { Icon(Icons.Default.Search, null) },
 		placeholder = { Text(stringResource(R.string.search)) },
+		colors = TextFieldDefaults.outlinedTextFieldColors(
+			backgroundColor = AppColors.auto.background,
+			textColor = AppColors.auto.foreground,
+			placeholderColor = AppColors.auto.muted,
+			leadingIconColor = AppColors.auto.muted,
+			unfocusedBorderColor = AppColors.auto.light,
+			focusedBorderColor = AppColors.auto.muted
+		),
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(bottom = 8.dp)
@@ -136,34 +150,42 @@ private fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
 	}
 }
 
-@Suppress("SameParameterValue")
 @Composable
 private fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
-	Surface(
+	Column(
 		modifier = Modifier
 			.fillMaxWidth()
+			.padding(vertical = 8.dp)
 			.clickable { onItemClick(item) }
 	) {
-		Column {
-			Row {
-				Text(
-					truncate(item.name, MAX_LENGTH),
-					fontSize = 16.sp, fontWeight = FontWeight(500),
-					modifier = Modifier.padding(bottom = 8.dp)
-				)
-				Spacer(modifier = Modifier.weight(1f))
-				Text(
-					truncate(item.location, MAX_LENGTH),
-					modifier = Modifier.padding(bottom = 8.dp)
-				)
-			}
-			Row {
-				item.description?.let { Text(truncate(it, MAX_LENGTH)) }
-				Spacer(modifier = Modifier.weight(1f))
-				Text(item.amount.toString())
-			}
-			Divider(modifier = Modifier.padding(vertical = 8.dp))
+		Row {
+			Text(
+				truncate(item.name, MAX_LENGTH),
+				fontSize = 16.sp, fontWeight = FontWeight(500),
+				color = AppColors.auto.foreground,
+				modifier = Modifier.padding(bottom = 8.dp)
+			)
+			Spacer(modifier = Modifier.weight(1f))
+			Text(
+				truncate(item.location, MAX_LENGTH),
+				color = AppColors.auto.foreground,
+				modifier = Modifier.padding(bottom = 8.dp)
+			)
 		}
+		Row {
+			item.description?.let {
+				Text(
+					truncate(it, MAX_LENGTH),
+					color = AppColors.auto.muted,
+				)
+			}
+			Spacer(modifier = Modifier.weight(1f))
+			Text(
+				item.amount.toString(),
+				color = AppColors.auto.muted,
+			)
+		}
+		Divider(modifier = Modifier.padding(top = 8.dp), color = AppColors.auto.light)
 	}
 }
 
@@ -178,7 +200,7 @@ private fun filter(items: List<Item>, query: String?): List<Item> {
 
 		for (c in items) {
 			if (c.name.lowercase().contains(q)
-				|| c.description!!.lowercase().contains(q)
+				|| c.description?.lowercase()?.contains(q) == true
 				|| c.location.lowercase() == l
 			) {
 				filtered.add(c)
