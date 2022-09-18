@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -106,7 +108,11 @@ private fun ItemEditor(
 ) {
 	val item by remember { mutableStateOf(i) }
 
-	Column(modifier = modifier.fillMaxWidth()) {
+	Column(
+		modifier = modifier
+			.fillMaxWidth()
+			.verticalScroll(rememberScrollState())
+	) {
 		Text(stringResource(R.string.name))
 		TextField(
 			item.name,

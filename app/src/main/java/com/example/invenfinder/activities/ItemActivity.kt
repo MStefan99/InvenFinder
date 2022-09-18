@@ -10,6 +10,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -115,7 +117,12 @@ class ItemActivity : ComponentActivity() {
 
 	@Composable
 	private fun ItemDetails(item: Item) {
-		Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+		Column(
+			modifier = Modifier
+				.padding(16.dp, 0.dp, 16.dp, 16.dp)
+				.verticalScroll(rememberScrollState())
+		) {
+			ItemHeader(item)
 			ItemLocation(item)
 			ItemInfo(item)
 			ItemButtons(item)
@@ -123,33 +130,14 @@ class ItemActivity : ComponentActivity() {
 	}
 
 	@Composable
-	private fun ItemLocation(item: Item) {
-		Row(verticalAlignment = Alignment.CenterVertically) {
-			Spacer(modifier = Modifier.weight(1f))
-			Image(
-				painterResource(R.drawable.shelf),
-				stringResource(R.string.amount),
-				modifier = Modifier
-					.padding(start = 16.dp)
-					.heightIn(max = 96.dp)
-			)
-			Text(
-				item.location,
-				fontSize = 108.sp,
-				fontWeight = FontWeight.Bold,
-				modifier = Modifier.padding(start = 32.dp)
-			)
-		}
-	}
-
-	@Composable
-	private fun ItemInfo(item: Item) {
+	private fun ItemHeader(item: Item) {
 		Column {
 			Row(
 				verticalAlignment = Alignment.CenterVertically,
 				modifier = Modifier.padding(bottom = 16.dp)
 			) {
 				Text(item.name, fontSize = 32.sp, modifier = Modifier.weight(1f))
+				Spacer(modifier = Modifier.weight(1f))
 				Image(
 					painterResource(R.drawable.warehouse),
 					stringResource(R.string.amount),
@@ -162,7 +150,34 @@ class ItemActivity : ComponentActivity() {
 					fontSize = 24.sp,
 				)
 			}
+		}
+	}
 
+	@Composable
+	private fun ItemLocation(item: Item) {
+		Row(
+			verticalAlignment = Alignment.CenterVertically,
+			modifier = Modifier.padding(bottom = 16.dp)
+		) {
+			Image(
+				painterResource(R.drawable.shelf),
+				stringResource(R.string.amount),
+				modifier = Modifier
+					.padding(end = 16.dp)
+					.heightIn(max = 24.dp)
+			)
+			Spacer(modifier = Modifier.weight(1f))
+			Text(
+				item.location,
+				fontSize = 16.sp,
+				fontWeight = FontWeight.Bold,
+			)
+		}
+	}
+
+	@Composable
+	private fun ItemInfo(item: Item) {
+		Column {
 			Text(item.description ?: "No description", modifier = Modifier.padding(bottom = 16.dp))
 
 			item.link?.let {
