@@ -112,6 +112,7 @@ private fun ItemEditor(
 		modifier = modifier
 			.fillMaxWidth()
 			.verticalScroll(rememberScrollState())
+			.padding(bottom = 16.dp)
 	) {
 		Text(stringResource(R.string.name))
 		TextField(
