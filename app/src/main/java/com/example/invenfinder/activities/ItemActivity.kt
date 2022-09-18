@@ -165,7 +165,6 @@ class ItemActivity : ComponentActivity() {
 					.padding(end = 16.dp)
 					.heightIn(max = 24.dp)
 			)
-			Spacer(modifier = Modifier.weight(1f))
 			Text(
 				item.location,
 				fontSize = 16.sp,
@@ -179,14 +178,15 @@ class ItemActivity : ComponentActivity() {
 		Column {
 			Text(item.description ?: "No description", modifier = Modifier.padding(bottom = 16.dp))
 
-			item.link?.let {
+			item.link?.ifEmpty { null }?.let {
 				Button(onClick = {
-					val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://$it"))
-					startActivity(browserIntent)
+					startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
 				}) {
 					Text(it)
 				}
-			} ?: run {
+			}
+
+			if (item.link?.ifEmpty { null } == null) {
 				Text("No link")
 			}
 		}

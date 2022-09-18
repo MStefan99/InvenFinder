@@ -28,6 +28,7 @@ import com.example.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
+const val MAX_LENGTH = 40
 
 class MainActivity : ComponentActivity() {
 	private var items by mutableStateOf(listOf<Item>())
@@ -135,6 +136,7 @@ private fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
 	}
 }
 
+@Suppress("SameParameterValue")
 @Composable
 private fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 	Surface(
@@ -145,18 +147,18 @@ private fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 		Column {
 			Row {
 				Text(
-					item.name,
+					truncate(item.name, MAX_LENGTH),
 					fontSize = 16.sp, fontWeight = FontWeight(500),
 					modifier = Modifier.padding(bottom = 8.dp)
 				)
 				Spacer(modifier = Modifier.weight(1f))
 				Text(
-					item.location,
+					truncate(item.location, MAX_LENGTH),
 					modifier = Modifier.padding(bottom = 8.dp)
 				)
 			}
 			Row {
-				item.description?.let { Text(it) }
+				item.description?.let { Text(truncate(it, MAX_LENGTH)) }
 				Spacer(modifier = Modifier.weight(1f))
 				Text(item.amount.toString())
 			}
@@ -185,4 +187,13 @@ private fun filter(items: List<Item>, query: String?): List<Item> {
 	}
 
 	return filtered
+}
+
+@Suppress("SameParameterValue")
+private fun truncate(str: String, len: Int): String {
+	return if (str.length > len) {
+		str.substring(0, len - 1) + "…"
+	} else {
+		str
+	}
 }
