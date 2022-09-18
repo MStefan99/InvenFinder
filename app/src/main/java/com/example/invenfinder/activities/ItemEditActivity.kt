@@ -8,11 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -20,6 +18,7 @@ import com.example.invenfinder.R
 import com.example.invenfinder.components.TitleBar
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.data.NewItem
+import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -107,7 +106,14 @@ private fun ItemEditor(
 	onItemSave: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val item by remember { mutableStateOf(i) }
+	val item by rememberSaveable { mutableStateOf(i) }
+	val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
+		backgroundColor = AppColors.auto.background,
+		textColor = AppColors.auto.foreground,
+		unfocusedBorderColor = AppColors.auto.light,
+		focusedBorderColor = AppColors.auto.muted,
+		placeholderColor = AppColors.auto.light
+	)
 
 	Column(
 		modifier = modifier
@@ -115,51 +121,61 @@ private fun ItemEditor(
 			.verticalScroll(rememberScrollState())
 			.padding(bottom = 16.dp)
 	) {
-		Text(stringResource(R.string.name))
+		Text(stringResource(R.string.name), color = AppColors.auto.foreground)
 		OutlinedTextField(
 			item.name,
+			placeholder = { Text(stringResource(R.string.name)) },
 			onValueChange = { name -> item.name = name; onItemUpdate(item) },
+			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(top = 8.dp, bottom = 16.dp)
 		)
 
-		Text(stringResource(R.string.description))
+		Text(stringResource(R.string.description), color = AppColors.auto.foreground)
 		OutlinedTextField(
 			item.description ?: "",
+			placeholder = { Text(stringResource(R.string.description)) },
 			onValueChange = { desc -> item.description = desc.ifEmpty { null }; onItemUpdate(item) },
+			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(top = 8.dp, bottom = 16.dp)
 		)
 
-		Text(stringResource(R.string.link))
+		Text(stringResource(R.string.link), color = AppColors.auto.foreground)
 		OutlinedTextField(
 			item.link ?: "",
+			placeholder = { Text(stringResource(R.string.link)) },
 			onValueChange = { link -> item.link = link.ifEmpty { null }; onItemUpdate(item) },
+			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(top = 8.dp, bottom = 16.dp)
 		)
 
-		Text(stringResource(R.string.location))
+		Text(stringResource(R.string.location), color = AppColors.auto.foreground)
 		OutlinedTextField(
 			item.location,
+			placeholder = { Text(stringResource(R.string.location)) },
 			onValueChange = { location -> item.location = location; onItemUpdate(item) },
+			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(top = 8.dp, bottom = 16.dp)
 		)
 
-		Text(stringResource(R.string.amount))
+		Text(stringResource(R.string.amount), color = AppColors.auto.foreground)
 		OutlinedTextField(
 			item.amount.toString(),
+			placeholder = { Text(stringResource(R.string.amount)) },
 			onValueChange = { amount ->
 				if (amount.isEmpty()) {
 					item.amount = 0
 				}
 				amount.toIntOrNull()?.let { item.amount = abs(it) }
 			},
+			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(top = 8.dp, bottom = 8.dp)
@@ -167,8 +183,14 @@ private fun ItemEditor(
 
 		Row {
 			Spacer(modifier = Modifier.weight(1f))
-			Button(onClick = onItemSave, modifier = Modifier.padding(top = 8.dp)) {
-				Text(stringResource(R.string.save))
+			Button(
+				onClick = onItemSave,
+				colors = ButtonDefaults.buttonColors(
+					backgroundColor = AppColors.auto.accent
+				),
+				modifier = Modifier.padding(top = 8.dp)
+			) {
+				Text(stringResource(R.string.save), color = AppColors.auto.onAccent)
 			}
 		}
 	}

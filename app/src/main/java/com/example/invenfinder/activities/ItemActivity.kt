@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.invenfinder.R
 import com.example.invenfinder.components.TitleBar
 import com.example.invenfinder.data.Item
+import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -50,7 +52,7 @@ class ItemActivity : ComponentActivity() {
 
 	@Composable
 	private fun Title(item: Item) {
-		var deleteDialogVisible by remember { mutableStateOf(false) }
+		var deleteDialogVisible by rememberSaveable { mutableStateOf(false) }
 
 		TitleBar(stringResource(R.string.item_details)) {
 			Image(
@@ -77,37 +79,51 @@ class ItemActivity : ComponentActivity() {
 
 		if (deleteDialogVisible) {
 			AlertDialog(onDismissRequest = { deleteDialogVisible = false },
+				backgroundColor = AppColors.auto.background,
 				title = {
 					Text(
 						stringResource(R.string.remove_item),
 						fontSize = 20.sp,
+						color = AppColors.auto.foreground,
 						fontWeight = FontWeight(500)
 					)
 				},
-				text = { Text(stringResource(R.string.remove_confirm)) },
+				text = {
+					Text(
+						stringResource(R.string.remove_confirm),
+						color = AppColors.auto.foreground
+					)
+				},
 				buttons = {
 					Row(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
 						Spacer(modifier = Modifier.weight(1f))
 						OutlinedButton(
 							onClick = { deleteDialogVisible = false },
+							colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.auto.background),
 							modifier = Modifier.padding(end = 8.dp)
 						) {
-							Text(stringResource(R.string.cancel))
+							Text(stringResource(R.string.cancel), color = AppColors.auto.accent)
 						}
-						OutlinedButton(onClick = {
-							MainScope().launch {
-								try {
-									@Suppress("DeferredResultUnused")
-									ItemManager.deleteAsync(item)
-									finish()
-								} catch (e: Exception) {
-									Toast
-										.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG)
-										.show()
+						OutlinedButton(
+							onClick = {
+								MainScope().launch {
+									try {
+										@Suppress("DeferredResultUnused")
+										ItemManager.deleteAsync(item)
+										finish()
+									} catch (e: Exception) {
+										Toast
+											.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG)
+											.show()
+									}
 								}
-							}
-						}) {
-							Text(stringResource(R.string.remove))
+							},
+							colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.auto.background)
+						) {
+							Text(
+								stringResource(R.string.remove),
+								color = AppColors.auto.accent
+							)
 						}
 					}
 				})
@@ -131,22 +147,27 @@ class ItemActivity : ComponentActivity() {
 	@Composable
 	private fun ItemHeader(item: Item) {
 		Column {
+			Text(
+				item.name,
+				fontSize = 32.sp,
+				color = AppColors.auto.foreground,
+				modifier = Modifier.padding(bottom = 8.dp)
+			)
 			Row(
 				verticalAlignment = Alignment.CenterVertically,
 				modifier = Modifier.padding(bottom = 16.dp)
 			) {
-				Text(item.name, fontSize = 32.sp, modifier = Modifier.weight(1f))
-				Spacer(modifier = Modifier.weight(1f))
 				Image(
 					painterResource(R.drawable.warehouse),
 					stringResource(R.string.amount),
 					modifier = Modifier
-						.padding(horizontal = 16.dp)
+						.padding(end = 16.dp)
 						.heightIn(max = 24.dp)
 				)
 				Text(
 					item.amount.toString(),
 					fontSize = 24.sp,
+					color = AppColors.auto.foreground
 				)
 			}
 		}
@@ -169,6 +190,7 @@ class ItemActivity : ComponentActivity() {
 				item.location,
 				fontSize = 16.sp,
 				fontWeight = FontWeight.Bold,
+				color = AppColors.auto.foreground
 			)
 		}
 	}
@@ -176,18 +198,24 @@ class ItemActivity : ComponentActivity() {
 	@Composable
 	private fun ItemInfo(item: Item) {
 		Column {
-			Text(item.description ?: "No description", modifier = Modifier.padding(bottom = 16.dp))
+			Text(
+				item.description ?: "No description",
+				modifier = Modifier.padding(bottom = 16.dp),
+				color = AppColors.auto.foreground
+			)
 
 			item.link?.ifEmpty { null }?.let {
-				Button(onClick = {
+				Button(colors = ButtonDefaults.buttonColors(
+					backgroundColor = AppColors.auto.accent
+				), onClick = {
 					startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
 				}) {
-					Text(it)
+					Text(it, color = AppColors.auto.onAccent)
 				}
 			}
 
 			if (item.link?.ifEmpty { null } == null) {
-				Text("No link")
+				Text("No link", color = AppColors.auto.foreground)
 			}
 		}
 	}
@@ -199,8 +227,8 @@ class ItemActivity : ComponentActivity() {
 
 	@Composable
 	private fun ItemButtons(item: Item) {
-		var amountDialogAction by remember { mutableStateOf<Action?>(null) }
-		var changeAmount by remember { mutableStateOf(1) }
+		var amountDialogAction by rememberSaveable { mutableStateOf<Action?>(null) }
+		var changeAmount by rememberSaveable { mutableStateOf(1) }
 
 		fun setDialog(action: Action?) {
 			amountDialogAction = action
@@ -219,7 +247,7 @@ class ItemActivity : ComponentActivity() {
 						.heightIn(max = 76.dp)
 						.padding(bottom = 8.dp)
 				)
-				Text(stringResource(R.string.take_from_storage))
+				Text(stringResource(R.string.take_from_storage), color = AppColors.auto.muted)
 			}
 			Spacer(modifier = Modifier.weight(1f))
 			Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
@@ -231,7 +259,7 @@ class ItemActivity : ComponentActivity() {
 						.heightIn(max = 76.dp)
 						.padding(bottom = 8.dp)
 				)
-				Text(stringResource(R.string.put_in_storage))
+				Text(stringResource(R.string.put_in_storage), color = AppColors.auto.muted)
 			}
 			Spacer(modifier = Modifier.weight(1f))
 		}
@@ -242,11 +270,13 @@ class ItemActivity : ComponentActivity() {
 			else stringResource(R.string.put_in_storage)
 
 			AlertDialog(onDismissRequest = { setDialog(null) },
+				backgroundColor = AppColors.auto.background,
 				title = {
 					Text(
 						text,
 						fontSize = 20.sp,
 						fontWeight = FontWeight(500),
+						color = AppColors.auto.foreground,
 						modifier = Modifier.padding(bottom = 16.dp)
 					)
 				}, text = {
@@ -258,6 +288,12 @@ class ItemActivity : ComponentActivity() {
 							}
 							a.toIntOrNull()?.let { changeAmount = abs(it) }
 						},
+						colors = TextFieldDefaults.outlinedTextFieldColors(
+							backgroundColor = AppColors.auto.background,
+							textColor = AppColors.auto.foreground,
+							unfocusedBorderColor = AppColors.auto.light,
+							focusedBorderColor = AppColors.auto.muted
+						),
 						modifier = Modifier.padding(top = 16.dp)
 					)
 				}, buttons = {
@@ -265,25 +301,29 @@ class ItemActivity : ComponentActivity() {
 						Spacer(modifier = Modifier.weight(1f))
 						OutlinedButton(
 							onClick = { setDialog(null) },
+							colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.auto.background),
 							modifier = Modifier.padding(end = 8.dp)
 						) {
-							Text(stringResource(R.string.cancel))
+							Text(stringResource(R.string.cancel), color = AppColors.auto.accent)
 						}
-						OutlinedButton(onClick = {
-							if (amountDialogAction == Action.Take) item.amount -= changeAmount
-							else item.amount += changeAmount
-							setDialog(null)
+						OutlinedButton(
+							onClick = {
+								if (amountDialogAction == Action.Take) item.amount -= changeAmount
+								else item.amount += changeAmount
+								setDialog(null)
 
-							MainScope().launch {
-								try {
-									@Suppress("DeferredResultUnused")
-									ItemManager.editAmountAsync(item.id, item.amount)
-								} catch (e: Exception) {
-									Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+								MainScope().launch {
+									try {
+										@Suppress("DeferredResultUnused")
+										ItemManager.editAmountAsync(item.id, item.amount)
+									} catch (e: Exception) {
+										Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
+									}
 								}
-							}
-						}) {
-							Text(text)
+							},
+							colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.auto.background)
+						) {
+							Text(text, color = AppColors.auto.accent)
 						}
 					}
 				})

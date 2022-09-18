@@ -15,6 +15,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
 		Preferences.setPreferences(prefs)
 
 		setContent {
-			var searchQuery by remember { mutableStateOf("") }
+			var searchQuery by rememberSaveable { mutableStateOf("") }
 
 			Column(
 				modifier = Modifier

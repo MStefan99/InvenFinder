@@ -12,13 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.invenfinder.utils.AppColors
 
 @Preview(widthDp = 320)
 @Composable
 fun TitleBar(name: String = "Title", content: @Composable () -> Unit = {}) {
 	TopAppBar(
 		modifier = Modifier.padding(bottom = 16.dp),
-		backgroundColor = MaterialTheme.colors.primary
+		backgroundColor = AppColors.auto.accent
 	) {
 		Row(
 			modifier = Modifier
@@ -28,7 +29,7 @@ fun TitleBar(name: String = "Title", content: @Composable () -> Unit = {}) {
 			Text(
 				name,
 				fontSize = 24.sp,
-				color = MaterialTheme.colors.onPrimary
+				color = AppColors.auto.onAccent
 			)
 			Spacer(modifier = Modifier.weight(1f))
 			Row {

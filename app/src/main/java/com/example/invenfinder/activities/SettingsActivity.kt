@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.invenfinder.components.TitleBar
+import com.example.invenfinder.utils.AppColors
 
 private enum class SettingsOptionType {
 	Button
@@ -61,12 +62,16 @@ private fun SettingsContent(sections: List<SettingsSection>) {
 		modifier = Modifier.padding(horizontal = 16.dp)
 	) {
 		items(sections) { section ->
-			Text(section.title, fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp))
+			Text(
+				section.title, fontSize = 24.sp,
+				color = AppColors.auto.foreground,
+				modifier = Modifier.padding(bottom = 8.dp)
+			)
 			Column {
 				for (option in section.options) {
 					TextButton(
 						content = {
-							Text(option.text)
+							Text(option.text, color = AppColors.auto.foreground)
 							Spacer(modifier = Modifier.weight(1f))
 						}, onClick = option.onClick,
 						modifier = Modifier.fillMaxWidth()

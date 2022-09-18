@@ -17,7 +17,8 @@ data class ColorScheme(
 	val foreground: Color,
 	val muted: Color,
 	val light: Color,
-	val accent: Color
+	val accent: Color,
+	val onAccent: Color
 )
 
 object AppColors {
@@ -26,7 +27,8 @@ object AppColors {
 		foreground = black,
 		muted = darkGray,
 		light = lightGray,
-		accent = purpleLight
+		accent = purpleLight,
+		onAccent = white
 	)
 
 	val dark = ColorScheme(
@@ -34,7 +36,8 @@ object AppColors {
 		foreground = white,
 		muted = gray,
 		light = darkGray,
-		accent = purpleDark
+		accent = purpleDark,
+		onAccent = white
 	)
 
 	val auto: ColorScheme
