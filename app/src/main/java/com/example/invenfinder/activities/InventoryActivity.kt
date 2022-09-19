@@ -64,32 +64,35 @@ class InventoryActivity : ComponentActivity() {
 						searchQuery,
 						onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
 
-					if (items.isEmpty()) {
-						Row(horizontalArrangement = Arrangement.Center) {
-							Text(
-								stringResource(R.string.inventory_empty),
-								fontSize = 18.sp,
-								textAlign = TextAlign.Center,
-								modifier = Modifier
-									.fillMaxWidth()
-									.padding(top = 40.dp),
-								color = AppColors.auto.muted
-							)
-						}
-					} else if (filteredItems.isEmpty()) {
-						Row(horizontalArrangement = Arrangement.Center) {
-							Text(
-								stringResource(R.string.search_empty),
-								fontSize = 18.sp,
-								textAlign = TextAlign.Center,
-								modifier = Modifier
-									.fillMaxWidth()
-									.padding(top = 40.dp),
-								color = AppColors.auto.muted
-							)
-						}
-					} else {
-						SwipeRefresh(state = rememberSwipeRefreshState(loading), onRefresh = { loadItems() }) {
+					SwipeRefresh(
+						state = rememberSwipeRefreshState(loading),
+						onRefresh = { loadItems() }
+					) {
+						if (items.isEmpty()) {
+							Row(horizontalArrangement = Arrangement.Center) {
+								Text(
+									stringResource(R.string.inventory_empty),
+									fontSize = 18.sp,
+									textAlign = TextAlign.Center,
+									modifier = Modifier
+										.fillMaxWidth()
+										.padding(top = 40.dp),
+									color = AppColors.auto.muted
+								)
+							}
+						} else if (filteredItems.isEmpty()) {
+							Row(horizontalArrangement = Arrangement.Center) {
+								Text(
+									stringResource(R.string.search_empty),
+									fontSize = 18.sp,
+									textAlign = TextAlign.Center,
+									modifier = Modifier
+										.fillMaxWidth()
+										.padding(top = 40.dp),
+									color = AppColors.auto.muted
+								)
+							}
+						} else {
 							ItemList(filteredItems) {
 								this@InventoryActivity.startActivity(
 									Intent(
@@ -143,10 +146,10 @@ class InventoryActivity : ComponentActivity() {
 				loading = true
 				items = ItemManager.getAllAsync().await()
 				filteredItems = items
-				loading = false
 			} catch (e: Exception) {
 				Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()
 			}
+			loading = false
 		}
 	}
 
@@ -189,7 +192,9 @@ private fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}
 
 @Composable
 private fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
-	LazyColumn(modifier = Modifier.padding(top = 8.dp)) {
+	LazyColumn(modifier = Modifier
+		.padding(top = 8.dp)
+		.fillMaxSize()) {
 		items(items) { item ->
 			Item(item, onItemClick)
 		}

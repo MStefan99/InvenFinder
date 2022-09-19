@@ -143,6 +143,7 @@ class ItemActivity : ComponentActivity() {
 		Column(
 			modifier = Modifier
 				.padding(16.dp, 0.dp, 16.dp, 16.dp)
+				.fillMaxSize()
 				.verticalScroll(rememberScrollState())
 		) {
 			Spacer(Modifier.padding(top = 16.dp))
@@ -349,10 +350,10 @@ class ItemActivity : ComponentActivity() {
 			try {
 				loading = true
 				item = ItemManager.getByIDAsync(id).await()
-				loading = false
 			} catch (e: Exception) {
 				Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
 			}
+			loading = false
 		}
 	}
 }
