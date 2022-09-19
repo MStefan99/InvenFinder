@@ -14,12 +14,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.invenfinder.R
@@ -28,24 +31,26 @@ import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
 import com.example.invenfinder.utils.Preferences
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 const val MAX_LENGTH = 40
 
-class MainActivity : ComponentActivity() {
+class InventoryActivity : ComponentActivity() {
 	private var items by mutableStateOf(listOf<Item>())
-	var filteredItems by mutableStateOf(listOf<Item>())
+	private var filteredItems by mutableStateOf(listOf<Item>())
+	private var loading by mutableStateOf(true)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 		Preferences.setPreferences(prefs)
+		var searchQuery by mutableStateOf("")
 
 		setContent {
-			var searchQuery by rememberSaveable { mutableStateOf("") }
-
 			Column(
 				modifier = Modifier
 					.fillMaxSize()
@@ -60,19 +65,67 @@ class MainActivity : ComponentActivity() {
 						onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
 
 					if (items.isEmpty()) {
-						Text(stringResource(R.string.inventory_empty))
-					} else if (filteredItems.isEmpty()) {
-						Text(stringResource(R.string.search_empty))
-					} else {
-						ItemList(filteredItems) {
-							this@MainActivity.startActivity(
-								Intent(
-									this@MainActivity,
-									ItemActivity::class.java
-								).apply {
-									putExtra("itemID", it.id)
-								})
+						Row(horizontalArrangement = Arrangement.Center) {
+							Text(
+								stringResource(R.string.inventory_empty),
+								fontSize = 18.sp,
+								textAlign = TextAlign.Center,
+								modifier = Modifier
+									.fillMaxWidth()
+									.padding(top = 40.dp),
+								color = AppColors.auto.muted
+							)
 						}
+					} else if (filteredItems.isEmpty()) {
+						Row(horizontalArrangement = Arrangement.Center) {
+							Text(
+								stringResource(R.string.search_empty),
+								fontSize = 18.sp,
+								textAlign = TextAlign.Center,
+								modifier = Modifier
+									.fillMaxWidth()
+									.padding(top = 40.dp),
+								color = AppColors.auto.muted
+							)
+						}
+					} else {
+						SwipeRefresh(state = rememberSwipeRefreshState(loading), onRefresh = { loadItems() }) {
+							ItemList(filteredItems) {
+								this@InventoryActivity.startActivity(
+									Intent(
+										this@InventoryActivity,
+										ItemActivity::class.java
+									).apply {
+										putExtra("itemID", it.id)
+									})
+							}
+						}
+					}
+				}
+			}
+
+			Column(modifier = Modifier.padding(bottom = 32.dp)) {
+				Spacer(modifier = Modifier.weight(1f))
+				Row(modifier = Modifier.padding(end = 32.dp)) {
+					Spacer(modifier = Modifier.weight(1f))
+					FloatingActionButton(
+						backgroundColor = AppColors.auto.accent,
+						contentColor = AppColors.auto.onAccent,
+						onClick = {
+							startActivity(
+								Intent(
+									this@InventoryActivity,
+									ItemEditActivity::class.java
+								)
+							)
+						}
+					) {
+						Text(
+							"+",
+							fontSize = 32.sp,
+							fontWeight = FontWeight(300),
+							color = AppColors.auto.onAccent
+						)
 					}
 				}
 			}
@@ -81,18 +134,19 @@ class MainActivity : ComponentActivity() {
 
 	override fun onResume() {
 		super.onResume()
-		MainScope().launch {
-			items = loadItems()
-			filteredItems = items
-		}
+		loadItems()
 	}
 
-	private suspend fun loadItems(): ArrayList<Item> {
-		return try {
-			ItemManager.getAllAsync().await()
-		} catch (e: Exception) {
-			Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
-			ArrayList()
+	private fun loadItems() {
+		MainScope().launch {
+			try {
+				loading = true
+				items = ItemManager.getAllAsync().await()
+				filteredItems = items
+				loading = false
+			} catch (e: Exception) {
+				Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()
+			}
 		}
 	}
 
@@ -100,21 +154,12 @@ class MainActivity : ComponentActivity() {
 	private fun Title() {
 		TitleBar("Inventory") {
 			Image(
-				painterResource(R.drawable.add_button),
-				stringResource(R.string.add_item),
-				modifier = Modifier
-					.height(28.dp)
-					.clickable {
-						startActivity(Intent(this@MainActivity, ItemEditActivity::class.java))
-					})
-			Spacer(modifier = Modifier.padding(start = 16.dp))
-			Image(
 				painterResource(R.drawable.settings),
 				stringResource(R.string.settings),
 				modifier = Modifier
 					.height(28.dp)
 					.clickable {
-						startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+						startActivity(Intent(this@InventoryActivity, SettingsActivity::class.java))
 					}
 			)
 		}

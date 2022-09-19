@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -26,13 +29,16 @@ import com.example.invenfinder.components.TitleBar
 import com.example.invenfinder.data.Item
 import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 
 class ItemActivity : ComponentActivity() {
-	var item by mutableStateOf<Item?>(null)
+	private var item by mutableStateOf<Item?>(null)
+	private var loading by mutableStateOf(true)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -44,7 +50,9 @@ class ItemActivity : ComponentActivity() {
 			Column {
 				item?.let {
 					Title(it)
-					ItemDetails(it)
+					SwipeRefresh(rememberSwipeRefreshState(loading), onRefresh = { loadItem(it.id) }) {
+						ItemDetails(it)
+					}
 				}
 			}
 		}
@@ -338,7 +346,9 @@ class ItemActivity : ComponentActivity() {
 	private fun loadItem(id: Int) {
 		MainScope().launch {
 			try {
+				loading = true
 				item = ItemManager.getByIDAsync(id).await()
+				loading = false
 			} catch (e: Exception) {
 				Toast.makeText(this@ItemActivity, e.message, Toast.LENGTH_LONG).show()
 			}
