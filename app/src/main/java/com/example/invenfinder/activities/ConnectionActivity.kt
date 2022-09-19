@@ -57,7 +57,7 @@ class ConnectionActivity : ComponentActivity() {
 		authenticated: ConnectionState,
 		onConnectionUpdate: (ConnectionState) -> Unit
 	) {
-		val prefs = rememberSaveable { Preferences.getPreferences() }
+		val prefs = remember { Preferences.getPreferences() }
 		var url by rememberSaveable { mutableStateOf(prefs.getString("url", null) ?: "") }
 		var username by rememberSaveable { mutableStateOf(prefs.getString("username", null) ?: "") }
 		var password by rememberSaveable { mutableStateOf("") }

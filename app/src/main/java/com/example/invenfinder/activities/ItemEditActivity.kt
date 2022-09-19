@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.invenfinder.R
 import com.example.invenfinder.components.TitleBar
 import com.example.invenfinder.data.Item
+import com.example.invenfinder.data.ItemSaver
 import com.example.invenfinder.data.NewItem
 import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
@@ -106,7 +107,7 @@ private fun ItemEditor(
 	onItemSave: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val item by rememberSaveable { mutableStateOf(i) }
+	val item by rememberSaveable(saver = ItemSaver) { mutableStateOf(i) }
 	val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
 		backgroundColor = AppColors.auto.background,
 		textColor = AppColors.auto.foreground,
