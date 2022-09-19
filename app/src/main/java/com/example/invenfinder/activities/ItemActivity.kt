@@ -145,6 +145,7 @@ class ItemActivity : ComponentActivity() {
 				.padding(16.dp, 0.dp, 16.dp, 16.dp)
 				.verticalScroll(rememberScrollState())
 		) {
+			Spacer(Modifier.padding(top = 16.dp))
 			ItemHeader(item)
 			ItemLocation(item)
 			ItemInfo(item)

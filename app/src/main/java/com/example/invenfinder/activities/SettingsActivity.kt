@@ -59,7 +59,7 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 private fun SettingsContent(sections: List<SettingsSection>) {
 	LazyColumn(
-		modifier = Modifier.padding(horizontal = 16.dp)
+		modifier = Modifier.padding(all = 16.dp)
 	) {
 		items(sections) { section ->
 			Text(

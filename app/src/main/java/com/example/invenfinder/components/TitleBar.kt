@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
@@ -17,10 +16,7 @@ import com.example.invenfinder.utils.AppColors
 @Preview(widthDp = 320)
 @Composable
 fun TitleBar(name: String = "Title", content: @Composable () -> Unit = {}) {
-	TopAppBar(
-		modifier = Modifier.padding(bottom = 16.dp),
-		backgroundColor = AppColors.auto.accent
-	) {
+	TopAppBar(backgroundColor = AppColors.auto.accent) {
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()

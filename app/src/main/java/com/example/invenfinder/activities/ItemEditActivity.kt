@@ -122,6 +122,8 @@ private fun ItemEditor(
 			.verticalScroll(rememberScrollState())
 			.padding(bottom = 16.dp)
 	) {
+		Spacer(Modifier.padding(top = 16.dp))
+
 		Text(stringResource(R.string.name), color = AppColors.auto.foreground)
 		OutlinedTextField(
 			item.name,

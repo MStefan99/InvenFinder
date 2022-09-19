@@ -5,12 +5,16 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.invenfinder.R
@@ -71,9 +75,12 @@ class ConnectionActivity : ComponentActivity() {
 
 		Column(
 			modifier = Modifier
-				.padding(16.dp, 0.dp, 16.dp, 0.dp)
+				.padding(16.dp, 0.dp, 16.dp, 16.dp)
+				.verticalScroll(rememberScrollState())
 				.fillMaxWidth()
 		) {
+			Spacer(Modifier.padding(top = 16.dp))
+
 			Text(stringResource(R.string.url), color = AppColors.auto.foreground)
 			OutlinedTextField(
 				url,
@@ -103,6 +110,7 @@ class ConnectionActivity : ComponentActivity() {
 				visualTransformation = PasswordVisualTransformation(),
 				onValueChange = { p -> password = p },
 				colors = textFieldColors,
+				keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(top = 8.dp, bottom = 16.dp)
