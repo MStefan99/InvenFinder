@@ -1,116 +1,193 @@
 package com.example.invenfinder.activities
 
-import android.app.Activity
 import android.os.Bundle
-import android.util.TypedValue
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import com.example.invenfinder.R
+import com.example.invenfinder.components.TitleBar
+import com.example.invenfinder.utils.AppColors
 import com.example.invenfinder.utils.ItemManager
 import com.example.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
+class ConnectionActivity : ComponentActivity() {
+	private enum class ConnectionState {
+		SignedOut,
+		SigningIn,
+		SignedIn,
+		SigningOut
+	}
 
-class ConnectionActivity : Activity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_connection)
 
-		val vURL: EditText = findViewById(R.id.url_input)
-		val vUsername: EditText = findViewById(R.id.username_input)
-		val vPassword: EditText = findViewById(R.id.password_input)
-		val vLoginButton: Button = findViewById(R.id.login_button)
-		val vLogoutButton: Button = findViewById(R.id.logout_button)
-		val vTestLabel: TextView = findViewById(R.id.status_label)
-
-		fun resetState() {
-			vLoginButton.isEnabled = false
-			vLogoutButton.isEnabled = false
-
-			vLoginButton.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vLogoutButton.setTextColor(getColorFromAttr(R.attr.colorMuted))
-
-			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestLabel.setText(R.string.checking_e)
-		}
-
-		fun setState(connected: Boolean) {
-			vLoginButton.isEnabled = !connected
-			vLogoutButton.isEnabled = connected
-
-			if (connected) {
-				vLogoutButton.setTextColor(getColorFromAttr(R.attr.colorOnAccent))
-				vTestLabel.setTextColor(getColorFromAttr(R.attr.colorSuccess))
-				vTestLabel.setText(R.string.signed_in)
-			} else {
-				vLoginButton.setTextColor(getColorFromAttr(R.attr.colorOnAccent))
-				vTestLabel.setTextColor(getColorFromAttr(R.attr.colorError))
-				vTestLabel.setText(R.string.not_signed_in)
-			}
-		}
-
-		val prefs = Preferences.getPreferences()
-		vURL.setText(prefs.getString("url", null))
-		vUsername.setText(prefs.getString("username", null))
+		var authenticated by mutableStateOf(ConnectionState.SignedOut)
 
 		MainScope().launch {
 			try {
-				resetState()
-				setState(ItemManager.testAuthAsync().await())
+				authenticated = if (ItemManager.testAuthAsync().await())
+					ConnectionState.SignedIn
+				else ConnectionState.SignedOut
 			} catch (e: Exception) {
-				setState(false)
 				Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
 			}
 		}
 
-		vLoginButton.setOnClickListener {
-			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestLabel.setText(R.string.signing_in_e)
-
-			MainScope().launch {
-				try {
-					resetState()
-					setState(
-						ItemManager.loginAsync(
-							vURL.text.toString(),
-							vUsername.text.toString(),
-							vPassword.text.toString()
-						).await()
-					)
-				} catch (e: Exception) {
-					setState(false)
-					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
-				}
+		setContent {
+			Column {
+				TitleBar(stringResource(R.string.connection_settings))
+				ConnectionForm(authenticated, onConnectionUpdate = { a -> authenticated = a })
 			}
 		}
+	}
 
+	@Composable
+	private fun ConnectionForm(
+		authenticated: ConnectionState,
+		onConnectionUpdate: (ConnectionState) -> Unit
+	) {
+		val prefs = remember { Preferences.getPreferences() }
+		var url by rememberSaveable { mutableStateOf(prefs.getString("url", null) ?: "") }
+		var username by rememberSaveable { mutableStateOf(prefs.getString("username", null) ?: "") }
+		var password by rememberSaveable { mutableStateOf("") }
+		val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
+			backgroundColor = AppColors.auto.background,
+			textColor = AppColors.auto.foreground,
+			unfocusedBorderColor = AppColors.auto.light,
+			focusedBorderColor = AppColors.auto.muted,
+			placeholderColor = AppColors.auto.light
+		)
 
-		vLogoutButton.setOnClickListener {
-			vTestLabel.setTextColor(getColorFromAttr(R.attr.colorMuted))
-			vTestLabel.setText(R.string.signing_out_e)
+		Column(
+			modifier = Modifier
+				.padding(16.dp, 0.dp, 16.dp, 16.dp)
+				.verticalScroll(rememberScrollState())
+				.fillMaxWidth()
+		) {
+			Spacer(Modifier.padding(top = 16.dp))
 
-			MainScope().launch {
-				try {
-					resetState()
-					setState(!ItemManager.logoutAsync().await())
-				} catch (e: Exception) {
-					setState(true)
-					Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
+			Text(stringResource(R.string.url), color = AppColors.auto.foreground)
+			OutlinedTextField(
+				url,
+				placeholder = { Text(stringResource(R.string.url_hint)) },
+				onValueChange = { u -> url = u },
+				colors = textFieldColors,
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 8.dp, bottom = 16.dp)
+			)
+
+			Text(stringResource(R.string.username), color = AppColors.auto.foreground)
+			OutlinedTextField(
+				username,
+				placeholder = { Text(stringResource(R.string.user_hint)) },
+				onValueChange = { u -> username = u },
+				colors = textFieldColors,
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 8.dp, bottom = 16.dp)
+			)
+
+			Text(stringResource(R.string.password), color = AppColors.auto.foreground)
+			OutlinedTextField(
+				password,
+				placeholder = { Text(stringResource(R.string.password_hint)) },
+				visualTransformation = PasswordVisualTransformation(),
+				onValueChange = { p -> password = p },
+				colors = textFieldColors,
+				keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 8.dp, bottom = 16.dp)
+			)
+
+			Row(verticalAlignment = Alignment.CenterVertically) {
+				Spacer(modifier = Modifier.weight(1f))
+				Text(
+					stringResource(getConnectionResource(authenticated)),
+					color = AppColors.auto.muted,
+					modifier = Modifier.padding(end = 16.dp)
+				)
+				if (authenticated == ConnectionState.SignedOut) {
+					Button(
+						onClick = {
+							MainScope().launch {
+								try {
+									onConnectionUpdate(ConnectionState.SigningIn)
+									val res = ItemManager.loginAsync(url, username, password).await()
+									if (res) {
+										onConnectionUpdate(ConnectionState.SignedIn)
+									} else {
+										Toast.makeText(
+											this@ConnectionActivity,
+											R.string.login_failed,
+											Toast.LENGTH_LONG
+										)
+											.show()
+										onConnectionUpdate(ConnectionState.SignedOut)
+									}
+								} catch (e: Exception) {
+									Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
+								}
+							}
+						},
+						colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.auto.accent)
+					) {
+						Text(stringResource(R.string.sign_in), color = AppColors.auto.onAccent)
+					}
+				} else if (authenticated == ConnectionState.SignedIn) {
+					Button(
+						onClick = {
+							MainScope().launch {
+								try {
+									onConnectionUpdate(ConnectionState.SigningIn)
+									val res = ItemManager.logoutAsync().await()
+									if (res) {
+										onConnectionUpdate(ConnectionState.SignedOut)
+									} else {
+										Toast.makeText(
+											this@ConnectionActivity,
+											R.string.logout_failed,
+											Toast.LENGTH_LONG
+										)
+											.show()
+										onConnectionUpdate(ConnectionState.SignedIn)
+									}
+								} catch (e: Exception) {
+									Toast.makeText(this@ConnectionActivity, e.message, Toast.LENGTH_LONG).show()
+								}
+							}
+						},
+						colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.auto.accent)
+					) {
+						Text(stringResource(R.string.sign_out), color = AppColors.auto.onAccent)
+					}
 				}
 			}
 		}
 	}
 
-
-	private fun getColorFromAttr(
-		attrColor: Int,
-		resolveRefs: Boolean = true,
-		typedValue: TypedValue = TypedValue()
-	): Int {
-		theme.resolveAttribute(attrColor, typedValue, resolveRefs)
-		return typedValue.data
+	private fun getConnectionResource(state: ConnectionState): Int {
+		return when (state) {
+			ConnectionState.SignedOut -> R.string.not_signed_in
+			ConnectionState.SigningIn -> R.string.signing_in_e
+			ConnectionState.SignedIn -> R.string.signed_in
+			ConnectionState.SigningOut -> R.string.signing_out_e
+		}
 	}
 }
