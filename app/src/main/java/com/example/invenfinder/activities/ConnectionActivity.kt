@@ -123,7 +123,7 @@ class ConnectionActivity : ComponentActivity() {
 					color = AppColors.auto.muted,
 					modifier = Modifier.padding(end = 16.dp)
 				)
-				if (authenticated == ConnectionState.SignedOut) {
+				if (authenticated == ConnectionState.SignedOut || authenticated == ConnectionState.SigningOut) {
 					Button(
 						onClick = {
 							MainScope().launch {
@@ -146,11 +146,15 @@ class ConnectionActivity : ComponentActivity() {
 								}
 							}
 						},
-						colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.auto.accent)
+						enabled = authenticated == ConnectionState.SignedOut,
+						colors = ButtonDefaults.buttonColors(
+							backgroundColor = AppColors.auto.accent,
+							disabledBackgroundColor = AppColors.auto.muted
+						)
 					) {
 						Text(stringResource(R.string.sign_in), color = AppColors.auto.onAccent)
 					}
-				} else if (authenticated == ConnectionState.SignedIn) {
+				} else if (authenticated == ConnectionState.SignedIn || authenticated == ConnectionState.SigningIn) {
 					Button(
 						onClick = {
 							MainScope().launch {
@@ -173,7 +177,11 @@ class ConnectionActivity : ComponentActivity() {
 								}
 							}
 						},
-						colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.auto.accent)
+						enabled = authenticated == ConnectionState.SignedIn,
+						colors = ButtonDefaults.buttonColors(
+							backgroundColor = AppColors.auto.accent,
+							disabledBackgroundColor = AppColors.auto.muted
+						)
 					) {
 						Text(stringResource(R.string.sign_out), color = AppColors.auto.onAccent)
 					}
