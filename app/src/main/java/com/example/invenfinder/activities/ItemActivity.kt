@@ -209,12 +209,12 @@ class ItemActivity : ComponentActivity() {
 	private fun ItemInfo(item: Item) {
 		Column {
 			Text(
-				item.description ?: "No description",
+				(item.description ?: "").ifBlank { "No description" },
 				modifier = Modifier.padding(bottom = 16.dp),
 				color = AppColors.auto.foreground
 			)
 
-			item.link?.ifEmpty { null }?.let {
+			item.link?.ifBlank { null }?.let {
 				Button(colors = ButtonDefaults.buttonColors(
 					backgroundColor = AppColors.auto.accent
 				), onClick = {

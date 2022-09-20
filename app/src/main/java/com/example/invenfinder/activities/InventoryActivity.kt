@@ -192,9 +192,11 @@ private fun SearchField(query: String = "", onQueryChange: (String) -> Unit = {}
 
 @Composable
 private fun ItemList(items: List<Item>, onItemClick: (Item) -> Unit) {
-	LazyColumn(modifier = Modifier
-		.padding(top = 8.dp)
-		.fillMaxSize()) {
+	LazyColumn(
+		modifier = Modifier
+			.padding(top = 8.dp)
+			.fillMaxSize()
+	) {
 		items(items) { item ->
 			Item(item, onItemClick)
 		}
@@ -224,12 +226,13 @@ private fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 			)
 		}
 		Row {
-			item.description?.let {
-				Text(
-					truncate(it, MAX_LENGTH),
-					color = AppColors.auto.muted,
-				)
-			}
+			Text(
+				truncate(
+					item.description ?: "",
+					MAX_LENGTH
+				).ifBlank { "No description" },
+				color = AppColors.auto.muted,
+			)
 			Spacer(modifier = Modifier.weight(1f))
 			Text(
 				item.amount.toString(),
