@@ -1,4 +1,4 @@
-package com.example.invenfinder.data
+package com.mstefan99.invenfinder.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

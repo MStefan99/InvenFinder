@@ -1,7 +1,7 @@
-package com.example.invenfinder.utils
+package com.mstefan99.invenfinder.utils
 
-import com.example.invenfinder.data.Item
-import com.example.invenfinder.data.NewItem
+import com.mstefan99.invenfinder.data.Item
+import com.mstefan99.invenfinder.data.NewItem
 import kotlinx.coroutines.*
 
 

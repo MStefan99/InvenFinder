@@ -1,4 +1,4 @@
-package com.example.invenfinder.activities
+package com.mstefan99.invenfinder.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,8 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.invenfinder.components.TitleBar
-import com.example.invenfinder.utils.AppColors
+import com.mstefan99.invenfinder.components.TitleBar
+import com.mstefan99.invenfinder.utils.AppColors
 
 private enum class SettingsOptionType {
 	Button

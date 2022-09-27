@@ -1,4 +1,4 @@
-package com.example.invenfinder.utils
+package com.mstefan99.invenfinder.utils
 
 import android.content.SharedPreferences
 
@@ -6,7 +6,7 @@ object Preferences {
 	private lateinit var preferences: SharedPreferences
 
 	fun setPreferences(preferences: SharedPreferences) {
-		this.preferences = preferences
+		Preferences.preferences = preferences
 	}
 
 	fun getPreferences(): SharedPreferences {
@@ -14,6 +14,6 @@ object Preferences {
 			throw Exception("Preferences not initialized")
 		}
 
-		return this.preferences
+		return preferences
 	}
 }

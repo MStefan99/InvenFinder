@@ -1,4 +1,4 @@
-package com.example.invenfinder.activities
+package com.mstefan99.invenfinder.activities
 
 import android.os.Bundle
 import android.widget.Toast
@@ -18,10 +18,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.invenfinder.R
-import com.example.invenfinder.components.TitleBar
-import com.example.invenfinder.utils.AppColors
-import com.example.invenfinder.utils.ItemManager
-import com.example.invenfinder.utils.Preferences
+import com.mstefan99.invenfinder.components.TitleBar
+import com.mstefan99.invenfinder.utils.AppColors
+import com.mstefan99.invenfinder.utils.ItemManager
+import com.mstefan99.invenfinder.utils.Preferences
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 

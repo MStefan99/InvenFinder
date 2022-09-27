@@ -1,4 +1,4 @@
-package com.example.invenfinder.utils
+package com.mstefan99.invenfinder.utils
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable

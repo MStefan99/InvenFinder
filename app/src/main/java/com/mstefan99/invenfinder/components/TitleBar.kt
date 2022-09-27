@@ -1,4 +1,4 @@
-package com.example.invenfinder.components
+package com.mstefan99.invenfinder.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.invenfinder.utils.AppColors
+import com.mstefan99.invenfinder.utils.AppColors
 
 @Preview(widthDp = 320)
 @Composable

@@ -1,4 +1,4 @@
-package com.example.invenfinder.data
+package com.mstefan99.invenfinder.data
 
 import android.os.Bundle
 import androidx.compose.runtime.MutableState

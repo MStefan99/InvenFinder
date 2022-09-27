@@ -17,7 +17,7 @@
 		tools:targetApi="31">
 
 		<activity
-			android:name=".activities.InventoryActivity"
+			android:name="com.mstefan99.invenfinder.activities.InventoryActivity"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -25,10 +25,10 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".activities.ItemActivity" />
-		<activity android:name=".activities.ItemEditActivity" />
-		<activity android:name=".activities.SettingsActivity" />
-		<activity android:name=".activities.ConnectionActivity" />
+		<activity android:name="com.mstefan99.invenfinder.activities.ItemActivity" />
+		<activity android:name="com.mstefan99.invenfinder.activities.ItemEditActivity" />
+		<activity android:name="com.mstefan99.invenfinder.activities.SettingsActivity" />
+		<activity android:name="com.mstefan99.invenfinder.activities.ConnectionActivity" />
 
 	</application>
 

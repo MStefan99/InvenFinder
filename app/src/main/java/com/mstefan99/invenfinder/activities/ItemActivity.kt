@@ -1,4 +1,4 @@
-package com.example.invenfinder.activities
+package com.mstefan99.invenfinder.activities
 
 import android.content.Intent
 import android.net.Uri
@@ -25,10 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.invenfinder.R
-import com.example.invenfinder.components.TitleBar
-import com.example.invenfinder.data.Item
-import com.example.invenfinder.utils.AppColors
-import com.example.invenfinder.utils.ItemManager
+import com.mstefan99.invenfinder.components.TitleBar
+import com.mstefan99.invenfinder.data.Item
+import com.mstefan99.invenfinder.utils.AppColors
+import com.mstefan99.invenfinder.utils.ItemManager
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope

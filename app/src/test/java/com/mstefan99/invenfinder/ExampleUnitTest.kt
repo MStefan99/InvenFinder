@@ -1,4 +1,4 @@
-package com.example.invenfinder
+package com.mstefan99.invenfinder
 
 import org.junit.Test
 
