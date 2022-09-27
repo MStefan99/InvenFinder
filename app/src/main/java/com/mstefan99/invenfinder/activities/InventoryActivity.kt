@@ -2,6 +2,7 @@ package com.mstefan99.invenfinder.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,14 +26,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Room
 import com.example.invenfinder.R
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
+import com.mstefan99.invenfinder.itemsafe.Backup
+import com.mstefan99.invenfinder.itemsafe.BackupDatabase
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.utils.Preferences
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -138,6 +143,17 @@ class InventoryActivity : ComponentActivity() {
 	override fun onResume() {
 		super.onResume()
 		loadItems()
+
+		val db = Room.databaseBuilder(this, BackupDatabase::class.java, "backup-db").build()
+		MainScope().launch(Dispatchers.IO) {
+			Log.i("Backup", "Backup list:")
+			db.backupDao().getLast().let {
+				Log.i("Backup", it.id.toString() + ", " + it.time.toString())
+			}
+			db.backupDao().add(
+				Backup(0, (System.currentTimeMillis() / 1000).toInt())
+			)
+		}
 	}
 
 	private fun loadItems() {
