@@ -1,4 +1,4 @@
-package com.mstefan99.invenfinder.itemsafe
+package com.mstefan99.invenfinder.backup
 
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
@@ -7,7 +7,7 @@ import androidx.room.ForeignKey.CASCADE
 data class Backup(
 	@PrimaryKey(autoGenerate = true) val id: Int,
 
-	val time: Int,
+	val time: Long,
 )
 
 @Entity(
@@ -42,13 +42,16 @@ data class BackupWithItems(
 @Dao
 interface BackupDao {
 	@Insert
-	suspend fun add(backup: Backup)
+	suspend fun add(backup: Backup): Long
 
 	@Query("select * from backup")
 	suspend fun getAll(): Array<Backup>
 
 	@Query("select * from backup order by time desc limit 1")
-	suspend fun getLast(): Backup
+	suspend fun getLast(): Backup?
+
+	@Query("delete from backup where time < :time")
+	suspend fun deleteOlderThan(time: Long)
 
 	@Delete
 	suspend fun delete(backup: Backup)
@@ -57,10 +60,13 @@ interface BackupDao {
 @Dao
 interface ItemDao {
 	@Insert
-	suspend fun add(item: Item)
+	suspend fun add(item: Item): Long
 
 	@Query("select * from item")
 	suspend fun getAll(): Array<Item>
+
+	@Query("select * from item where backupID = :id")
+	suspend fun getFromBackup(id: Int): Array<Item>
 
 	@Delete
 	suspend fun delete(item: Item)

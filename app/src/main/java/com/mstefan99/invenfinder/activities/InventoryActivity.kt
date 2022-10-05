@@ -32,12 +32,11 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
-import com.mstefan99.invenfinder.itemsafe.Backup
-import com.mstefan99.invenfinder.itemsafe.BackupDatabase
+import com.mstefan99.invenfinder.backup.BackupDatabase
+import com.mstefan99.invenfinder.backup.BackupManager
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.utils.Preferences
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -47,6 +46,7 @@ class InventoryActivity : ComponentActivity() {
 	private var items by mutableStateOf(listOf<Item>())
 	private var filteredItems by mutableStateOf(listOf<Item>())
 	private var loading by mutableStateOf(true)
+	private var missingItemCount by mutableStateOf(0)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -143,17 +143,6 @@ class InventoryActivity : ComponentActivity() {
 	override fun onResume() {
 		super.onResume()
 		loadItems()
-
-		val db = Room.databaseBuilder(this, BackupDatabase::class.java, "backup-db").build()
-		MainScope().launch(Dispatchers.IO) {
-			Log.i("Backup", "Backup list:")
-			db.backupDao().getLast().let {
-				Log.i("Backup", it.id.toString() + ", " + it.time.toString())
-			}
-			db.backupDao().add(
-				Backup(0, (System.currentTimeMillis() / 1000).toInt())
-			)
-		}
 	}
 
 	private fun loadItems() {
@@ -161,6 +150,23 @@ class InventoryActivity : ComponentActivity() {
 			try {
 				loading = true
 				items = ItemManager.getAllAsync().await()
+				val db =
+					Room.databaseBuilder(this@InventoryActivity, BackupDatabase::class.java, "backup-db")
+						.build()
+				val bm = BackupManager(db)
+				val backup = db.backupDao().getLast()
+				if (backup == null) {
+					bm.backup(items)
+				} else {
+					val mi = bm.missingItems(backup.id, items)
+
+					if (mi > 5 && mi > items.size * 0.1) {
+						missingItemCount = mi
+					} else {
+						bm.backup(items)
+						bm.cleanup()
+					}
+				}
 				filteredItems = items
 			} catch (e: Exception) {
 				Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()

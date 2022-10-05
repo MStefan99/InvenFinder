@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.example.invenfinder.R
 import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
-import com.mstefan99.invenfinder.data.ItemSaver
 import com.mstefan99.invenfinder.data.NewItem
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
@@ -32,28 +31,28 @@ class ItemEditActivity : ComponentActivity() {
 		val itemID: Int? = if (intent.hasExtra("itemID")) intent.getIntExtra("itemID", 0) else null
 
 		if (itemID == null) {
-			var item by mutableStateOf(NewItem("", null, null, "", 1))
+			val item by mutableStateOf(NewItem("", null, null, "", 1))
 
 			setContent {
 				Column {
 					TitleBar(stringResource(R.string.add_item))
-					ItemEditor(item, modifier = Modifier.padding(horizontal = 16.dp), onItemUpdate = {
-						item = it
-					}, onItemSave = {
-						MainScope().launch {
-							try {
-								@Suppress("DeferredResultUnused")
-								val newItem = ItemManager.addAsync(item).await()
-								startActivity(Intent(this@ItemEditActivity, ItemActivity::class.java).apply {
-									flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-									putExtra("itemID", newItem.id)
-								})
-							} catch (e: Exception) {
-								Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+					ItemEditor(item, modifier = Modifier.padding(horizontal = 16.dp),
+						onItemSave = { name, description, link, location, amount ->
+							MainScope().launch {
+								try {
+									@Suppress("DeferredResultUnused")
+									val newItem =
+										ItemManager.addAsync(Item(0, name, description, link, location, amount)).await()
+									startActivity(Intent(this@ItemEditActivity, ItemActivity::class.java).apply {
+										flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
+										putExtra("itemID", newItem.id)
+									})
+								} catch (e: Exception) {
+									Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+								}
 							}
-						}
-						finish()
-					})
+							finish()
+						})
 				}
 			}
 		} else {
@@ -71,28 +70,23 @@ class ItemEditActivity : ComponentActivity() {
 				item?.let {
 					Column {
 						TitleBar(stringResource(R.string.edit_item))
-						ItemEditor(it, modifier = Modifier.padding(horizontal = 16.dp), onItemUpdate = {
-							it.name = it.name
-							it.description = it.description
-							it.link = it.link
-							it.location = it.location
-							it.amount = it.amount
-						}, onItemSave = {
-							MainScope().launch {
-								try {
-									@Suppress("DeferredResultUnused")
-									ItemManager.editAsync(it)
-								} catch (e: Exception) {
-									Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+						ItemEditor(it, modifier = Modifier.padding(horizontal = 16.dp),
+							onItemSave = { name, description, link, location, amount ->
+								MainScope().launch {
+									try {
+										@Suppress("DeferredResultUnused")
+										ItemManager.editAsync(Item(it.id, name, description, link, location, amount))
+									} catch (e: Exception) {
+										Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+									}
 								}
-							}
 
-							setResult(0, Intent().apply {
-								putExtra("itemID", it.id)
+								setResult(0, Intent().apply {
+									putExtra("itemID", it.id)
+								})
+
+								finish()
 							})
-
-							finish()
-						})
 					}
 				}
 			}
@@ -103,11 +97,19 @@ class ItemEditActivity : ComponentActivity() {
 @Composable
 private fun ItemEditor(
 	i: NewItem,
-	onItemUpdate: (NewItem) -> Unit,
-	onItemSave: () -> Unit,
+	onItemSave: (
+		name: String,
+		description: String?,
+		link: String?, location: String, amount: Int
+	) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val item by rememberSaveable(saver = ItemSaver) { mutableStateOf(i) }
+	var name by rememberSaveable { mutableStateOf(i.name) }
+	var description by rememberSaveable { mutableStateOf(i.description) }
+	var link by rememberSaveable { mutableStateOf(i.link) }
+	var location by rememberSaveable { mutableStateOf(i.location) }
+	var amount by rememberSaveable { mutableStateOf(i.amount) }
+
 	val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
 		backgroundColor = AppColors.auto.background,
 		textColor = AppColors.auto.foreground,
@@ -126,9 +128,9 @@ private fun ItemEditor(
 
 		Text(stringResource(R.string.name), color = AppColors.auto.foreground)
 		OutlinedTextField(
-			item.name,
+			name,
 			placeholder = { Text(stringResource(R.string.name)) },
-			onValueChange = { name -> item.name = name; onItemUpdate(item) },
+			onValueChange = { n -> name = n },
 			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
@@ -137,9 +139,11 @@ private fun ItemEditor(
 
 		Text(stringResource(R.string.description), color = AppColors.auto.foreground)
 		OutlinedTextField(
-			item.description ?: "",
+			description ?: "",
 			placeholder = { Text(stringResource(R.string.description)) },
-			onValueChange = { desc -> item.description = desc.ifEmpty { null }; onItemUpdate(item) },
+			onValueChange = { d ->
+				description = d.ifEmpty { null }
+			},
 			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
@@ -148,9 +152,11 @@ private fun ItemEditor(
 
 		Text(stringResource(R.string.link), color = AppColors.auto.foreground)
 		OutlinedTextField(
-			item.link ?: "",
+			link ?: "",
 			placeholder = { Text(stringResource(R.string.link)) },
-			onValueChange = { link -> item.link = link.ifEmpty { null }; onItemUpdate(item) },
+			onValueChange = { l ->
+				link = l.ifEmpty { null }
+			},
 			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
@@ -159,9 +165,9 @@ private fun ItemEditor(
 
 		Text(stringResource(R.string.location), color = AppColors.auto.foreground)
 		OutlinedTextField(
-			item.location,
+			location,
 			placeholder = { Text(stringResource(R.string.location)) },
-			onValueChange = { location -> item.location = location; onItemUpdate(item) },
+			onValueChange = { l -> location = l },
 			colors = textFieldColors,
 			modifier = Modifier
 				.fillMaxWidth()
@@ -170,13 +176,13 @@ private fun ItemEditor(
 
 		Text(stringResource(R.string.amount), color = AppColors.auto.foreground)
 		OutlinedTextField(
-			item.amount.toString(),
+			amount.toString(),
 			placeholder = { Text(stringResource(R.string.amount)) },
-			onValueChange = { amount ->
-				if (amount.isEmpty()) {
-					item.amount = 0
+			onValueChange = { a ->
+				if (a.isEmpty()) {
+					amount = 0
 				}
-				amount.toIntOrNull()?.let { item.amount = abs(it) }
+				a.toIntOrNull()?.let { amount = abs(it) }
 			},
 			colors = textFieldColors,
 			modifier = Modifier
@@ -187,7 +193,9 @@ private fun ItemEditor(
 		Row {
 			Spacer(modifier = Modifier.weight(1f))
 			Button(
-				onClick = onItemSave,
+				onClick = {
+					onItemSave(name, description, link, location, amount)
+				},
 				colors = ButtonDefaults.buttonColors(
 					backgroundColor = AppColors.auto.accent
 				),
