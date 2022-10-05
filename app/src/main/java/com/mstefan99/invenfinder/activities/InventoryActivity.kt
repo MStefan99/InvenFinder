@@ -1,7 +1,10 @@
 package com.mstefan99.invenfinder.activities
 
 import android.content.Intent
+import android.graphics.Outline
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,14 +28,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Room
 import com.example.invenfinder.R
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.mstefan99.invenfinder.backup.Backup
 import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
+import com.mstefan99.invenfinder.backup.BackupDatabase
+import com.mstefan99.invenfinder.backup.BackupManager
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.utils.Preferences
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -42,13 +49,14 @@ class InventoryActivity : ComponentActivity() {
 	private var items by mutableStateOf(listOf<Item>())
 	private var filteredItems by mutableStateOf(listOf<Item>())
 	private var loading by mutableStateOf(true)
+	private var missingItemCount by mutableStateOf(0)
+	private var searchQuery by mutableStateOf("")
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		val prefs = getSharedPreferences("credentials", MODE_PRIVATE)
 		Preferences.setPreferences(prefs)
-		var searchQuery by mutableStateOf("")
 
 		setContent {
 			Column(
@@ -63,47 +71,8 @@ class InventoryActivity : ComponentActivity() {
 					SearchField(
 						searchQuery,
 						onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
-
-					SwipeRefresh(
-						state = rememberSwipeRefreshState(loading),
-						onRefresh = { loadItems() }
-					) {
-						if (items.isEmpty()) {
-							Row(horizontalArrangement = Arrangement.Center) {
-								Text(
-									stringResource(R.string.inventory_empty),
-									fontSize = 18.sp,
-									textAlign = TextAlign.Center,
-									modifier = Modifier
-										.fillMaxWidth()
-										.padding(top = 40.dp),
-									color = AppColors.auto.muted
-								)
-							}
-						} else if (filteredItems.isEmpty()) {
-							Row(horizontalArrangement = Arrangement.Center) {
-								Text(
-									stringResource(R.string.search_empty),
-									fontSize = 18.sp,
-									textAlign = TextAlign.Center,
-									modifier = Modifier
-										.fillMaxWidth()
-										.padding(top = 40.dp),
-									color = AppColors.auto.muted
-								)
-							}
-						} else {
-							ItemList(filteredItems) {
-								this@InventoryActivity.startActivity(
-									Intent(
-										this@InventoryActivity,
-										ItemActivity::class.java
-									).apply {
-										putExtra("itemID", it.id)
-									})
-							}
-						}
-					}
+					Inventory()
+					BackupAlert()
 				}
 			}
 
@@ -145,7 +114,24 @@ class InventoryActivity : ComponentActivity() {
 			try {
 				loading = true
 				items = ItemManager.getAllAsync().await()
-				filteredItems = items
+				filteredItems = filter(items, searchQuery)
+				val db =
+					Room.databaseBuilder(this@InventoryActivity, BackupDatabase::class.java, "backup-db")
+						.build()
+				val bm = BackupManager(db)
+				val backup = db.backupDao().getLast()
+				if (backup == null) {
+					bm.backup(items)
+				} else {
+					val mi = bm.missingItems(backup.id, items)
+
+					if (mi > 5 && mi > items.size * 0.1) {
+						missingItemCount = mi
+					} else {
+						if (bm.hasNewItems(backup.id, items)) bm.backup(items)
+						bm.cleanup()
+					}
+				}
 			} catch (e: Exception) {
 				Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()
 			}
@@ -165,6 +151,119 @@ class InventoryActivity : ComponentActivity() {
 						startActivity(Intent(this@InventoryActivity, SettingsActivity::class.java))
 					}
 			)
+		}
+	}
+
+	@Composable
+	fun Inventory() {
+		SwipeRefresh(
+			state = rememberSwipeRefreshState(loading),
+			onRefresh = { loadItems() }
+		) {
+			if (items.isEmpty()) {
+				Row(horizontalArrangement = Arrangement.Center) {
+					Text(
+						stringResource(R.string.inventory_empty),
+						fontSize = 18.sp,
+						textAlign = TextAlign.Center,
+						modifier = Modifier
+							.fillMaxWidth()
+							.padding(top = 40.dp),
+						color = AppColors.auto.muted
+					)
+				}
+			} else if (filteredItems.isEmpty()) {
+				Row(horizontalArrangement = Arrangement.Center) {
+					Text(
+						stringResource(R.string.search_empty),
+						fontSize = 18.sp,
+						textAlign = TextAlign.Center,
+						modifier = Modifier
+							.fillMaxWidth()
+							.padding(top = 40.dp),
+						color = AppColors.auto.muted
+					)
+				}
+			} else {
+				ItemList(filteredItems) {
+					this@InventoryActivity.startActivity(
+						Intent(
+							this@InventoryActivity,
+							ItemActivity::class.java
+						).apply {
+							putExtra("itemID", it.id)
+						})
+				}
+			}
+		}
+	}
+
+	@Composable
+	fun BackupAlert() {
+		if (missingItemCount > 0) {
+			AlertDialog(onDismissRequest = {},
+				backgroundColor = AppColors.auto.background,
+				title = {
+					Text(
+						stringResource(R.string.attention),
+						fontSize = 20.sp,
+						fontWeight = FontWeight(500),
+						color = AppColors.auto.foreground
+					)
+				}, text = {
+					Text(
+						stringResource(R.string.items_deleted, missingItemCount.toString()),
+						color = AppColors.auto.foreground
+					)
+				}, buttons = {
+					Row(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
+						Spacer(modifier = Modifier.weight(1f))
+						OutlinedButton(
+							onClick = { backupCurrent() },
+							modifier = Modifier.padding(end = 8.dp),
+							colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.auto.background)
+						) {
+							Text(stringResource(R.string.no), color = AppColors.auto.accent)
+						}
+						OutlinedButton(
+							onClick = { restoreBackup() },
+							colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.auto.background)
+						) {
+							Text(stringResource(R.string.yes), color = AppColors.auto.accent)
+						}
+					}
+				})
+		}
+	}
+
+	private fun backupCurrent() {
+		missingItemCount = 0
+		MainScope().launch {
+			val db =
+				Room.databaseBuilder(
+					this@InventoryActivity,
+					BackupDatabase::class.java,
+					"backup-db"
+				).build()
+			val bm = BackupManager(db)
+			bm.backup(items)
+		}
+	}
+
+	private fun restoreBackup() {
+		missingItemCount = 0
+		MainScope().launch {
+			val db =
+				Room.databaseBuilder(
+					this@InventoryActivity,
+					BackupDatabase::class.java,
+					"backup-db"
+				).build()
+			val bm = BackupManager(db)
+			db.backupDao().getLast()?.let {
+				items = bm.restore(it.id, ItemManager)
+				filteredItems = filter(items, searchQuery)
+			}
 		}
 	}
 }
