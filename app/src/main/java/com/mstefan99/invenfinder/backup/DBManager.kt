@@ -2,6 +2,7 @@ package com.mstefan99.invenfinder.backup
 
 import android.util.Log
 import com.mstefan99.invenfinder.data.Item
+import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.backup.Item as DBItem
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -18,8 +19,19 @@ fun Item.toDBItem(id: Long): DBItem {
 	)
 }
 
+fun DBItem.toItem(): Item {
+	return Item(
+		this.id,
+		this.name,
+		this.description,
+		this.link,
+		this.location,
+		this.amount
+	)
+}
+
 fun Item.equalsDBItem(other: DBItem): Boolean {
-	return this.id == other.id &&
+	return this.name == other.name &&
 			this.description == other.description &&
 			this.link == other.link &&
 			this.location == other.location &&
@@ -27,40 +39,37 @@ fun Item.equalsDBItem(other: DBItem): Boolean {
 }
 
 class BackupManager(private val db: BackupDatabase) {
-	fun autoBackup(items: List<Item>) {
-		MainScope().launch {
-			val lastBackup = db.backupDao().getLast();
+	suspend fun autoBackup(items: List<Item>) {
+		val lastBackup = db.backupDao().getLast();
 
-			if (lastBackup == null || hasNewItems(lastBackup.id, items)) {
-				backup(items)
-			}
+		if (lastBackup == null || hasNewItems(lastBackup.id, items)) {
+			backup(items)
+		}
+
+		cleanup()
+	}
+
+	suspend fun backup(items: List<Item>) {
+		val backupID = db.backupDao().add(
+			Backup(0, System.currentTimeMillis() / 1000)
+		)
+
+		for (item in items) {
+			db.itemDao().add(item.toDBItem(backupID))
 		}
 	}
 
-	fun backup(items: List<Item>) {
-		MainScope().launch {
-			val backupID = db.backupDao().add(
-				Backup(0, System.currentTimeMillis() / 1000)
-			)
-
-			for (item in items) {
-				db.itemDao().add(item.toDBItem(backupID))
-			}
-		}
+	suspend fun restore(backupID: Int, itemManager: ItemManager): List<Item> {
+		itemManager.getAllAsync().await().forEach { itemManager.deleteAsync(it).await() }
+		val items = db.itemDao().getFromBackup(backupID)
+		items.forEach { itemManager.addAsync(it.toItem()).await() }
+		return items.map { it.toItem() }
 	}
 
-	fun cleanup() {
-		MainScope().launch {
-			db.backupDao().deleteOlderThan(
-				(System.currentTimeMillis() / 1000) - 60 * 60 * 24 * 5
-			)
-		}
-	}
-
-	private suspend fun hasNewItems(backupID: Int, items: List<Item>): Boolean {
-		val backupItems = db.itemDao().getFromBackup(backupID)
-
-		return items.any { i -> !backupItems.any { bi -> i.equalsDBItem(bi) } }
+	suspend fun cleanup() {
+		db.backupDao().deleteOlderThan(
+			(System.currentTimeMillis() / 1000) - 60 * 60 * 24 * 5
+		)
 	}
 
 	suspend fun missingItems(backupID: Int, items: List<Item>): Int {
@@ -73,5 +82,11 @@ class BackupManager(private val db: BackupDatabase) {
 			}
 		}
 		return count
+	}
+
+	suspend fun hasNewItems(backupID: Int, items: List<Item>): Boolean {
+		val backupItems = db.itemDao().getFromBackup(backupID)
+
+		return items.any { i -> !backupItems.any { bi -> i.equalsDBItem(bi) } }
 	}
 }

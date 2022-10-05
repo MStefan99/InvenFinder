@@ -8,6 +8,10 @@
 	<string name="item_not_provided">Oh no, we\'ve lost your item! There is an error in the app</string>
 	<string name="login_failed">Failed to sign in, please check your credentials</string>
 	<string name="logout_failed">Failed to sign out, please check your internet connection</string>
+	<string name="items_deleted">%1$s items have been recently deleted. Do you want to restore them?</string>
+	<string name="attention">Attention!</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
 	<string name="all_items">All components</string>
 	<string name="item_details">Component details</string>
 	<string name="add_item">Add component</string>
@@ -54,5 +58,5 @@
 	<string name="location_is_invalid">Location is invalid</string>
 	<string name="remove_confirm">Are you sure you want to remove this component?</string>
 
-<!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
+	<!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
 </resources>

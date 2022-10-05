@@ -62,10 +62,7 @@ interface ItemDao {
 	@Insert
 	suspend fun add(item: Item): Long
 
-	@Query("select * from item")
-	suspend fun getAll(): Array<Item>
-
-	@Query("select * from item where backupID = :id")
+	@Query("select * from item where backupID = :id order by id asc")
 	suspend fun getFromBackup(id: Int): Array<Item>
 
 	@Delete
