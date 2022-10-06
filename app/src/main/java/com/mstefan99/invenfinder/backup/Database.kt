@@ -50,7 +50,7 @@ interface BackupDao {
 	@Query("select * from backup order by time desc limit 1")
 	suspend fun getLast(): Backup?
 
-	@Query("delete from backup where time < :time")
+	@Query("delete from backup where time < :time and time != (select max(time) from backup)")
 	suspend fun deleteOlderThan(time: Long)
 
 	@Delete
