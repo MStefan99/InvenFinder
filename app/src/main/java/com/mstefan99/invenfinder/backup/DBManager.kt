@@ -28,11 +28,7 @@ fun DBItem.toItem(): Item {
 }
 
 fun Item.equalsDBItem(other: DBItem): Boolean {
-	return this.name == other.name &&
-			this.description == other.description &&
-			this.link == other.link &&
-			this.location == other.location &&
-			this.amount == other.amount
+	return this.name == other.name
 }
 
 class BackupManager(private val db: BackupDatabase) {
