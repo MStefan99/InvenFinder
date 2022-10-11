@@ -57,6 +57,9 @@ object ItemManager : ConnectorInterface() {
 	override suspend fun getAllAsync(): Deferred<ArrayList<Item>> =
 		connector.await().getAllAsync()
 
+	override suspend fun searchAsync(query: String): Deferred<ArrayList<Item>> =
+		connector.await().searchAsync(query)
+
 	override suspend fun getByIDAsync(id: Int): Deferred<Item> =
 		connector.await().getByIDAsync(id)
 

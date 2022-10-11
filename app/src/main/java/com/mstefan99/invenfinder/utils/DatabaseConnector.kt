@@ -221,6 +221,43 @@ class DatabaseConnector : ConnectorInterface() {
 			}
 		}
 
+	override suspend fun searchAsync(query: String): Deferred<ArrayList<Item>> =
+		withContext(Dispatchers.IO) {
+			async {
+				val conn = openConnectionAsync().await()
+
+				try {
+					val st = conn
+						.prepareStatement("select * from items where match(name, description) against (?)")
+					st.setString(1, query);
+					val res = st.executeQuery()
+
+					val items = ArrayList<Item>()
+
+					while (res.next()) {
+						items.add(
+							Item(
+								res.getInt("id"),
+								res.getString("name"),
+								res.getString("description"),
+								res.getString("link"),
+								res.getString("location"),
+								res.getInt("amount")
+							)
+						)
+					}
+
+					st.close()
+					conn.close()
+
+					return@async items
+				} catch (e: SQLException) {
+					e.message?.let { Log.e("SQL error", it) }
+					throw Exception("Failed to retrieve items: ", e.cause)
+				}
+			}
+		}
+
 	override suspend fun getByIDAsync(id: Int): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {

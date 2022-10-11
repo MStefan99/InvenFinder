@@ -202,6 +202,46 @@ class WebConnector : ConnectorInterface() {
 			}
 		}
 
+	override suspend fun searchAsync(query: String): Deferred<ArrayList<Item>> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Exception("Server address not set")
+
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/items?q=$query")
+						.header("API-Key", prefs.getString("key", null) ?: throw Exception("Not signed in"))
+						.build()
+				).execute()
+
+				if (res.code == 200) {
+					val data = JSONArray(res.body!!.string())
+					val items = ArrayList<Item>()
+
+					for (i in 0 until data.length()) {
+						val result = data.getJSONObject(i)
+
+						items.add(
+							Item(
+								result.getInt("id"),
+								result.getString("name"),
+								if (result.isNull("description")) null else result.getString("description"),
+								if (result.isNull("link")) null else result.getString("link"),
+								result.getString("location"),
+								result.getInt("amount")
+							)
+						)
+					}
+					return@async items
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Exception(error.getString("message"))
+				}
+			}
+		}
+
 	override suspend fun getByIDAsync(id: Int): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {

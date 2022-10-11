@@ -1,9 +1,7 @@
 package com.mstefan99.invenfinder.activities
 
 import android.content.Intent
-import android.graphics.Outline
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -32,7 +30,6 @@ import androidx.room.Room
 import com.example.invenfinder.R
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.mstefan99.invenfinder.backup.Backup
 import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
 import com.mstefan99.invenfinder.backup.BackupDatabase
@@ -40,7 +37,10 @@ import com.mstefan99.invenfinder.backup.BackupManager
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.utils.Preferences
+import com.mstefan99.invenfinder.utils.Timeout
+import com.mstefan99.invenfinder.utils.Timeout.TimeoutEvent
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 const val MAX_LENGTH = 40
@@ -51,6 +51,7 @@ class InventoryActivity : ComponentActivity() {
 	private var loading by mutableStateOf(true)
 	private var missingItemCount by mutableStateOf(0)
 	private var searchQuery by mutableStateOf("")
+	private var debounceHandle: TimeoutEvent? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -70,7 +71,7 @@ class InventoryActivity : ComponentActivity() {
 				) {
 					SearchField(
 						searchQuery,
-						onQueryChange = { q -> searchQuery = q; filteredItems = filter(items, q) })
+						onQueryChange = { q -> searchQuery = q; filter(items, q) })
 					Inventory()
 					BackupAlert()
 				}
@@ -114,7 +115,7 @@ class InventoryActivity : ComponentActivity() {
 			try {
 				loading = true
 				items = ItemManager.getAllAsync().await()
-				filteredItems = filter(items, searchQuery)
+				filter(items, searchQuery)
 				val db =
 					Room.databaseBuilder(this@InventoryActivity, BackupDatabase::class.java, "backup-db")
 						.build()
@@ -236,6 +237,34 @@ class InventoryActivity : ComponentActivity() {
 		}
 	}
 
+	private fun filter(items: List<Item>, query: String?) {
+		val filtered = ArrayList<Item>()
+
+		if (query == null || query.isEmpty()) {
+			filtered.addAll(items)
+		} else {
+			val q = query.trim().lowercase()
+			val l = query.trim().lowercase()
+
+			for (c in items) {
+				if (c.name.lowercase().contains(q)
+					|| c.description?.lowercase()?.contains(q) == true
+					|| c.location.lowercase() == l
+				) {
+					filtered.add(c)
+				}
+			}
+
+			Timeout.clearTimeout(debounceHandle)
+			debounceHandle = Timeout.setTimeout(2000) {
+				MainScope().launch {
+					filteredItems = ItemManager.searchAsync(q).await()
+				}
+			}
+		}
+		filteredItems = filtered
+	}
+
 	private fun backupCurrent() {
 		missingItemCount = 0
 		MainScope().launch {
@@ -262,7 +291,7 @@ class InventoryActivity : ComponentActivity() {
 			val bm = BackupManager(db)
 			db.backupDao().getLast()?.let {
 				items = bm.restore(it.id, ItemManager)
-				filteredItems = filter(items, searchQuery)
+				filter(items, searchQuery)
 			}
 		}
 	}
@@ -340,28 +369,6 @@ private fun Item(item: Item, onItemClick: (Item) -> Unit = {}) {
 		}
 		Divider(modifier = Modifier.padding(top = 8.dp), color = AppColors.auto.light)
 	}
-}
-
-private fun filter(items: List<Item>, query: String?): List<Item> {
-	val filtered = ArrayList<Item>()
-
-	if (query == null || query.isEmpty()) {
-		filtered.addAll(items)
-	} else {
-		val q = query.trim().lowercase()
-		val l = query.trim().lowercase()
-
-		for (c in items) {
-			if (c.name.lowercase().contains(q)
-				|| c.description?.lowercase()?.contains(q) == true
-				|| c.location.lowercase() == l
-			) {
-				filtered.add(c)
-			}
-		}
-	}
-
-	return filtered
 }
 
 @Suppress("SameParameterValue")
