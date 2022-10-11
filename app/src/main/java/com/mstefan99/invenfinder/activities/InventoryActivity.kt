@@ -2,7 +2,6 @@ package com.mstefan99.invenfinder.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,17 +29,16 @@ import androidx.room.Room
 import com.example.invenfinder.R
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.mstefan99.invenfinder.components.TitleBar
-import com.mstefan99.invenfinder.data.Item
 import com.mstefan99.invenfinder.backup.BackupDatabase
 import com.mstefan99.invenfinder.backup.BackupManager
+import com.mstefan99.invenfinder.components.TitleBar
+import com.mstefan99.invenfinder.data.Item
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.utils.Preferences
 import com.mstefan99.invenfinder.utils.Timeout
 import com.mstefan99.invenfinder.utils.Timeout.TimeoutEvent
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 const val MAX_LENGTH = 40

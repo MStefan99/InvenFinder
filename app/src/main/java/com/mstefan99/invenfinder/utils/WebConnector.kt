@@ -326,7 +326,7 @@ class WebConnector : ConnectorInterface() {
 					.put("link", item.link ?: JSONObject.NULL)
 					.put("location", item.location)
 					.put("amount", item.amount)
-				Log.i("Payload", payload.toString());
+				Log.i("Payload", payload.toString())
 
 				val res = client.newCall(
 					Request.Builder()

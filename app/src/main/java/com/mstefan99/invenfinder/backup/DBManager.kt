@@ -1,11 +1,8 @@
 package com.mstefan99.invenfinder.backup
 
-import android.util.Log
 import com.mstefan99.invenfinder.data.Item
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.backup.Item as DBItem
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 
 fun Item.toDBItem(id: Long): DBItem {
 	return DBItem(
@@ -40,7 +37,7 @@ fun Item.equalsDBItem(other: DBItem): Boolean {
 
 class BackupManager(private val db: BackupDatabase) {
 	suspend fun autoBackup(items: List<Item>) {
-		val lastBackup = db.backupDao().getLast();
+		val lastBackup = db.backupDao().getLast()
 
 		if (lastBackup == null || hasNewItems(lastBackup.id, items)) {
 			backup(items)

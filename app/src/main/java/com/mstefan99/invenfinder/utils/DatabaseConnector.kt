@@ -229,7 +229,7 @@ class DatabaseConnector : ConnectorInterface() {
 				try {
 					val st = conn
 						.prepareStatement("select * from items where match(name, description) against (?)")
-					st.setString(1, query);
+					st.setString(1, query)
 					val res = st.executeQuery()
 
 					val items = ArrayList<Item>()

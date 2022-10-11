@@ -14,6 +14,7 @@ abstract class ConnectorInterface {
 		username: String,
 		password: String
 	): Deferred<Boolean>
+
 	abstract suspend fun logoutAsync(): Deferred<Boolean>
 
 	abstract suspend fun addAsync(item: NewItem): Deferred<Item>

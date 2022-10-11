@@ -70,7 +70,7 @@ interface ItemDao {
 }
 
 @Database(entities = [Backup::class, Item::class], version = 1)
-abstract class BackupDatabase: RoomDatabase() {
+abstract class BackupDatabase : RoomDatabase() {
 	abstract fun backupDao(): BackupDao
 	abstract fun itemDao(): ItemDao
 }
