@@ -237,6 +237,7 @@ class InventoryActivity : ComponentActivity() {
 
 	private fun filter(items: List<Item>, query: String?) {
 		val filtered = ArrayList<Item>()
+		Timeout.clearTimeout(debounceHandle)
 
 		if (query == null || query.isEmpty()) {
 			filtered.addAll(items)
@@ -253,7 +254,6 @@ class InventoryActivity : ComponentActivity() {
 				}
 			}
 
-			Timeout.clearTimeout(debounceHandle)
 			debounceHandle = Timeout.setTimeout(2000) {
 				MainScope().launch {
 					filteredItems = ItemManager.searchAsync(q).await()
