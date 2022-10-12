@@ -105,6 +105,7 @@ class InventoryActivity : ComponentActivity() {
 
 	override fun onResume() {
 		super.onResume()
+		searchQuery = ""
 		loadItems()
 	}
 
@@ -256,7 +257,18 @@ class InventoryActivity : ComponentActivity() {
 
 			debounceHandle = Timeout.setTimeout(2000) {
 				MainScope().launch {
-					filteredItems = ItemManager.searchAsync(q).await()
+					try {
+						val i = ItemManager.searchAsync(q).await()
+						if (filteredItems.size != i.size) {
+							Toast.makeText(
+								this@InventoryActivity,
+								"Search results enhanced", Toast.LENGTH_LONG
+							).show()
+						}
+						filteredItems = i
+					} catch (e: Exception) {
+						Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()
+					}
 				}
 			}
 		}
