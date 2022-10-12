@@ -259,13 +259,13 @@ class InventoryActivity : ComponentActivity() {
 				MainScope().launch {
 					try {
 						val i = ItemManager.searchAsync(q).await()
-						if (filteredItems.size != i.size) {
+						if (i.size > filteredItems.size) {
+							filteredItems = i
 							Toast.makeText(
 								this@InventoryActivity,
 								"Search results enhanced", Toast.LENGTH_LONG
 							).show()
 						}
-						filteredItems = i
 					} catch (e: Exception) {
 						Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()
 					}
