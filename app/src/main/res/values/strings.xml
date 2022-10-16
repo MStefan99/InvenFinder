@@ -1,7 +1,7 @@
 <resources>
 	<string name="app_name">InvenFinder</string>
 
-	<string name="item">Component</string>
+	<string name="item">Item</string>
 	<string name="inventory">Inventory</string>
 	<string name="inventory_empty">Your inventory is empty! Add some items and they will appear here</string>
 	<string name="search_empty">Nothing found. Try adjusting your search</string>
@@ -12,11 +12,12 @@
 	<string name="attention">Attention!</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
-	<string name="all_items">All components</string>
-	<string name="item_details">Component details</string>
-	<string name="add_item">Add component</string>
-	<string name="edit_item">Edit component</string>
-	<string name="remove_item">Remove component</string>
+	<string name="more_details">More details</string>
+	<string name="all_items">All items</string>
+	<string name="item_details">Item details</string>
+	<string name="add_item">Add item</string>
+	<string name="edit_item">Edit item</string>
+	<string name="remove_item">Remove item</string>
 	<string name="settings">Settings</string>
 	<string name="cancel">Cancel</string>
 	<string name="search">Search</string>
@@ -56,7 +57,7 @@
 	<string name="choose_amount">Choose amount</string>
 	<string name="name_cannot_be_empty">Name cannot be empty</string>
 	<string name="location_is_invalid">Location is invalid</string>
-	<string name="remove_confirm">Are you sure you want to remove this component?</string>
+	<string name="remove_confirm">Are you sure you want to remove this item?</string>
 
 	<!--	<string name="arg">Hello second fragment. Arg: %1$s</string>-->
 </resources>

@@ -220,7 +220,7 @@ class ItemActivity : ComponentActivity() {
 				), onClick = {
 					startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
 				}) {
-					Text(it, color = AppColors.auto.onAccent)
+					Text(stringResource(R.string.more_details), color = AppColors.auto.onAccent)
 				}
 			}
 
