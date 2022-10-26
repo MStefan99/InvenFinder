@@ -140,8 +140,11 @@ class DatabaseConnector : ConnectorInterface() {
 	override suspend fun addAsync(item: NewItem): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
-				val conn = openConnectionAsync().await()
+					if (item.amount < 0) {
+						throw Exception("Amount cannot be negative")
+					}
 
+				val conn = openConnectionAsync().await()
 				try {
 					val st = conn
 						.prepareStatement(
@@ -293,8 +296,11 @@ class DatabaseConnector : ConnectorInterface() {
 	override suspend fun editAmountAsync(id: Int, amount: Int): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
-				val conn = openConnectionAsync().await()
+				if (amount < 0) {
+					throw Exception("Amount cannot be negative")
+				}
 
+				val conn = openConnectionAsync().await()
 				try {
 					val st = conn
 						.prepareStatement("update items set amount = ? where id = ?")
@@ -315,8 +321,11 @@ class DatabaseConnector : ConnectorInterface() {
 	override suspend fun editAsync(item: Item): Deferred<Item> =
 		withContext(Dispatchers.IO) {
 			async {
-				val conn = openConnectionAsync().await()
+				if (item.amount < 0) {
+					throw Exception("Amount cannot be negative")
+				}
 
+				val conn = openConnectionAsync().await()
 				try {
 					val st = conn
 						.prepareStatement(
