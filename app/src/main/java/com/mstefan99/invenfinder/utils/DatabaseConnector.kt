@@ -129,6 +129,10 @@ class DatabaseConnector : ConnectorInterface() {
 			}
 		}
 
+	override suspend fun getPermissionsAsync(): Deferred<Int> {
+		return CompletableDeferred(0.inv())
+	}
+
 	override suspend fun logoutAsync(): Deferred<Boolean> {
 		Preferences.getPreferences().edit()
 			.remove("password")

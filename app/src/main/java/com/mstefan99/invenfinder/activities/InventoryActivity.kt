@@ -33,10 +33,7 @@ import com.mstefan99.invenfinder.backup.BackupDatabase
 import com.mstefan99.invenfinder.backup.BackupManager
 import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
-import com.mstefan99.invenfinder.utils.AppColors
-import com.mstefan99.invenfinder.utils.ItemManager
-import com.mstefan99.invenfinder.utils.Preferences
-import com.mstefan99.invenfinder.utils.Timeout
+import com.mstefan99.invenfinder.utils.*
 import com.mstefan99.invenfinder.utils.Timeout.TimeoutEvent
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -75,28 +72,30 @@ class InventoryActivity : ComponentActivity() {
 				}
 			}
 
-			Column(modifier = Modifier.padding(bottom = 32.dp)) {
-				Spacer(modifier = Modifier.weight(1f))
-				Row(modifier = Modifier.padding(end = 32.dp)) {
+			if (Store.hasPermissions(listOf(Permissions.PERMISSIONS.MANAGE_ITEMS))) {
+				Column(modifier = Modifier.padding(bottom = 32.dp)) {
 					Spacer(modifier = Modifier.weight(1f))
-					FloatingActionButton(
-						backgroundColor = AppColors.auto.accent,
-						contentColor = AppColors.auto.onAccent,
-						onClick = {
-							startActivity(
-								Intent(
-									this@InventoryActivity,
-									ItemEditActivity::class.java
+					Row(modifier = Modifier.padding(end = 32.dp)) {
+						Spacer(modifier = Modifier.weight(1f))
+						FloatingActionButton(
+							backgroundColor = AppColors.auto.accent,
+							contentColor = AppColors.auto.onAccent,
+							onClick = {
+								startActivity(
+									Intent(
+										this@InventoryActivity,
+										ItemEditActivity::class.java
+									)
 								)
+							}
+						) {
+							Text(
+								"+",
+								fontSize = 32.sp,
+								fontWeight = FontWeight(300),
+								color = AppColors.auto.onAccent
 							)
 						}
-					) {
-						Text(
-							"+",
-							fontSize = 32.sp,
-							fontWeight = FontWeight(300),
-							color = AppColors.auto.onAccent
-						)
 					}
 				}
 			}
@@ -112,6 +111,10 @@ class InventoryActivity : ComponentActivity() {
 	private fun loadItems() {
 		MainScope().launch {
 			try {
+				if (Store.permissions == null) {
+					Store.permissions = ItemManager.getPermissionsAsync().await()
+				}
+
 				loading = true
 				items = ItemManager.getAllAsync().await()
 				filter(items, searchQuery)
@@ -120,17 +123,21 @@ class InventoryActivity : ComponentActivity() {
 						.build()
 				val bm = BackupManager(db)
 				val backup = db.backupDao().getLast()
-				if (backup == null) {
-					bm.backup(items)
-				} else {
-					val mi = bm.missingItems(backup.id, items)
-
-					if (mi > 5 && mi > items.size * 0.1) {
-						missingItemCount = mi
+				if (Store.hasPermissions(listOf(Permissions.PERMISSIONS.MANAGE_ITEMS))) {
+					if (backup == null) {
+						bm.backup(items)
 					} else {
-						if (bm.hasNewItems(backup.id, items)) bm.backup(items)
-						bm.cleanup()
+						val mi = bm.missingItems(backup.id, items)
+
+						if (mi > 5 && mi > items.size * 0.1) {
+							missingItemCount = mi
+						} else {
+							if (bm.hasNewItems(backup.id, items)) bm.backup(items)
+							bm.cleanup()
+						}
 					}
+				} else {
+					bm.delete()
 				}
 			} catch (e: Exception) {
 				Toast.makeText(this@InventoryActivity, e.message, Toast.LENGTH_LONG).show()

@@ -22,6 +22,7 @@ import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
 import com.mstefan99.invenfinder.utils.Preferences
+import com.mstefan99.invenfinder.utils.Store
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -161,6 +162,7 @@ class ConnectionActivity : ComponentActivity() {
 								try {
 									onConnectionUpdate(ConnectionState.SigningIn)
 									val res = ItemManager.logoutAsync().await()
+									Store.permissions = null
 									if (res) {
 										onConnectionUpdate(ConnectionState.SignedOut)
 									} else {

@@ -31,6 +31,8 @@ import com.mstefan99.invenfinder.components.TitleBar
 import com.mstefan99.invenfinder.data.Item
 import com.mstefan99.invenfinder.utils.AppColors
 import com.mstefan99.invenfinder.utils.ItemManager
+import com.mstefan99.invenfinder.utils.Permissions
+import com.mstefan99.invenfinder.utils.Store
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -63,26 +65,28 @@ class ItemActivity : ComponentActivity() {
 		var deleteDialogVisible by rememberSaveable { mutableStateOf(false) }
 
 		TitleBar(stringResource(R.string.item_details)) {
-			Image(
-				painterResource(R.drawable.pen),
-				stringResource(R.string.edit_item),
-				modifier = Modifier
-					.height(28.dp)
-					.clickable {
-						startActivity(Intent(this@ItemActivity, ItemEditActivity::class.java).apply {
-							putExtra("itemID", item.id)
+			if (Store.hasPermissions(listOf(Permissions.PERMISSIONS.MANAGE_ITEMS))) {
+				Image(
+					painterResource(R.drawable.pen),
+					stringResource(R.string.edit_item),
+					modifier = Modifier
+						.height(28.dp)
+						.clickable {
+							startActivity(Intent(this@ItemActivity, ItemEditActivity::class.java).apply {
+								putExtra("itemID", item.id)
+							})
 						})
-					})
-			Spacer(modifier = Modifier.padding(start = 16.dp))
-			Image(
-				painterResource(R.drawable.trash_bin),
-				stringResource(R.string.settings),
-				modifier = Modifier
-					.height(28.dp)
-					.clickable {
-						deleteDialogVisible = true
-					}
-			)
+				Spacer(modifier = Modifier.padding(start = 16.dp))
+				Image(
+					painterResource(R.drawable.trash_bin),
+					stringResource(R.string.settings),
+					modifier = Modifier
+						.height(28.dp)
+						.clickable {
+							deleteDialogVisible = true
+						}
+				)
+			}
 		}
 
 		if (deleteDialogVisible) {
@@ -150,7 +154,9 @@ class ItemActivity : ComponentActivity() {
 			ItemHeader(item)
 			ItemLocation(item)
 			ItemInfo(item)
-			ItemButtons(item)
+			if (Store.hasPermissions(listOf(Permissions.PERMISSIONS.EDIT_ITEM_AMOUNT))) {
+				ItemButtons(item)
+			}
 		}
 	}
 

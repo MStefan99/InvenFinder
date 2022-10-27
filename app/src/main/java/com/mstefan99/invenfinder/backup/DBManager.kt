@@ -65,6 +65,10 @@ class BackupManager(private val db: BackupDatabase) {
 		)
 	}
 
+	suspend fun delete() {
+		db.backupDao().deleteAll()
+	}
+
 	suspend fun missingItems(backupID: Int, items: List<Item>): Int {
 		val backupItems = db.itemDao().getFromBackup(backupID)
 		var count = 0
