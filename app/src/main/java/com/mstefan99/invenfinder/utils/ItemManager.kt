@@ -48,6 +48,9 @@ object ItemManager : ConnectorInterface() {
 			}
 		}
 
+	override suspend fun getPermissionsAsync(): Deferred<Int> =
+		connector.await().getPermissionsAsync()
+
 	override suspend fun logoutAsync(): Deferred<Boolean> =
 		connector.await().logoutAsync()
 

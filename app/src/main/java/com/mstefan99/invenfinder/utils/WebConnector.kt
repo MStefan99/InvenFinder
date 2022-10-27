@@ -100,6 +100,31 @@ class WebConnector : ConnectorInterface() {
 			}
 		}
 
+	override suspend fun getPermissionsAsync(): Deferred<Int> =
+		withContext(Dispatchers.IO) {
+			async {
+				val prefs = Preferences.getPreferences()
+				val url = prefs.getString("url", null)
+					?: throw Exception("Server address not set")
+
+				val res = client.newCall(
+					Request.Builder()
+						.url("$url/$apiPrefix/me")
+						.header("API-Key", prefs.getString("key", null) ?: throw Exception("Not signed in"))
+						.build()
+				).execute()
+
+				if (res.code == 200) {
+					val result = JSONObject(res.body!!.string())
+
+					return@async result.getInt("permissions")
+				} else {
+					val error = JSONObject(res.body!!.string())
+					throw Exception(error.getString("message"))
+				}
+			}
+		}
+
 	override suspend fun logoutAsync(): Deferred<Boolean> =
 		withContext(Dispatchers.IO) {
 			async {
