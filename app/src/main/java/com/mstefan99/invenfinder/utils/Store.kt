@@ -8,6 +8,11 @@ object Store {
 	var permissions by mutableStateOf<Int?>(null)
 
 	fun hasPermissions(requestedPermissions: List<Permissions.PERMISSIONS>): Boolean {
-		return Permissions.hasPermissions(Permissions.toNumber(requestedPermissions), permissions)
+		return permissions?.let {
+			Permissions.hasPermissions(
+				Permissions.toNumber(requestedPermissions),
+				it
+			)
+		} ?: false
 	}
 }
